@@ -1,4 +1,4 @@
-This repository contains an R package for performing Gaussian denoising (also known as nonparametric regression) with heteroskedastic errors, and Poisson denoising.
+This repository contains an R package for performing Gaussian denoising (also known as nonparametric regression) with heteroskedastic errors, as well as Poisson denoising.
 
 To install the package run the following lines
 ```
