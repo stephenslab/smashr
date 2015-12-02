@@ -1,0 +1,23 @@
+Package: smash
+Type: Package
+Title: Smoothing using Adaptive SHrinkage (SMASH)
+Version: 1.0
+Date: 2015-01-26
+Author: Matthew Stephens, Zhengrong Xing
+Maintainer: Matthew Stephens <mstephens@uchicago.edu>
+Description: Smash performs univariate signal denoising/nonparametric
+    regression for Poisson distributed data or Gaussian distributed data with
+    possibly heteroskedastic error terms.
+License: GPL-3
+Depends:
+    R (>= 3.1.1),
+    Rcpp (>= 0.11.1),
+    ashr,
+    wavethresh,
+    Matrix,
+    data.table,
+    caTools
+LinkingTo: Rcpp
+VignetteBuilder: knitr
+Suggests:
+    knitr

@@ -1,0 +1,6 @@
+.Rbuildignore
+.Rhistory
+src/*.dll
+src/*.o
+R/backup
+*~
