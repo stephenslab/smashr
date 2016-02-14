@@ -720,7 +720,7 @@ threshold.var <- function(x.w, x.w.v, lambda.thresh, levels, type = "hard") {
 #' lines(mu.est.smash,col=4)
 #'
 #' @export
-ti.thresh = function(x, sigma = NULL, method = "smash", filter.number = 1, family = "DaubExPhase", min.level = 3) {
+ti.thresh = function(x, sigma = NULL, method = "smash", filter.number = 1, family = "DaubExPhase", min.level = 3, ashparam = list()) {
     n = length(x)
     J = log2(n)
     if (length(sigma) == 1) 
@@ -735,7 +735,7 @@ ti.thresh = function(x, sigma = NULL, method = "smash", filter.number = 1, famil
     if (is.null(sigma)) {
         if (method == "smash") {
             sigma = sqrt(ashsmooth.gaus(x, v.est = TRUE, v.basis = TRUE, filter.number = filter.number, family = family, 
-                weight = 1))
+                ashparam = ashparam, weight = 1))
         } else if (method == "rmad") {
             x.w = wd(x, filter.number = filter.number, family = family, type = "station")
             win.size = round(n/10)
