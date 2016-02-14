@@ -404,7 +404,7 @@ var.smooth = function(data, data.var, x.var.ini, basis, v.basis, Wl, filter.numb
         vdtable = cxxtitable(data)$difftable
         for (j in 0:(J - 1)) {
             ind.nnull = (vtable[j + 2, ] != 0)
-            zdat.ash = shrink.wc(vdtable[j + 2, ], sqrt(vtable[j + 2, ]), prior = prior, pointmass = pointmass, nullcheck = nullcheck, 
+            zdat.ash = shrink.wc(vdtable[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), prior = prior, pointmass = pointmass, nullcheck = nullcheck, 
                 VB = VB, mixsd = mixsd, mixcompdist = mixcompdist, gridmult = gridmult, jash = jash, df = min(50, 2^(j + 
                   1)), SGD = SGD)
             wmean[j + 1, ind.nnull] = zdat.ash$PosteriorMean/2
