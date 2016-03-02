@@ -315,7 +315,7 @@ ndwt.mat = function(n, filter.number, family) {
 #' @keywords internal 
 shrink.wc = function(wc, wc.var.sqrt, prior, pointmass, nullcheck, VB, mixsd, mixcompdist, gridmult, jash, df, SGD) {
     if (jash == FALSE) {
-        zdat.ash = suppressWarnings(ash(wc, wc.var.sqrt, prior = prior, multiseqoutput = TRUE, pointmass = pointmass, 
+        zdat.ash = suppressWarnings(ash(wc, wc.var.sqrt, optmethod = "mixEM", prior = prior, multiseqoutput = TRUE, pointmass = pointmass, 
             nullcheck = nullcheck, VB = VB, mixsd = mixsd, mixcompdist = mixcompdist, gridmult = gridmult, lambda1 = 1, 
             lambda2 = 0, df = NULL, control = list(trace = FALSE)))
     } else {
