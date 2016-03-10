@@ -343,7 +343,7 @@ mu.smooth = function(wc, data.var, basis, tsum, Wl, return.loglr, post.var, prio
                 df = NULL, SGD = FALSE)
             wmean[j + 1, ind.nnull] = zdat.ash$PosteriorMean/2
             wmean[j + 1, !ind.nnull] = 0
-            if (return.loglr = TRUE) {
+            if (return.loglr == TRUE) {
                 spins = 2^(j + 1)
                 zdat.ash$model = "EE"
                 logLR.temp = ashr:::calc_loglik(zdat.ash, y[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), NULL) -  
@@ -357,7 +357,7 @@ mu.smooth = function(wc, data.var, basis, tsum, Wl, return.loglr, post.var, prio
         }
         wwmean = -wmean
         mu.est = cxxreverse_gwave(tsum, wmean, wwmean)
-        if (return.loglr = TRUE) {
+        if (return.loglr == TRUE) {
             logLR = sum(logLR.scale) 
         }
         if (post.var == TRUE) {
@@ -381,7 +381,7 @@ mu.smooth = function(wc, data.var, basis, tsum, Wl, return.loglr, post.var, prio
             x.pm[ind.nnull] = zdat.ash$PosteriorMean
             x.pm[!ind.nnull] = 0
             x.w = putD(x.w, j, x.pm)
-            if (return.loglr = TRUE) {
+            if (return.loglr == TRUE) {
                 spins = 2^(J - j)
                 zdat.ash$model = "EE"
                 loglr.temp = ashr:::calc_loglik(zdat.ash, x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]), NULL) -  
@@ -394,7 +394,7 @@ mu.smooth = function(wc, data.var, basis, tsum, Wl, return.loglr, post.var, prio
             }
         }
         mu.est = AvBasis(convert(x.w))
-        if (return.loglr = TRUE) {
+        if (return.loglr == TRUE) {
             logLR = sum(logLR.scale) 
         }
         if (post.var == TRUE) {
