@@ -328,13 +328,14 @@ shrink.wc = function(wc, wc.var.sqrt, prior, pointmass, nullcheck, VB, mixsd, mi
 #' @title mu.smooth
 #' @return 'mu.est' if posterior variances are not computed, and a list with elements 'mu.est' and 'mu.est.var' otherwise
 #' @keywords internal
-mu.smooth = function(wc, data.var, basis, tsum, Wl, post.var, prior, pointmass, nullcheck, VB, mixsd, mixcompdist, 
+mu.smooth = function(wc, data.var, basis, tsum, Wl, return.loglr, post.var, prior, pointmass, nullcheck, VB, mixsd, mixcompdist, 
     gridmult, J, n) {
     wmean = matrix(0, J, n)
     wvar = matrix(0, J, n)
     if (basis[[1]] == "haar") {
         y = wc
         vtable = cxxtitable(data.var)$sumtable
+        logLR.scale = 0
         for (j in 0:(J - 1)) {
             ind.nnull = (vtable[j + 2, ] != 0)
             zdat.ash = shrink.wc(y[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), prior = prior, pointmass = pointmass, 
@@ -342,6 +343,13 @@ mu.smooth = function(wc, data.var, basis, tsum, Wl, post.var, prior, pointmass, 
                 df = NULL, SGD = FALSE)
             wmean[j + 1, ind.nnull] = zdat.ash$PosteriorMean/2
             wmean[j + 1, !ind.nnull] = 0
+            if (return.loglr = TRUE) {
+                spins = 2^(j + 1)
+                zdat.ash$model = "EE"
+                logLR.temp = ashr:::calc_loglik(zdat.ash, y[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), NULL) -  
+                    sum(dnorm(y[j + 2, ind.nnull], 0, sqrt(vtable[j + 2, ind.nnull]), log = TRUE))
+                logLR.scale[j + 1] = logLR.temp/spins
+            }
             if (post.var == TRUE) {
                 wvar[j + 1, ind.nnull] = zdat.ash$PosteriorSD^2/4
                 wvar[j + 1, !ind.nnull] = 0
@@ -349,6 +357,9 @@ mu.smooth = function(wc, data.var, basis, tsum, Wl, post.var, prior, pointmass, 
         }
         wwmean = -wmean
         mu.est = cxxreverse_gwave(tsum, wmean, wwmean)
+        if (return.loglr = TRUE) {
+            logLR = sum(logLR.scale) 
+        }
         if (post.var == TRUE) {
             wwvar = wvar
             mu.est.var = cxxreverse_gvwave(0, wvar, wwvar)
@@ -358,6 +369,7 @@ mu.smooth = function(wc, data.var, basis, tsum, Wl, post.var, prior, pointmass, 
         x.w.v = apply((rep(1, n * J) %o% data.var) * Wl$W2, 1, sum)  #diagonal of W*V*W' 
         x.pm = rep(0, n)
         x.w.v.s = rep(0, n * J)
+        logLR.scale = 0
         for (j in 0:(J - 1)) {
             index = (((J - 1) - j) * n + 1):((J - j) * n)
             x.w.j = accessD(x.w, j)
@@ -369,12 +381,22 @@ mu.smooth = function(wc, data.var, basis, tsum, Wl, post.var, prior, pointmass, 
             x.pm[ind.nnull] = zdat.ash$PosteriorMean
             x.pm[!ind.nnull] = 0
             x.w = putD(x.w, j, x.pm)
+            if (return.loglr = TRUE) {
+                spins = 2^(J - j)
+                zdat.ash$model = "EE"
+                loglr.temp = ashr:::calc_loglik(zdat.ash, x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]), NULL) -  
+                    sum(dnorm(x.w.j[ind.nnull], 0, sqrt(x.w.v.j[ind.nnull]), log = TRUE))
+                logLR.scale[j + 1] = logLR.temp/spins
+            }
             if (post.var == TRUE) {
                 x.w.v.s[index[ind.nnull]] = zdat.ash$PosteriorSD^2
                 x.w.v.s[index[!ind.nnull]] = 0
             }
         }
         mu.est = AvBasis(convert(x.w))
+        if (return.loglr = TRUE) {
+            logLR = sum(logLR.scale) 
+        }
         if (post.var == TRUE) {
             mv.wd = wd.var(rep(0, n), filter.number = basis$filter.number, family = basis$family, type = "station")
             mv.wd$D = x.w.v.s
@@ -384,8 +406,12 @@ mu.smooth = function(wc, data.var, basis, tsum, Wl, post.var, prior, pointmass, 
             # mu.est.var=diag(Wl$Wi%*%diag(x.w.v.s)%*%t(Wl$Wi))
         }
     }
-    if (post.var == TRUE) {
-        return(list(mu.est = mu.est, mu.est.var = mu.est.var))
+    if (return.loglr == TRUE & post.var == TRUE) {
+        return(list(mu.est = mu.est, mu.est.var = mu.est.var, logLR = logLR))
+    } else if(return.loglr == TRUE & post.var == FALSE) {
+        return(list(mu.est = mu.est, logLR = logLR))
+    } else if(return.loglr == FALSE & post.var == TRUE) {
+        return(list(mu.est = mu.est, mu.est.var = mu.est.var))      
     } else {
         return(mu.est)
     }
@@ -540,7 +566,7 @@ setAshParam.gaus <- function(ashparam) {
 #'
 #' @export
 ashsmooth.gaus = function(x, sigma = NULL, v.est = FALSE, joint = FALSE, v.basis = FALSE, post.var = FALSE, filter.number = 1, 
-    family = "DaubExPhase", jash = FALSE, SGD = TRUE, weight = 0.5, min.var = 1e-08, ashparam = list()) {
+    family = "DaubExPhase", return.loglr = TRUE, jash = FALSE, SGD = TRUE, weight = 0.5, min.var = 1e-08, ashparam = list()) {
     n = length(x)
     J = log2(n)
     if (!isTRUE(all.equal(J, trunc(J)))) {
@@ -582,7 +608,7 @@ ashsmooth.gaus = function(x, sigma = NULL, v.est = FALSE, joint = FALSE, v.basis
         var.est1.ini = (x - lshift(x))^2/2
         var.est2.ini = (rshift(x) - x)^2/2
         var.est.ini = (var.est1.ini + var.est2.ini)/2
-        mu.est = mu.smooth(x.w.d, var.est.ini, basis, tsum, Wl, FALSE, ashparam$prior, ashparam$pointmass, ashparam$nullcheck, 
+        mu.est = mu.smooth(x.w.d, var.est.ini, basis, tsum, Wl, FALSE, FALSE, ashparam$prior, ashparam$pointmass, ashparam$nullcheck, 
             ashparam$VB, ashparam$mixsd, ashparam$mixcompdist, ashparam$gridmult, J, n)
         var.est = (x - mu.est)^2
         var.var.est = 2/3 * var.est^2
@@ -592,13 +618,13 @@ ashsmooth.gaus = function(x, sigma = NULL, v.est = FALSE, joint = FALSE, v.basis
         var.est[var.est <= 0] = 1e-08
         sigma = sqrt(var.est)
     }
-    mu.res = mu.smooth(x.w.d, sigma^2, basis, tsum, Wl, post.var, ashparam$prior, ashparam$pointmass, ashparam$nullcheck, 
+    mu.res = mu.smooth(x.w.d, sigma^2, basis, tsum, Wl, return.loglr, post.var, ashparam$prior, ashparam$pointmass, ashparam$nullcheck, 
         ashparam$VB, ashparam$mixsd, ashparam$mixcompdist, 64, J, n)
     
     if (v.est == FALSE) {
         return(mu.res)
     } else {
-        if (post.var == FALSE) {
+        if (return.loglr == FALSE & post.var == FALSE) {
             mu.est = mu.res
         } else {
             mu.est = mu.res$mu.est
