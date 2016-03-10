@@ -384,7 +384,7 @@ mu.smooth = function(wc, data.var, basis, tsum, Wl, return.loglr, post.var, prio
             if (return.loglr == TRUE) {
                 spins = 2^(J - j)
                 zdat.ash$model = "EE"
-                loglr.temp = ashr:::calc_loglik(zdat.ash, x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]), NULL) -  
+                logLR.temp = ashr:::calc_loglik(zdat.ash, x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]), NULL) -  
                     sum(dnorm(x.w.j[ind.nnull], 0, sqrt(x.w.v.j[ind.nnull]), log = TRUE))
                 logLR.scale[j + 1] = logLR.temp/spins
             }
