@@ -52,7 +52,7 @@ X.s = rnorm(n, mu.t, sigma.t)
 mu.est <- ashsmooth.gaus(X.s)
 # Plot the true mean function as well as the estimated one
 plot(mu.t, type = "l")
-lines(mu.est, col = 2)
+lines(mu.est$mu.est, col = 2)
 
 # Poisson case
 # Scale the signal to be non-zero and to have a low average intensity
@@ -63,7 +63,7 @@ X.s = rpois(n, mu.t)
 mu.est = ashsmooth.pois(X.s)
 # Plot the true mean function as well as the estimated one
 plot(mu.t, type = "l")
-lines(mu.est, col = 2) 
+lines(mu.est$mu.est, col = 2) 
 ```
 
 
