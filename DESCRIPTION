@@ -21,3 +21,4 @@ LinkingTo: Rcpp
 VignetteBuilder: knitr
 Suggests:
     knitr
+RoxygenNote: 5.0.1

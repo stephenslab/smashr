@@ -315,9 +315,9 @@ ndwt.mat = function(n, filter.number, family) {
 #' @keywords internal 
 shrink.wc = function(wc, wc.var.sqrt, prior, pointmass, nullcheck, VB, mixsd, mixcompdist, gridmult, jash, df, SGD) {
     if (jash == FALSE) {
-        zdat.ash = suppressWarnings(ash(wc, wc.var.sqrt, optmethod = "mixEM", prior = prior, multiseqoutput = TRUE, pointmass = pointmass, 
-            nullcheck = nullcheck, VB = VB, mixsd = mixsd, mixcompdist = mixcompdist, gridmult = gridmult, lambda1 = 1, 
-            lambda2 = 0, df = NULL, control = list(trace = FALSE)))
+        zdat.ash = suppressWarnings(ash(wc, wc.var.sqrt, prior = prior, outputlevel=2, pointmass = pointmass, 
+            VB = VB, mixsd = mixsd, mixcompdist = mixcompdist, gridmult = gridmult,
+            df = NULL, control = list(trace = FALSE)))
     } else {
         zdat.ash = jasha(wc, wc.var.sqrt, df = df, SGD = SGD)
     }
@@ -562,7 +562,7 @@ setAshParam.gaus <- function(ashparam) {
 #' X.s=rnorm(n,mu.t,sigma.t)
 #' mu.est<-ashsmooth.gaus(X.s)
 #' plot(mu.t,type='l')
-#' lines(mu.est,col=2)
+#' lines(mu.est$mu.est,col=2)
 #'
 #' @export
 ashsmooth.gaus = function(x, sigma = NULL, v.est = FALSE, joint = FALSE, v.basis = FALSE, post.var = FALSE, filter.number = 1, 
@@ -942,9 +942,8 @@ getlist.res = function(res, j, n, zdat, log, shrink, prior, pointmass, nullcheck
     ind = ((j - 1) * n + 1):(j * n)
     if (shrink == TRUE) {
         # apply ash to vector of intercept estimates and SEs
-        zdat.ash = suppressWarnings(ash(zdat[1, ind], zdat[2, ind], prior = prior, multiseqoutput = TRUE, pointmass = pointmass, 
-            nullcheck = nullcheck, gridmult = gridmult, mixsd = mixsd, VB = VB, mixcompdist = mixcompdist, lambda1 = 1, 
-            lambda2 = 0, df = NULL, control = list(trace = FALSE)))
+        zdat.ash = suppressWarnings(ash(zdat[1, ind], zdat[2, ind], prior = prior, outputlevel=2, pointmass = pointmass, 
+            gridmult = gridmult, mixsd = mixsd, VB = VB, mixcompdist = mixcompdist, df = NULL, control = list(trace = FALSE)))
         alpha.mv = list(mean = zdat.ash$PosteriorMean, var = zdat.ash$PosteriorSD^2)  #find mean and variance of alpha
     } else {
         alpha.mv = list(mean = fill.nas(zdat[1, ind]), var = fill.nas(zdat[2, ind])^2)  #find mean and variance of alpha   
@@ -991,7 +990,7 @@ setAshParam.pois <- function(ashparam) {
     if (is.null(ashparam[["prior"]])) 
         ashparam[["prior"]] = "nullbiased"
     if (is.null(ashparam[["gridmult"]])) 
-        ashparam[["gridmult"]] = 0
+        ashparam[["gridmult"]] = sqrt(2)
     if (is.null(ashparam[["VB"]])) 
         ashparam[["VB"]] = FALSE
     if (is.null(ashparam[["mixcompdist"]])) 

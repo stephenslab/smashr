@@ -5,3 +5,4 @@ src/*.dll
 src/*.o
 R/backup
 *~
+.Rproj.user
