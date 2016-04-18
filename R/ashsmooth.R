@@ -546,7 +546,7 @@ setAshParam.gaus <- function(ashparam) {
         stop("Error: invalid parameter 'ashparam'")
     ashparam.default = list(optmethod="mixEM", pointmass=TRUE,
                    prior="nullbiased", gridmult=2, control = list(maxiter=5000,trace=FALSE), 
-                   mixcompdist="normal", nullweight=10, nonzeromode=FALSE, outputlevel=1, randomstart=FALSE,fixg=FALSE, model="EE")
+                   mixcompdist="normal", VB = FALSE, nullweight=10, nonzeromode=FALSE, outputlevel=1, randomstart=FALSE,fixg=FALSE, model="EE")
     ashparam = modifyList(ashparam.default, ashparam)
     if (!is.null(ashparam[["g"]]))
         stop("Error: ash parameter 'g' can only be NULL; if you want to specify ash parameter 'g' use multiseq arguments 'fitted.g' and/or 'fitted.g.intercept'")
@@ -1018,7 +1018,7 @@ setAshParam.poiss <- function(ashparam) {
         stop("Error: invalid parameter 'ashparam'")
     ashparam.default = list(optmethod="mixEM", pointmass=TRUE,
                    prior="nullbiased", gridmult=2, control = list(maxiter=5000,trace=FALSE), 
-                   mixcompdist="normal", nullweight=10, nonzeromode=FALSE, outputlevel=1, randomstart=FALSE,fixg=FALSE, model="EE")
+                   mixcompdist="normal", VB = FALSE, nullweight=10, nonzeromode=FALSE, outputlevel=1, randomstart=FALSE,fixg=FALSE, model="EE")
     ashparam = modifyList(ashparam.default, ashparam)
     if (!is.null(ashparam[["g"]]))
         stop("Error: ash parameter 'g' can only be NULL; if you want to specify ash parameter 'g' use multiseq arguments 'fitted.g' and/or 'fitted.g.intercept'")
