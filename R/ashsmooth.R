@@ -1,4 +1,4 @@
-# Disclaimer: Functions 'interleave', 'lsift', 'rshift', 'simplify', 'setAshParam.gaus' and 'setAshParam.pois' in
+# Disclaimer: Functions 'interleave', 'lsift', 'rshift', 'simplify', 'setAshParam.gaus' and 'setAshParam.poiss' in
 # this file are adapted from the same functions defined in package 'Multiseq' under the GPL license, authored by
 # Ester Pantaleo, Heejung Shim, Matthew Stephens and Zhengrong Xing. All TI table (eg 'titable', 'ParentTItable')
 # and reconstruction (eg 'reverse.pwave', 'reverse.gwave') functions and their respective Rcpp counterparts are
@@ -7,6 +7,42 @@
 # into R from Matlab functions 'BMSMShrink' and 'TISumProd' as part of the BMSM project maintained by Eric Kolaczyk
 # The 'wd' ('wd.D') and 'threshold' ('threshold.haar', 'threshold.var') class of functions are adapted and modified
 # from 'wd' and 'threshold.wd' respectively in package 'wavethresh' under th GPL license, authored buy Guy Nason.
+
+
+#' @title Estimate the underlying mean or intensity function from Gaussian or Poisson data respectively
+#'
+#' @description This is a wrapper function for smash.gaus or smash.pois as appropriate. For details see \code{smash.gaus} and \code{smash.poiss}
+#'
+#' @param x: a vector of observations
+#' @param model: specifies the model (Gaussian or Poisson). Can be NULL, in which case the Poisson model is assumed if x
+#' consists of integers, and the Gaussian model is assumed otherwise. One of 'gaus' or 'poiss' can also be specified to fit a specific model. 
+#'
+#' @export
+smash = function(x, model = NULL, ...){
+  if(!is.null(model)){
+    if(!(model == "gaus" | model == "poiss")){
+      stop("Error: model must be NULL or one of 'gaus' or 'poiss'")
+    }
+  }
+  
+  if(is.null(model)){
+    if(!is.integer(x)){
+      model = "gaus"
+    }else{
+      model = "poiss"
+    }
+  }
+  
+  if(model == "gaus"){
+    return(smash.gaus(x, ...))
+  }
+  
+  if(model == "poiss"){
+    return(smash.poiss(x, ...))
+  }
+}
+
+
 
 
 #' Interleave two vectors
@@ -503,48 +539,44 @@ var.smooth = function(data, data.var, x.var.ini, basis, v.basis, Wl, filter.numb
 #' @keywords internal 
 #' @param ashparam: a list of parameters to be passed to ash.
 setAshParam.gaus <- function(ashparam) {
-    # by default ashparam$df=NULL by default ashparam$mixsd=NULL by default ashparam$g=NULL
-    if (!is.list(ashparam)) 
+    #by default ashparam$df=NULL
+    #by default ashparam$mixsd=NULL
+    #by default ashparam$g=NULL
+    if (!is.list(ashparam))
         stop("Error: invalid parameter 'ashparam'")
-    if (is.null(names(ashparam))) {
-        ashparam[["mixsd"]] = NULL
-    }
-    if (is.null(ashparam[["pointmass"]])) 
-        ashparam[["pointmass"]] = TRUE
-    if (is.null(ashparam[["prior"]])) 
-        ashparam[["prior"]] = "nullbiased"
-    if (is.null(ashparam[["gridmult"]])) 
-        ashparam[["gridmult"]] = 2
-    if (is.null(ashparam[["VB"]])) 
-        ashparam[["VB"]] = FALSE
-    if (is.null(ashparam[["mixcompdist"]])) 
-        ashparam[["mixcompdist"]] = "normal"
-    if (is.null(ashparam[["nullcheck"]])) 
-        ashparam[["nullcheck"]] = TRUE
+    ashparam.default = list(optmethod="mixEM", pointmass=TRUE,
+                   prior="nullbiased", gridmult=2, control = list(maxiter=5000,trace=FALSE), 
+                   mixcompdist="normal", nullweight=10, nonzeromode=FALSE, outputlevel=1, randomstart=FALSE,fixg=FALSE, model="EE")
+    ashparam = modifyList(ashparam.default, ashparam)
+    if (!is.null(ashparam[["g"]]))
+        stop("Error: ash parameter 'g' can only be NULL; if you want to specify ash parameter 'g' use multiseq arguments 'fitted.g' and/or 'fitted.g.intercept'")
     
-    if (!((is.null(ashparam[["mixsd"]])) | (is.numeric(ashparam[["mixsd"]]) & (length(ashparam[["mixsd"]]) < 2)))) 
-        stop("Error: invalid parameter 'mixsd', 'mixsd'  must be null or a numeric vector of length >=2")
-    if (!((ashparam[["prior"]] == "nullbiased") | (ashparam[["prior"]] == "uniform") | is.numeric(ashparam[["prior"]]))) 
-        stop("Error: invalid parameter 'prior', 'prior' can be a number or 'nullbiased' or 'uniform'")
+    if(!((is.null(ashparam[["mixsd"]]))|(is.numeric(ashparam[["mixsd"]]) & (length(ashparam[["mixsd"]])<2)))) stop("Error: invalid parameter 'mixsd', 'mixsd'  must be null or a numeric vector of length >=2")
+    if(!((ashparam[["prior"]] == "nullbiased") | (ashparam[["prior"]] == "uniform") | is.numeric(ashparam[["prior"]]))) stop("Error: invalid parameter 'prior', 'prior' can be a number or 'nullbiased' or 'uniform'")
     return(ashparam)
 }
 
 
-#' Estimate the underlying mean function from noisy Gaussian data
+#' @title Estimate the underlying mean function from noisy Gaussian data
 #'
-#' This function takes a data vector of length a power of 2 and performs signal denoising using wavelet decomposition and an adaptive shrinkage prior on the wavelet parameters. The data are assumed to be (mostly) independent and Gaussian, but not necessarily identically distributed. 
+#' @description This function takes a data vector of length a power of 2 and performs signal denoising using wavelet decomposition and an adaptive shrinkage prior on the wavelet parameters. The data are assumed to be (mostly) independent and Gaussian, but not necessarily identically distributed. 
+#' 
+#' @details We assume that the data come from the model $Y_t = \mu_t + \epsilon_t$ for t=1,...,T, where $\mu_t$ is an underlying mean, assumed to be spatially
+#' structured (or treated as points sampled from a smooth continous function), and $\epsilon_t \sim N(0, \sigma_t)$, and are independent. 
+#' Smash provides estimates of $\mu_t$ and $\sigma_t^2$ (and their posterior variances if desired).
 #' @param sigma: a vector of standard deviations. Can be provided if known or estimated beforehand.
 #' @param v.est: bool, indicating if variance estimation should be performed instead.
 #' @param joint: bool, indicating if results of mean and variance estimation should be returned together.
 #' @param v.basis: bool, indicating if the same wavelet basis should be used for variance estimation as mean estimation. If false, defaults to Haar basis for variance estimation (this is much faster than other bases).
 #' @param post.var: bool, indicating if the posterior variance should be returned for the mean and/or variance estiamtes.
 #' @param filter.number, family: wavelet basis to be used, as in \code{wavethresh}
+#' @param return.loglr: bool, indicating if a logLR should be returned.
 #' @param jash: indicates if the prior from method JASH should be used. This will often provide slightly better variance estimates (especially for nonsmooth variance functions), at the cost of computational efficiency. Defaults to FALSE.
 #' @param SGD: bool, indicating if stochastic gradient descent should be used in the EM. Only applicable if jash=TRUE.
 #' @param weight: optional parameter used in estimating overall variance. Only works for Haar basis. Defaults to 0.5. Setting this to 1 might improve variance estimation slightly
 #' @param min.var: The minimum positive value to be set if the variance estimates are negative.
 #' @param ashparam: a list of parameters to be passed to \code{ash}; default values are set by function \code{\link{setAshParam}}.
-#' @return \code{ashsmooth.gaus} returns the mean estimate by default, or the variance estimate if \code{v.est} is TRUE. However, if \code{joint} is TRUE, then a list with the following is returned:
+#' @return \code{smash.gaus} returns the mean estimate by default, or the variance estimate if \code{v.est} is TRUE. However, if \code{joint} is TRUE, then a list with the following is returned:
 #' \item{mu.res}{a list with the mean estimate and its posterior variance if \code{post.var} is TRUE, or a vector of mean estimates otherwise}
 #' \item{var.res}{a list with the variance estimate and its posterior variance if \code{v.est} is TRUE and \code{post.var} is TRUE, or a vector of variance estimates if only \code{v.est} is TRUE}
 #' @examples
@@ -560,13 +592,13 @@ setAshParam.gaus <- function(ashparam) {
 #' rsnr=sqrt(5)
 #' sigma.t=sqrt(var.fn)/mean(sqrt(var.fn))*sd(mu.t)/rsnr^2
 #' X.s=rnorm(n,mu.t,sigma.t)
-#' mu.est<-ashsmooth.gaus(X.s)
+#' mu.est<-smash.gaus(X.s)
 #' plot(mu.t,type='l')
 #' lines(mu.est$mu.est,col=2)
 #'
 #' @export
-ashsmooth.gaus = function(x, sigma = NULL, v.est = FALSE, joint = FALSE, v.basis = FALSE, post.var = FALSE, filter.number = 1, 
-    family = "DaubExPhase", return.loglr = TRUE, jash = FALSE, SGD = TRUE, weight = 0.5, min.var = 1e-08, ashparam = list()) {
+smash.gaus = function(x, sigma = NULL, v.est = FALSE, joint = FALSE, v.basis = FALSE, post.var = FALSE, filter.number = 1, 
+    family = "DaubExPhase", return.loglr = FALSE, jash = FALSE, SGD = TRUE, weight = 0.5, min.var = 1e-08, ashparam = list()) {
     n = length(x)
     J = log2(n)
     if (!isTRUE(all.equal(J, trunc(J)))) {
@@ -760,7 +792,7 @@ ti.thresh = function(x, sigma = NULL, method = "smash", filter.number = 1, famil
     
     if (is.null(sigma)) {
         if (method == "smash") {
-            sigma = sqrt(ashsmooth.gaus(x, v.est = TRUE, v.basis = TRUE, filter.number = filter.number, family = family, 
+            sigma = sqrt(smash.gaus(x, v.est = TRUE, v.basis = TRUE, filter.number = filter.number, family = family, 
                 ashparam = ashparam, weight = 1))
         } else if (method == "rmad") {
             x.w = wd(x, filter.number = filter.number, family = family, type = "station")
@@ -978,37 +1010,34 @@ recons.mv = function(ls, res, log, n, J) {
 }
 
 
-setAshParam.pois <- function(ashparam) {
-    # by default ashparam$df=NULL by default ashparam$mixsd=NULL by default ashparam$g=NULL
-    if (!is.list(ashparam)) 
+setAshParam.poiss <- function(ashparam) {
+    #by default ashparam$df=NULL
+    #by default ashparam$mixsd=NULL
+    #by default ashparam$g=NULL
+    if (!is.list(ashparam))
         stop("Error: invalid parameter 'ashparam'")
-    if (is.null(names(ashparam))) {
-        ashparam[["mixsd"]] = NULL
-    }
-    if (is.null(ashparam[["pointmass"]])) 
-        ashparam[["pointmass"]] = TRUE
-    if (is.null(ashparam[["prior"]])) 
-        ashparam[["prior"]] = "nullbiased"
-    if (is.null(ashparam[["gridmult"]])) 
-        ashparam[["gridmult"]] = sqrt(2)
-    if (is.null(ashparam[["VB"]])) 
-        ashparam[["VB"]] = FALSE
-    if (is.null(ashparam[["mixcompdist"]])) 
-        ashparam[["mixcompdist"]] = "normal"
-    if (is.null(ashparam[["nullcheck"]])) 
-        ashparam[["nullcheck"]] = TRUE
+    ashparam.default = list(optmethod="mixEM", pointmass=TRUE,
+                   prior="nullbiased", gridmult=2, control = list(maxiter=5000,trace=FALSE), 
+                   mixcompdist="normal", nullweight=10, nonzeromode=FALSE, outputlevel=1, randomstart=FALSE,fixg=FALSE, model="EE")
+    ashparam = modifyList(ashparam.default, ashparam)
+    if (!is.null(ashparam[["g"]]))
+        stop("Error: ash parameter 'g' can only be NULL; if you want to specify ash parameter 'g' use multiseq arguments 'fitted.g' and/or 'fitted.g.intercept'")
     
-    if (!((is.null(ashparam[["mixsd"]])) | (is.numeric(ashparam[["mixsd"]]) & (length(ashparam[["mixsd"]]) < 2)))) 
-        stop("Error: invalid parameter 'mixsd', 'mixsd'  must be null or a numeric vector of length >=2")
-    if (!((ashparam[["prior"]] == "nullbiased") | (ashparam[["prior"]] == "uniform") | is.numeric(ashparam[["prior"]]))) 
-        stop("Error: invalid parameter 'prior', 'prior' can be a number or 'nullbiased' or 'uniform'")
+    if(!((is.null(ashparam[["mixsd"]]))|(is.numeric(ashparam[["mixsd"]]) & (length(ashparam[["mixsd"]])<2)))) stop("Error: invalid parameter 'mixsd', 'mixsd'  must be null or a numeric vector of length >=2")
+    if(!((ashparam[["prior"]] == "nullbiased") | (ashparam[["prior"]] == "uniform") | is.numeric(ashparam[["prior"]]))) stop("Error: invalid parameter 'prior', 'prior' can be a number or 'nullbiased' or 'uniform'")
     return(ashparam)
 }
 
 
 
-
-#' Main smoothing procedure for Poisson data. Takes a univariate inhomogeneous Poisson process and estimates its mean intensity
+#' @title Estimate the underlying intensity for Poisson counts.
+#'
+#' @description Main smoothing procedure for Poisson data. Takes a univariate inhomogeneous Poisson process and estimates its mean intensity.
+#' 
+#' @details We assume that the data come from the model $Y_t \sim Pois(\lambda_t)$ for t=1,...,T, where $\lambda_t$ is the underlying intensity, assumed to be spatially
+#' structured (or treated as points sampled from a smooth continous function). The $Y_t$ are assumed to be independent. 
+#' Smash provides estimates of $\lambda_t$ (and its posterior variance if desired).
+#' 
 #' @param x: a vector of Poisson counts of a length a power of 2
 #' @param post.var: bool, indicates if the posterior variance should be returned
 #' @param reflect: bool, indicates if the signals should be reflected; otherwise periodicity is assumed
@@ -1019,7 +1048,7 @@ setAshParam.pois <- function(ashparam) {
 #' @param lm.approx: bool, indicates if a WLS shuold be fitted instead of GLM. Passed to \code{glm.approx}
 #' @param cxx: bool, indicates if C++ code should be used to create TI tables.
 #' @param ashparam: a list of parameters to be passed to \code{ash}; default values are set by function \code{\link{setAshParam}}.
-#' @return \code{ashsmooth.pois} returns the mean estimate by default, or the variance estimate if \code{post.var} is TRUE
+#' @return \code{smash.poiss} returns the mean estimate by default, or the variance estimate if \code{post.var} is TRUE
 #' @examples
 #' n=2^10
 #' t=1:n/n
@@ -1027,12 +1056,12 @@ setAshParam.pois <- function(ashparam) {
 #' mu.s=spike.f(t)
 #' mu.t=0.01+mu.s
 #' X.s=rpois(n,mu.t)
-#' mu.est=ashsmooth.pois(X.s)
+#' mu.est=smash.poiss(X.s)
 #' plot(mu.t,type='l')
 #' lines(mu.est,col=2)
 #'
 #' @export
-ashsmooth.pois = function(x, post.var = FALSE, reflect = FALSE, lev = 0, log = FALSE, pseudocounts = 0.5, all = FALSE, 
+smash.poiss = function(x, post.var = FALSE, reflect = FALSE, lev = 0, log = FALSE, pseudocounts = 0.5, all = FALSE, 
     lm.approx = FALSE, bound = 0.02, cxx = TRUE, ashparam = list()) {
     if (is.matrix(x)) {
         if (nrow(x) == 1) {
@@ -1043,7 +1072,7 @@ ashsmooth.pois = function(x, post.var = FALSE, reflect = FALSE, lev = 0, log = F
         }
     }
     
-    ashparam = setAshParam.pois(ashparam)
+    ashparam = setAshParam.poiss(ashparam)
     
     if (!is.numeric(x)) 
         stop("Error: invalid parameter 'x': 'x' must be numeric")

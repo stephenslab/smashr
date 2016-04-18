@@ -49,7 +49,7 @@ sigma.t = sqrt(var.fn)/mean(sqrt(var.fn)) * sd(mu.t)/rsnr^2
 # Simulate an example dataset
 X.s = rnorm(n, mu.t, sigma.t)
 # Run smash
-mu.est <- ashsmooth.gaus(X.s)
+mu.est <- smash.gaus(X.s)
 # Plot the true mean function as well as the estimated one
 plot(mu.t, type = "l")
 lines(mu.est$mu.est, col = 2)
@@ -60,7 +60,7 @@ mu.t = 0.01 + mu.s
 # Simulate an example dataset
 X.s = rpois(n, mu.t)
 # Run smash
-mu.est = ashsmooth.pois(X.s)
+mu.est = smash.poiss(X.s)
 # Plot the true mean function as well as the estimated one
 plot(mu.t, type = "l")
 lines(mu.est, col = 2) 
