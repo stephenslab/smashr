@@ -1,6 +1,3 @@
-library(smash)
-
-
 wt.mat = function (n, filter.number, family) 
 {
   J = log2(n)
