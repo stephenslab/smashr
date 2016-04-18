@@ -1,6 +1,7 @@
 .Rbuildignore
 .Rhistory
 .Rproj
+build.txt
 src/*.dll
 src/*.o
 R/backup
