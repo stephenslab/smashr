@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // cxxtitable
 List cxxtitable(SEXP sig);
-RcppExport SEXP smash_cxxtitable(SEXP sigSEXP) {
+RcppExport SEXP smashr_cxxtitable(SEXP sigSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -18,7 +18,7 @@ END_RCPP
 }
 // cxxtirtable
 NumericMatrix cxxtirtable(SEXP sig);
-RcppExport SEXP smash_cxxtirtable(SEXP sigSEXP) {
+RcppExport SEXP smashr_cxxtirtable(SEXP sigSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -29,7 +29,7 @@ END_RCPP
 }
 // cxxreverse_gwave
 NumericVector cxxreverse_gwave(SEXP estimate, SEXP pmat, SEXP qmat);
-RcppExport SEXP smash_cxxreverse_gwave(SEXP estimateSEXP, SEXP pmatSEXP, SEXP qmatSEXP) {
+RcppExport SEXP smashr_cxxreverse_gwave(SEXP estimateSEXP, SEXP pmatSEXP, SEXP qmatSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -42,7 +42,7 @@ END_RCPP
 }
 // cxxreverse_gvwave
 NumericVector cxxreverse_gvwave(SEXP estimate, SEXP pmat, SEXP qmat);
-RcppExport SEXP smash_cxxreverse_gvwave(SEXP estimateSEXP, SEXP pmatSEXP, SEXP qmatSEXP) {
+RcppExport SEXP smashr_cxxreverse_gvwave(SEXP estimateSEXP, SEXP pmatSEXP, SEXP qmatSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -55,7 +55,7 @@ END_RCPP
 }
 // cxxSParentTItable
 NumericVector cxxSParentTItable(SEXP sig);
-RcppExport SEXP smash_cxxSParentTItable(SEXP sigSEXP) {
+RcppExport SEXP smashr_cxxSParentTItable(SEXP sigSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -66,7 +66,7 @@ END_RCPP
 }
 // cxxreverse_pwave
 NumericVector cxxreverse_pwave(SEXP estimate, SEXP pmat, SEXP qmat);
-RcppExport SEXP smash_cxxreverse_pwave(SEXP estimateSEXP, SEXP pmatSEXP, SEXP qmatSEXP) {
+RcppExport SEXP smashr_cxxreverse_pwave(SEXP estimateSEXP, SEXP pmatSEXP, SEXP qmatSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
