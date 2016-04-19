@@ -38,7 +38,7 @@
 #' # Simulate an example dataset
 #' X.s = rpois(n, mu.t)
 #' # Run smash
-#' mu.est = smash.poiss(X.s, "poiss")
+#' mu.est = smash(X.s, "poiss")
 #' # Plot the true mean function as well as the estimated one
 #' plot(mu.t, type = "l")
 #' lines(mu.est, col = 2) 
