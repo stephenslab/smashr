@@ -4,7 +4,7 @@ To install the package run the following lines
 ```
 install.packages("devtools")
 library(devtools)
-install_github("zrxing/smash")
+install_github("zrxing/smashr")
 ```
 
 To use the package run 
