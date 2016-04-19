@@ -1,4 +1,4 @@
-#' @useDynLib smash
+#' @useDynLib smashr
 #' @title Smash: Smoothing using Adaptive SHrinkage
 #' @description This package performs nonparametric regression on univariate Poisson or Gaussian data using wavelets. For the Poisson case, the data are assumed to be i.i.d. 
 #' from an underlying inhomogeneous mean function that is "smooth". Similarly for the Gaussian case, the data are assumed to be independent with an underlying smooth mean function. 
@@ -43,5 +43,5 @@
 #' plot(mu.t, type = "l")
 #' lines(mu.est, col = 2) 
 #' @docType package
-#' @name smash
+#' @name smashr
 NULL

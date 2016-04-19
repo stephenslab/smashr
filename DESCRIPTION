@@ -1,4 +1,4 @@
-Package: smash
+Package: smashr
 Type: Package
 Title: Smoothing using Adaptive SHrinkage (SMASH)
 Version: 1.0
