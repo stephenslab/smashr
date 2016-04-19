@@ -9,11 +9,11 @@ install_github("zrxing/smashr")
 
 To use the package run 
 ```
-library(smash)
+library(smashr)
 ```
 and for help using the package run
 ```
-?smash
+?smashr or ?smash
 ```
 
 #Background
