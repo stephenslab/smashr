@@ -11,7 +11,7 @@
 
 #' @title Estimate the underlying mean or intensity function from Gaussian or Poisson data respectively
 #'
-#' @description This is a wrapper function for \code{smash.gaus} or \code{smash.poiss} as appropriate. For details see \code{smash.gaus} and \code{smash.poiss}
+#' @description This is a wrapper function for \code{\link{smash.gaus}} or \code{\link{smash.poiss}} as appropriate. For details see \code{\link{smash.gaus}} and \code{\link{smash.poiss}}
 #'
 #' @details Performs nonparametric regression on univariate Poisson or Gaussian data using wavelets. For the Poisson case, the data are assumed to be i.i.d. 
 #' from an underlying inhomogeneous mean function that is "smooth". Similarly for the Gaussian case, the data are assumed to be independent with an underlying smooth mean function. 

@@ -16,7 +16,7 @@ consists of integers, and the Gaussian model is assumed otherwise. One of 'gaus'
 See \code{smash.gaus} or \code{smash.poiss} for details.
 }
 \description{
-This is a wrapper function for \code{smash.gaus} or \code{smash.poiss} as appropriate. For details see \code{smash.gaus} and \code{smash.poiss}
+This is a wrapper function for \code{\link{smash.gaus}} or \code{\link{smash.poiss}} as appropriate. For details see \code{\link{smash.gaus}} and \code{\link{smash.poiss}}
 }
 \details{
 Performs nonparametric regression on univariate Poisson or Gaussian data using wavelets. For the Poisson case, the data are assumed to be i.i.d. 
