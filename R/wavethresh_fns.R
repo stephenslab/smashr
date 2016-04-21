@@ -1,6 +1,85 @@
 #Disclaimer: The functions defined in this file are adapted and modified from their counterparts as defined in package "wavethresh" under the GPL license, authored by Guy Nason.
-#These functions perform reconstruction of posterior variances for a given wavelet basis when the TI version is used.
 
+
+#' Modified wd() function from package 'wavethresh' to only return the detail coefficients
+#' @param data,filter.number,family,type,bc,berbose,min.scale,precond: as in wd()
+#' @return the detail coefficients of a standard wavelet decomposition
+wd.D = function(data, filter.number = 10, family = "DaubLeAsymm", type = "wavelet", bc = "periodic", verbose = FALSE, 
+                min.scale = 0, precond = TRUE) {
+  l = wd(data = data, filter.number = filter.number, family = family, type = type, bc = bc, verbose = verbose, 
+         min.scale = min.scale, precond = precond)
+  return(l$D)
+}
+
+
+#' This is a modified threshold.wd function from package 'wavethresh', designed to perform thresholding for heteroskedastic Gaussian errors when using the Haar basis
+threshold.haar <- function(vdtable, vtable, lambda.thresh, levels, type = "hard", policy = "universal") {
+  wmean <- vdtable[-1, ]/2
+  d <- NULL
+  n <- dim(vdtable)[2]
+  nthresh <- length(levels)
+  thresh <- list(0)
+  for (i in 1:nthresh) {
+    d <- vdtable[levels[i] + 2, ]
+    noise.level <- sqrt(vtable[levels[i] + 2, ])
+    nd <- length(d)
+    if (lambda.thresh == 1) {
+      lambda <- 2 * sqrt(log(nd))
+    } else {
+      lambda <- sqrt(2 * log(nd * log2(nd)))
+    }
+    thresh[[i]] <- lambda * noise.level
+  }
+  for (i in 1:nthresh) {
+    d <- vdtable[levels[i] + 2, ]
+    if (type == "hard") {
+      d[abs(d) <= thresh[[i]]] <- 0
+    } else if (type == "soft") {
+      d <- (d * (abs(d) - thresh[[i]]) * (abs(d) > thresh[[i]]))/abs(d)
+      d[is.na(d)] <- 0
+    }
+    wmean[levels[i] + 1, ] <- d/2
+  }
+  return(wmean)
+}
+
+
+#' This is a modified threshold.wd function from package 'wavethresh', designed to perform thresholding for heteroskedastic Gaussian errors when using non-Haar basis
+threshold.var <- function(x.w, x.w.v, lambda.thresh, levels, type = "hard") {
+  d <- NULL
+  n <- 2^nlevelsWT(x.w)
+  J <- nlevelsWT(x.w)
+  nthresh <- length(levels)
+  thresh <- list(0)
+  for (i in 1:nthresh) {
+    d <- accessD(x.w, level = levels[i])
+    ind <- (((J - 1) - levels[i]) * n + 1):((J - levels[i]) * n)
+    noise.level <- sqrt(x.w.v[ind])
+    nd <- length(d)
+    if (lambda.thresh == 1) {
+      lambda <- 2 * sqrt(log(nd))
+    } else {
+      lambda <- sqrt(2 * log(nd * log2(nd)))
+    }
+    thresh[[i]] <- lambda * noise.level
+  }
+  for (i in 1:nthresh) {
+    d <- accessD(x.w, level = levels[i])
+    if (type == "hard") {
+      d[abs(d) <= thresh[[i]]] <- 0
+    } else if (type == "soft") {
+      d <- (d * (abs(d) - thresh[[i]]) * (abs(d) > thresh[[i]]))/abs(d)
+      d[is.na(d)] <- 0
+    }
+    x.w = putD(x.w, level = levels[i], v = d)
+  }
+  return(x.w)
+}
+
+
+
+#' This function performs "decomposition' of variances of detail coefficients for a given wavelet basis
+#' in wavelet transformation
 wd.var <- function (data, filter.number = 10, family = "DaubLeAsymm", type = "wavelet", 
     bc = "periodic", verbose = FALSE, min.scale = 0, precond = TRUE) 
 {
@@ -111,7 +190,8 @@ wd.var <- function (data, filter.number = 10, family = "DaubLeAsymm", type = "wa
 
 
 
-
+#' This function converts variances of detail coefficients for a given wavelet basis
+#' from wd objects to wst objects
 convert.var <- function (wd, ...) 
 {
     if (wd$type != "station") 
@@ -142,7 +222,8 @@ convert.var <- function (wd, ...)
 }
 
 
-
+#' This function reconstructs variance of the mean estimate for a given wavelet basis
+#' given a wst object
 AvBasis.var <- function (wst, Ccode = TRUE, ...) 
 {
     nlevels <- nlevelsWT(wst)
@@ -185,3 +266,6 @@ AvBasis.var <- function (wst, Ccode = TRUE, ...)
     }
     answer
 }
+
+
+
