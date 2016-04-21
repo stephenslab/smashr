@@ -1,7 +1,4 @@
-# Disclaimer: Functions 'interleave', 'lsift', 'rshift', 'simplify', 'setAshParam.gaus' and 'setAshParam.poiss' in
-# this file are adapted from the same functions defined in package 'Multiseq' under the GPL license, authored by
-# Ester Pantaleo, Heejung Shim, Matthew Stephens and Zhengrong Xing. 
-
+# Disclaimer: 
 
 #' @title Estimate the underlying mean or intensity function from Gaussian or Poisson data respectively
 #'
