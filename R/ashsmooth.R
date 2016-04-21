@@ -709,14 +709,7 @@ smash.poiss = function(x, post.var = FALSE, log = FALSE, reflect = FALSE, glm.ap
         stop("Error: invalid parameter 'x': 'x' must be numeric")
     if (!is.logical(reflect)) 
         stop("Error: invalid parameter 'reflect', 'reflect' must be bool")
-    if (!(is.numeric(pseudocounts) & pseudocounts > 0)) 
-        stop("Error: invalid parameter 'pseudocounts', 'pseudocounts' must be a positive number")
-    if (!is.logical(all)) 
-        stop("Error: invalid parameter 'all', 'all'  must be bool")
-    if (!((is.null(ashparam$mixsd)) | (is.numeric(ashparam$mixsd) & (length(ashparam$mixsd) < 2)))) 
-        stop("Error: invalid parameter 'mixsd', 'mixsd'  must be null or a numeric vector of length >=2")
-    if (!((ashparam$prior == "nullbiased") | (ashparam$prior == "uniform") | is.numeric(ashparam$prior))) 
-        stop("Error: invalid parameter 'prior', 'prior' can be a number or 'nullbiased' or 'uniform'")
+
     
     J = log2(length(x))
     if ((J%%1) != 0) 
