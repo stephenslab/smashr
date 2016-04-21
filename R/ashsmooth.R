@@ -39,7 +39,7 @@
 #' mu.est <- smash(X.s)
 #' # Plot the true mean function as well as the estimated one
 #' plot(mu.t, type = "l")
-#' lines(mu.est$mu.est, col = 2)
+#' lines(mu.est, col = 2)
 #' 
 #' # Poisson case
 #' # Scale the signal to be non-zero and to have a low average intensity
@@ -323,11 +323,13 @@ setAshParam.gaus <- function(ashparam) {
 #' @param jash: indicates if the prior from method JASH should be used. This will often provide slightly better variance estimates (especially for nonsmooth variance functions), at the cost of computational efficiency. Defaults to FALSE.
 #' @param SGD: bool, indicating if stochastic gradient descent should be used in the EM. Only applicable if jash=TRUE.
 #' @param weight: optional parameter used in estimating overall variance. Only works for Haar basis. Defaults to 0.5. Setting this to 1 might improve variance estimation slightly
-#' @param min.var: The minimum positive value to be set if the variance estimates are negative.
-#' @param ashparam: a list of parameters to be passed to \code{ash}; default values are set by function \code{\link{setAshParam}}.
-#' @return \code{smash.gaus} returns the mean estimate by default, or the variance estimate if \code{v.est} is TRUE. However, if \code{joint} is TRUE, then a list with the following is returned:
-#' \item{mu.res}{a list with the mean estimate and its posterior variance if \code{post.var} is TRUE, or a vector of mean estimates otherwise}
-#' \item{var.res}{a list with the variance estimate and its posterior variance if \code{v.est} is TRUE and \code{post.var} is TRUE, or a vector of variance estimates if only \code{v.est} is TRUE}
+#' @param min.var: The minimum positive value to be set if the variance estimates are non-positive.
+#' @param ashparam: a list of parameters to be passed to \code{ash}; default values are set by function \code{\link{setAshParam.gaus}}.
+#' @return \code{smash.gaus} returns the following by default:
+#' \item{mu.res}{a list with the mean estimate, its posterior variance if \code{post.var} is TRUE, the logLR if \code{return.loglr} is TRUE, or a vector of mean estimates if neither \code{post.var} nor \code{return.loglr} are TRUE}
+#' If \code{v.est} is TRUE, then \code{smash.gaus} returns the following:
+#' \item{var.res}{a list with the variance estimate, its posterior variance if \code{post.var} is TRUE, or a vector of variance estimates if \code{post.var} is FALSE}
+#' In addition, if \code{joint} is TRUE, then both \code{mu.res} and \code{var.res} are returned.
 #' @examples
 #' n=2^10
 #' t=1:n/n
@@ -343,7 +345,7 @@ setAshParam.gaus <- function(ashparam) {
 #' X.s=rnorm(n,mu.t,sigma.t)
 #' mu.est<-smash.gaus(X.s)
 #' plot(mu.t,type='l')
-#' lines(mu.est$mu.est,col=2)
+#' lines(mu.est,col=2)
 #'
 #' @export
 smash.gaus = function(x, sigma = NULL, v.est = FALSE, joint = FALSE, v.basis = FALSE, post.var = FALSE, filter.number = 1, 
@@ -614,7 +616,10 @@ recons.mv = function(ls, res, log, n, J) {
     return(list(est.mean = est.mean, est.var = est.var))
 }
 
-
+#' Set default \code{ash} parameters.
+#' @export
+#' @keywords internal 
+#' @param ashparam: a list of parameters to be passed to ash.
 setAshParam.poiss <- function(ashparam) {
     #by default ashparam$df=NULL
     #by default ashparam$mixsd=NULL
@@ -634,6 +639,28 @@ setAshParam.poiss <- function(ashparam) {
 }
 
 
+#' Set default \code{glm.approx} parameters.
+#' @export
+#' @keywords internal 
+#' @param glm.approx.param: a list of parameters to be passed to glm.approx.
+setGlmApproxParam <- function(glm.approx.param){
+  if(!is.list(glm.approx.param))
+    stop("Error: invalid parameter 'glm.approx.param'")
+  glm.approx.param.default = list(minobs = 1, pseudocounts=0.5, all=FALSE, center = FALSE, forcebin = TRUE, 
+                                  repara = TRUE, lm.approx = FALSE, disp = "add")
+  glm.approx.param = modifyList(glm.approx.param.default, glm.approx.param)
+  
+  if(glm.approx.param[["minobs"]]%%1!=0|glm.approx.param[["minobs"]]<1)
+    stop("Error: minobs must be an integer larger than or equal to 1")
+  if(!(glm.approx.param[["disp"]]%in%c("add","mult")))
+    stop("Error: parameter disp must be 'add' or 'mult'")
+  if(!(is.numeric(glm.approx.param[["pseudocounts"]]) & glm.approx.param[["pseudocounts"]]>0)) 
+    stop("Error: invalid parameter 'pseudocounts', 'pseudocounts' must be a positive number")
+  
+  return(glm.approx.param)
+}
+
+
 
 #' @title Estimate the underlying intensity for Poisson counts.
 #'
@@ -643,17 +670,15 @@ setAshParam.poiss <- function(ashparam) {
 #' structured (or treated as points sampled from a smooth continous function). The $Y_t$ are assumed to be independent. 
 #' Smash provides estimates of $\lambda_t$ (and its posterior variance if desired).
 #' 
-#' @param x: a vector of Poisson counts of a length a power of 2
+#' @param x: a vector of Poisson counts (reflection is done automatically if length of \code{x} is not a power of 2)
 #' @param post.var: bool, indicates if the posterior variance should be returned
-#' @param reflect: bool, indicates if the signals should be reflected; otherwise periodicity is assumed
-#' @param lev: integer from 0 to J-1, indicating primary level of resolution. Should NOT be used (ie shrinkage is performed at all resolutions) unless there is good reason to do so.
 #' @param log: bool, determines if smoothed signal is returned on log scale or not
-#' @param pseudocounts: bool, a number to be added to counts. Passed to \code{glm.approx}
-#' @param all: bool, indicates if pseudocounts should be added too all entries or only cases when either number of successes or number of failures (but not both) is 0. Passed to \code{glm.approx}
-#' @param lm.approx: bool, indicates if a WLS shuold be fitted instead of GLM. Passed to \code{glm.approx}
+#' @param reflect: bool, indicates if the signals should be reflected; otherwise periodicity is assumed
+#' @param glm.approx.param: a list of parameters to be passed to \code{glm.approx}; default values are set by function \code{\link{setGlmApproxParam}}.
+#' @param ashparam: a list of parameters to be passed to \code{ash}; default values are set by function \code{\link{setAshParam.poiss}}.
 #' @param cxx: bool, indicates if C++ code should be used to create TI tables.
-#' @param ashparam: a list of parameters to be passed to \code{ash}; default values are set by function \code{\link{setAshParam}}.
-#' @return \code{smash.poiss} returns the mean estimate by default, or the variance estimate if \code{post.var} is TRUE
+#' @param lev: integer from 0 to J-1, indicating primary level of resolution. Should NOT be used (ie shrinkage is performed at all resolutions) unless there is good reason to do so.
+#' @return \code{smash.poiss} returns the mean estimate by default, with the posterior variance as an additional component if \code{post.var} is TRUE
 #' @examples
 #' n=2^10
 #' t=1:n/n
@@ -666,8 +691,8 @@ setAshParam.poiss <- function(ashparam) {
 #' lines(mu.est,col=2)
 #'
 #' @export
-smash.poiss = function(x, post.var = FALSE, reflect = FALSE, lev = 0, log = FALSE, pseudocounts = 0.5, all = FALSE, 
-    lm.approx = FALSE, bound = 0.02, cxx = TRUE, ashparam = list()) {
+smash.poiss = function(x, post.var = FALSE, log = FALSE, reflect = FALSE, glm.approx.param = list(), 
+                       ashparam = list(), cxx = TRUE, lev = 0) {
     if (is.matrix(x)) {
         if (nrow(x) == 1) {
             # change matrix x to vector
@@ -678,6 +703,7 @@ smash.poiss = function(x, post.var = FALSE, reflect = FALSE, lev = 0, log = FALS
     }
     
     ashparam = setAshParam.poiss(ashparam)
+    glm.approx.param = setGlmApproxParam(glm.approx.param)
     
     if (!is.numeric(x)) 
         stop("Error: invalid parameter 'x': 'x' must be numeric")
@@ -712,9 +738,7 @@ smash.poiss = function(x, post.var = FALSE, reflect = FALSE, lev = 0, log = FALS
         y = cxxSParentTItable(x)
     }
     
-    zdat = glm.approx(y, g = NULL, minobs = 1, pseudocounts = pseudocounts, center = FALSE, all = all, forcebin = TRUE, 
-        repara = TRUE, lm.approx = lm.approx, disp = "add", bound = bound)
-    # define empty matrices for posterior means and variances of log(p) and log(q)
+    zdat = withCallingHandlers(do.call(glm.approx, c(list(x = y, g = NULL), glm.approx.param))) 
     
     res = list()
     # loop through resolutions, smoothing each resolution separately

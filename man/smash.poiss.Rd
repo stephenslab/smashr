@@ -4,33 +4,28 @@
 \alias{smash.poiss}
 \title{Estimate the underlying intensity for Poisson counts.}
 \usage{
-smash.poiss(x, post.var = FALSE, reflect = FALSE, lev = 0, log = FALSE,
-  pseudocounts = 0.5, all = FALSE, lm.approx = FALSE, bound = 0.02,
-  cxx = TRUE, ashparam = list())
+smash.poiss(x, post.var = FALSE, log = FALSE, reflect = FALSE,
+  glm.approx.param = list(), ashparam = list(), cxx = TRUE, lev = 0)
 }
 \arguments{
-\item{x:}{a vector of Poisson counts of a length a power of 2}
+\item{x:}{a vector of Poisson counts (reflection is done automatically if length of \code{x} is not a power of 2)}
 
 \item{post.var:}{bool, indicates if the posterior variance should be returned}
 
-\item{reflect:}{bool, indicates if the signals should be reflected; otherwise periodicity is assumed}
-
-\item{lev:}{integer from 0 to J-1, indicating primary level of resolution. Should NOT be used (ie shrinkage is performed at all resolutions) unless there is good reason to do so.}
-
 \item{log:}{bool, determines if smoothed signal is returned on log scale or not}
 
-\item{pseudocounts:}{bool, a number to be added to counts. Passed to \code{glm.approx}}
+\item{reflect:}{bool, indicates if the signals should be reflected; otherwise periodicity is assumed}
 
-\item{all:}{bool, indicates if pseudocounts should be added too all entries or only cases when either number of successes or number of failures (but not both) is 0. Passed to \code{glm.approx}}
+\item{glm.approx.param:}{a list of parameters to be passed to \code{glm.approx}; default values are set by function \code{\link{setGlmApproxParam}}.}
 
-\item{lm.approx:}{bool, indicates if a WLS shuold be fitted instead of GLM. Passed to \code{glm.approx}}
+\item{ashparam:}{a list of parameters to be passed to \code{ash}; default values are set by function \code{\link{setAshParam.poiss}}.}
 
 \item{cxx:}{bool, indicates if C++ code should be used to create TI tables.}
 
-\item{ashparam:}{a list of parameters to be passed to \code{ash}; default values are set by function \code{\link{setAshParam}}.}
+\item{lev:}{integer from 0 to J-1, indicating primary level of resolution. Should NOT be used (ie shrinkage is performed at all resolutions) unless there is good reason to do so.}
 }
 \value{
-\code{smash.poiss} returns the mean estimate by default, or the variance estimate if \code{post.var} is TRUE
+\code{smash.poiss} returns the mean estimate by default, with the posterior variance as an additional component if \code{post.var} is TRUE
 }
 \description{
 Main smoothing procedure for Poisson data. Takes a univariate inhomogeneous Poisson process and estimates its mean intensity.

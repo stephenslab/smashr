@@ -30,14 +30,16 @@ smash.gaus(x, sigma = NULL, v.est = FALSE, joint = FALSE,
 
 \item{weight:}{optional parameter used in estimating overall variance. Only works for Haar basis. Defaults to 0.5. Setting this to 1 might improve variance estimation slightly}
 
-\item{min.var:}{The minimum positive value to be set if the variance estimates are negative.}
+\item{min.var:}{The minimum positive value to be set if the variance estimates are non-positive.}
 
-\item{ashparam:}{a list of parameters to be passed to \code{ash}; default values are set by function \code{\link{setAshParam}}.}
+\item{ashparam:}{a list of parameters to be passed to \code{ash}; default values are set by function \code{\link{setAshParam.gaus}}.}
 }
 \value{
-\code{smash.gaus} returns the mean estimate by default, or the variance estimate if \code{v.est} is TRUE. However, if \code{joint} is TRUE, then a list with the following is returned:
-\item{mu.res}{a list with the mean estimate and its posterior variance if \code{post.var} is TRUE, or a vector of mean estimates otherwise}
-\item{var.res}{a list with the variance estimate and its posterior variance if \code{v.est} is TRUE and \code{post.var} is TRUE, or a vector of variance estimates if only \code{v.est} is TRUE}
+\code{smash.gaus} returns the following by default:
+\item{mu.res}{a list with the mean estimate, its posterior variance if \code{post.var} is TRUE, the logLR if \code{return.loglr} is TRUE, or a vector of mean estimates if neither \code{post.var} nor \code{return.loglr} are TRUE}
+If \code{v.est} is TRUE, then \code{smash.gaus} returns the following:
+\item{var.res}{a list with the variance estimate, its posterior variance if \code{post.var} is TRUE, or a vector of variance estimates if \code{post.var} is FALSE}
+In addition, if \code{joint} is TRUE, then both \code{mu.res} and \code{var.res} are returned.
 }
 \description{
 This function takes a data vector of length a power of 2 and performs signal denoising using wavelet decomposition and an adaptive shrinkage prior on the wavelet parameters. The data are assumed to be (mostly) independent and Gaussian, but not necessarily identically distributed.
@@ -62,7 +64,7 @@ sigma.t=sqrt(var.fn)/mean(sqrt(var.fn))*sd(mu.t)/rsnr^2
 X.s=rnorm(n,mu.t,sigma.t)
 mu.est<-smash.gaus(X.s)
 plot(mu.t,type='l')
-lines(mu.est$mu.est,col=2)
+lines(mu.est,col=2)
 
 }
 
