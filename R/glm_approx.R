@@ -350,10 +350,16 @@ glm.coef = function(z, g, n, center, repara) {
             var = z$var + c(rep(0, n), rep(z$var[1:n], times = (lg - 1)))  #compute var of intercept and slope
         }
         if (repara == TRUE) {
-            mbvar = -var[1:n]/var[(n + 1):(2 * n)]  #compute gamma as in documentation if reparametrization is used
+          if (center == TRUE) {
+            mbvar = -(w2 * z$var[1:n] + w1 * z$var[(n + 1):(2 * n)])/var[(n + 1):(2 * n)]  #compute gamma as in documentation if reparametrization is used
+            coef[1:n] = coef[1:n] - coef[(n + 1):(2 * n)] * mbvar  #reparametrized estimates
+            var[1:n] = var[1:n] - (w2 * z$var[1:n] + w1 * z$var[(n + 1):(2 * n)])^2/var[(n + 1):(2 * n)]  #reparametrized Ses
+          } else {
+            mbvar = -var[1:n]/var[(n + 1):(2 * n)]
             coef[1:n] = coef[1:n] - coef[(n + 1):(2 * n)] * mbvar  #reparametrized estimates
             var[1:n] = var[1:n] - var[1:n]^2/var[(n + 1):(2 * n)]  #reparametrized Ses
-        }
+          }
+        } 
     } else if (lg == 3) {
         # 3 groups case as in PoissonBinomial_etc considered centered and uncentered covariate separately
         if (center == TRUE) {
