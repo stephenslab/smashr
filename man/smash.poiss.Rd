@@ -31,9 +31,9 @@ smash.poiss(x, post.var = FALSE, log = FALSE, reflect = FALSE,
 Main smoothing procedure for Poisson data. Takes a univariate inhomogeneous Poisson process and estimates its mean intensity.
 }
 \details{
-We assume that the data come from the model $Y_t \sim Pois(\lambda_t)$ for t=1,...,T, where $\lambda_t$ is the underlying intensity, assumed to be spatially
+We assume that the data come from the model $Y_t \sim Pois(\mu_t)$ for t=1,...,T, where $\mu_t$ is the underlying intensity, assumed to be spatially
 structured (or treated as points sampled from a smooth continous function). The $Y_t$ are assumed to be independent. 
-Smash provides estimates of $\lambda_t$ (and its posterior variance if desired).
+Smash provides estimates of $\mu_t$ (and its posterior variance if desired).
 }
 \examples{
 n=2^10

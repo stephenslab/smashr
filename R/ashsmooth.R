@@ -313,12 +313,14 @@ setAshParam.gaus <- function(ashparam) {
 #' @details We assume that the data come from the model $Y_t = \mu_t + \epsilon_t$ for t=1,...,T, where $\mu_t$ is an underlying mean, assumed to be spatially
 #' structured (or treated as points sampled from a smooth continous function), and $\epsilon_t \sim N(0, \sigma_t)$, and are independent. 
 #' Smash provides estimates of $\mu_t$ and $\sigma_t^2$ (and their posterior variances if desired).
+#' @param x: a vector of observations. Length of \code{x} must be a power of 2.
 #' @param sigma: a vector of standard deviations. Can be provided if known or estimated beforehand.
 #' @param v.est: bool, indicating if variance estimation should be performed instead.
 #' @param joint: bool, indicating if results of mean and variance estimation should be returned together.
 #' @param v.basis: bool, indicating if the same wavelet basis should be used for variance estimation as mean estimation. If false, defaults to Haar basis for variance estimation (this is much faster than other bases).
 #' @param post.var: bool, indicating if the posterior variance should be returned for the mean and/or variance estiamtes.
-#' @param filter.number, family: wavelet basis to be used, as in \code{wavethresh}
+#' @param family: choice of wavelet basis to be used, as in \code{wavethresh}.
+#' @param filter.number: choice of wavelet basis to be used, as in \code{wavethresh}.
 #' @param return.loglr: bool, indicating if a logLR should be returned.
 #' @param jash: indicates if the prior from method JASH should be used. This will often provide slightly better variance estimates (especially for nonsmooth variance functions), at the cost of computational efficiency. Defaults to FALSE.
 #' @param SGD: bool, indicating if stochastic gradient descent should be used in the EM. Only applicable if jash=TRUE.
@@ -666,9 +668,9 @@ setGlmApproxParam <- function(glm.approx.param){
 #'
 #' @description Main smoothing procedure for Poisson data. Takes a univariate inhomogeneous Poisson process and estimates its mean intensity.
 #' 
-#' @details We assume that the data come from the model $Y_t \sim Pois(\lambda_t)$ for t=1,...,T, where $\lambda_t$ is the underlying intensity, assumed to be spatially
+#' @details We assume that the data come from the model $Y_t \sim Pois(\mu_t)$ for t=1,...,T, where $\mu_t$ is the underlying intensity, assumed to be spatially
 #' structured (or treated as points sampled from a smooth continous function). The $Y_t$ are assumed to be independent. 
-#' Smash provides estimates of $\lambda_t$ (and its posterior variance if desired).
+#' Smash provides estimates of $\mu_t$ (and its posterior variance if desired).
 #' 
 #' @param x: a vector of Poisson counts (reflection is done automatically if length of \code{x} is not a power of 2)
 #' @param post.var: bool, indicates if the posterior variance should be returned

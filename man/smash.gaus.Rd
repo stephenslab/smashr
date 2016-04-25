@@ -10,7 +10,7 @@ smash.gaus(x, sigma = NULL, v.est = FALSE, joint = FALSE,
   SGD = TRUE, weight = 0.5, min.var = 1e-08, ashparam = list())
 }
 \arguments{
-\item{filter.number, }{family: wavelet basis to be used, as in \code{wavethresh}}
+\item{x:}{a vector of observations. Length of \code{x} must be a power of 2.}
 
 \item{sigma:}{a vector of standard deviations. Can be provided if known or estimated beforehand.}
 
@@ -21,6 +21,10 @@ smash.gaus(x, sigma = NULL, v.est = FALSE, joint = FALSE,
 \item{v.basis:}{bool, indicating if the same wavelet basis should be used for variance estimation as mean estimation. If false, defaults to Haar basis for variance estimation (this is much faster than other bases).}
 
 \item{post.var:}{bool, indicating if the posterior variance should be returned for the mean and/or variance estiamtes.}
+
+\item{family:}{choice of wavelet basis to be used, as in \code{wavethresh}.}
+
+\item{filter.number:}{choice of wavelet basis to be used, as in \code{wavethresh}.}
 
 \item{return.loglr:}{bool, indicating if a logLR should be returned.}
 
