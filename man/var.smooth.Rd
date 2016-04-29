@@ -5,7 +5,7 @@
 \title{var.smooth}
 \usage{
 var.smooth(data, data.var, x.var.ini, basis, v.basis, Wl, filter.number, family,
-  post.var, prior, pointmass, nullcheck, VB, mixsd, mixcompdist, gridmult, jash,
+  post.var, prior, pointmass, nullcheck, mixsd, mixcompdist, gridmult, jash,
   weight, J, n, SGD)
 }
 \value{
