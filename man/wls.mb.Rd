@@ -8,9 +8,10 @@ wls.mb(z, v, disp, indexnm, ng, df, forcebin, g = NULL, n = NULL,
   vv = NULL)
 }
 \value{
-a list with elements 'coef', 'se', 'wrse2' if g is not specified, or a list with elements 'muhat', 'semuhat', 'betahat', 'sebetahat', 'covmubeta', 'wrse2' otherwise
+a list with elements "coef", "se", "wrse2" if g is not specified, or a list with elements "muhat", "semuhat", "betahat", "sebetahat", "covmubeta", "wrse2" otherwise
 }
 \description{
 wls.mb
 }
+\keyword{internal}
 

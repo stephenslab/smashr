@@ -7,11 +7,11 @@
 reverse.pwave(est, lp, lq = NULL)
 }
 \arguments{
+\item{est:}{an n-vector. Usually a constant vector with each element equal to the estimated log(total rate).}
+
 \item{lp:}{a J by n matrix of probabilities.}
 
 \item{lq:}{a J by n matrix of complementary probabilities.}
-
-\item{est:}{an n-vector. Usually a constant vector with each element equal to the estimated log(total rate).}
 }
 \value{
 reconstructed signal in the original data space.

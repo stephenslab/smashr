@@ -7,9 +7,10 @@
 glm.coef(z, g, n, center, repara)
 }
 \value{
-a list elements 'coef', 'se' and optionally 'mbvar' if lg=2 and repara=TRUE, or 'covv' if lg=3
+a list elements "coef", "se" and optionally "mbvar" if lg=2 and repara=TRUE, or "covv" if lg=3
 }
 \description{
 Compute estimates and standard errors for mu and beta when fitting WLS, as well as the covariance between mu and beta.
 }
+\keyword{internal}
 

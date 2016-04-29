@@ -5,20 +5,27 @@
 
 
 #' Interleave two vectors
-#' @param x,y: two vectors of the same length
+#' @param x: a vector
+#' @param y: a vector of the same length as y
 #' @return a vector of length twice that of x (or y)
+#' @export
 interleave = function(x, y) {
   return(as.vector(rbind(x, y)))
 }
 
 
-#' Shift a vector one unit to the right
+#' Shift a vector one unit to the right.
 #' @param x: a vector
 #' @return a vector of the same length as that of x 
+#' @export
 rshift = function(x) {
   L = length(x)
   return(c(x[L], x[-L]))
 }
+#' Shift a vector one unit to the left.
+#' @param x: a vector
+#' @return a vector of the same length as that of x 
+#' @export
 lshift = function(x) {
   return(c(x[-1], x[1]))
 }

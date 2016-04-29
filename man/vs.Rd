@@ -16,4 +16,5 @@ vs(n, s, f)
 \description{
 Compute approximately unbiased variance estimates for the estimators for logit(p) when n is small
 }
+\keyword{internal}
 

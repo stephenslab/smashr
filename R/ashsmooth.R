@@ -287,22 +287,23 @@ var.smooth = function(data, data.var, x.var.ini, basis, v.basis, Wl, filter.numb
 #' Set default \code{ash} parameters.
 #' @keywords internal 
 #' @param ashparam: a list of parameters to be passed to ash.
-setAshParam.gaus <- function(ashparam) {
-    #by default ashparam$df=NULL
-    #by default ashparam$mixsd=NULL
-    #by default ashparam$g=NULL
-    if (!is.list(ashparam))
-        stop("Error: invalid parameter 'ashparam'")
-    ashparam.default = list(optmethod="mixEM", pointmass=TRUE,
-                   prior="nullbiased", gridmult=2, control = list(maxiter=5000,trace=FALSE), 
-                   mixcompdist="normal", VB = FALSE, nullweight=10, nonzeromode=FALSE, outputlevel=1, randomstart=FALSE,fixg=FALSE, model="EE")
-    ashparam = modifyList(ashparam.default, ashparam)
-    if (!is.null(ashparam[["g"]]))
-        stop("Error: ash parameter 'g' can only be NULL; if you want to specify ash parameter 'g' use multiseq arguments 'fitted.g' and/or 'fitted.g.intercept'")
-    
-    if(!((is.null(ashparam[["mixsd"]]))|(is.numeric(ashparam[["mixsd"]]) & (length(ashparam[["mixsd"]])<2)))) stop("Error: invalid parameter 'mixsd', 'mixsd'  must be null or a numeric vector of length >=2")
-    if(!((ashparam[["prior"]] == "nullbiased") | (ashparam[["prior"]] == "uniform") | is.numeric(ashparam[["prior"]]))) stop("Error: invalid parameter 'prior', 'prior' can be a number or 'nullbiased' or 'uniform'")
-    return(ashparam)
+setAshParam.gaus = function(ashparam) {
+  # by default ashparam$df=NULL 
+  # by default ashparam$mixsd=NULL 
+  # by default ashparam$g=NULL
+  if (!is.list(ashparam)) 
+    stop("Error: invalid parameter 'ashparam'")
+  ashparam.default = list(optmethod = "mixEM", pointmass = TRUE, prior = "nullbiased", gridmult = 2, control = list(maxiter = 5000, trace = FALSE), 
+                          mixcompdist = "normal", nullweight = 10, nonzeromode = FALSE, outputlevel = 2, randomstart = FALSE, fixg = FALSE, model = "EE")
+  ashparam = modifyList(ashparam.default, ashparam)
+  if (!is.null(ashparam[["g"]])) 
+    stop("Error: ash parameter 'g' can only be NULL; if you want to specify ash parameter 'g' use multiseq arguments 'fitted.g' and/or 'fitted.g.intercept'")
+  
+  if (!((is.null(ashparam[["mixsd"]])) | (is.numeric(ashparam[["mixsd"]]) & (length(ashparam[["mixsd"]]) < 2)))) 
+    stop("Error: invalid parameter 'mixsd', 'mixsd'  must be null or a numeric vector of length >=2")
+  if (!((ashparam[["prior"]] == "nullbiased") | (ashparam[["prior"]] == "uniform") | is.numeric(ashparam[["prior"]]))) 
+    stop("Error: invalid parameter 'prior', 'prior' can be a number or 'nullbiased' or 'uniform'")
+  return(ashparam)
 }
 
 
@@ -518,13 +519,6 @@ ti.thresh = function(x, sigma = NULL, method = "smash", filter.number = 1, famil
 
 
 
-
-
-
-
-
-
-
 #' reflects a vector if it has length a power of 2; otherwise extends the vector to have length a power of 2 and then reflects it
 #' @param x an n-vector
 #' @return an n-vector containing the indices of the original signal x 
@@ -579,12 +573,11 @@ compute.res <- function(alpha, log) {
 
 
 #' For each resolution, performs shrinkage and returns the posterior means and variances in matrix form
-getlist.res = function(res, j, n, zdat, log, shrink, prior, pointmass, nullcheck, gridmult, mixsd, VB, mixcompdist) {
+getlist.res = function(res, j, n, zdat, log, shrink, ashparam) {
     ind = ((j - 1) * n + 1):(j * n)
     if (shrink == TRUE) {
         # apply ash to vector of intercept estimates and SEs
-        zdat.ash = suppressWarnings(ash(zdat[1, ind], zdat[2, ind], prior = prior, outputlevel=2, pointmass = pointmass, 
-            gridmult = gridmult, mixsd = mixsd, VB = VB, mixcompdist = mixcompdist, df = NULL, control = list(trace = FALSE)))
+	      zdat.ash = withCallingHandlers(do.call(ash, c(list(betahat = zdat[1, ind], sebetahat = zdat[2, ind]), ashparam)))
         alpha.mv = list(mean = zdat.ash$PosteriorMean, var = zdat.ash$PosteriorSD^2)  #find mean and variance of alpha
     } else {
         alpha.mv = list(mean = fill.nas(zdat[1, ind]), var = fill.nas(zdat[2, ind])^2)  #find mean and variance of alpha   
@@ -622,41 +615,40 @@ recons.mv = function(ls, res, log, n, J) {
 #' @export
 #' @keywords internal 
 #' @param ashparam: a list of parameters to be passed to ash.
-setAshParam.poiss <- function(ashparam) {
-    #by default ashparam$df=NULL
-    #by default ashparam$mixsd=NULL
-    #by default ashparam$g=NULL
+setAshParam.poiss = function(ashparam) {
+    #by default ashparam$df = NULL
+    #by default ashparam$mixsd = NULL
+    #by default ashparam$g = NULL
     if (!is.list(ashparam))
         stop("Error: invalid parameter 'ashparam'")
-    ashparam.default = list(optmethod="mixEM", pointmass=TRUE,
-                   prior="nullbiased", gridmult=2, control = list(maxiter=5000,trace=FALSE), 
-                   mixcompdist="normal", VB = FALSE, nullweight=10, nonzeromode=FALSE, outputlevel=1, randomstart=FALSE,fixg=FALSE, model="EE")
+    ashparam.default = list(optmethod = "mixEM", pointmass = TRUE,
+                   prior = "nullbiased", gridmult = 2, control = list(maxiter = 5000, trace = FALSE), outputlevel = 2,
+                   mixcompdist = "normal", nullweight = 10, nonzeromode = FALSE, randomstart = FALSE, fixg = FALSE, model = "EE")
     ashparam = modifyList(ashparam.default, ashparam)
     if (!is.null(ashparam[["g"]]))
         stop("Error: ash parameter 'g' can only be NULL; if you want to specify ash parameter 'g' use multiseq arguments 'fitted.g' and/or 'fitted.g.intercept'")
     
-    if(!((is.null(ashparam[["mixsd"]]))|(is.numeric(ashparam[["mixsd"]]) & (length(ashparam[["mixsd"]])<2)))) stop("Error: invalid parameter 'mixsd', 'mixsd'  must be null or a numeric vector of length >=2")
+    if(!((is.null(ashparam[["mixsd"]])) | (is.numeric(ashparam[["mixsd"]]) & (length(ashparam[["mixsd"]]) < 2)))) stop("Error: invalid parameter 'mixsd', 'mixsd'  must be null or a numeric vector of length >=2")
     if(!((ashparam[["prior"]] == "nullbiased") | (ashparam[["prior"]] == "uniform") | is.numeric(ashparam[["prior"]]))) stop("Error: invalid parameter 'prior', 'prior' can be a number or 'nullbiased' or 'uniform'")
     return(ashparam)
 }
 
 
 #' Set default \code{glm.approx} parameters.
-#' @export
 #' @keywords internal 
 #' @param glm.approx.param: a list of parameters to be passed to glm.approx.
-setGlmApproxParam <- function(glm.approx.param){
+setGlmApproxParam = function(glm.approx.param){
   if(!is.list(glm.approx.param))
     stop("Error: invalid parameter 'glm.approx.param'")
-  glm.approx.param.default = list(minobs = 1, pseudocounts=0.5, all=FALSE, center = FALSE, forcebin = TRUE, 
+  glm.approx.param.default = list(minobs = 1, pseudocounts = 0.5, all = FALSE, center = FALSE, forcebin = TRUE, 
                                   repara = TRUE, lm.approx = FALSE, disp = "add")
   glm.approx.param = modifyList(glm.approx.param.default, glm.approx.param)
   
-  if(glm.approx.param[["minobs"]]%%1!=0|glm.approx.param[["minobs"]]<1)
+  if(glm.approx.param[["minobs"]]%%1 != 0|glm.approx.param[["minobs"]] <1 )
     stop("Error: minobs must be an integer larger than or equal to 1")
-  if(!(glm.approx.param[["disp"]]%in%c("add","mult")))
+  if(!(glm.approx.param[["disp"]] %in% c("add", "mult")))
     stop("Error: parameter disp must be 'add' or 'mult'")
-  if(!(is.numeric(glm.approx.param[["pseudocounts"]]) & glm.approx.param[["pseudocounts"]]>0)) 
+  if(!(is.numeric(glm.approx.param[["pseudocounts"]]) & glm.approx.param[["pseudocounts"]] > 0)) 
     stop("Error: invalid parameter 'pseudocounts', 'pseudocounts' must be a positive number")
   
   return(glm.approx.param)
@@ -738,15 +730,13 @@ smash.poiss = function(x, post.var = FALSE, log = FALSE, reflect = FALSE, glm.ap
     res = list()
     # loop through resolutions, smoothing each resolution separately
     for (j in 1:(J - lev)) {
-        res = getlist.res(res, j, n, zdat, log, TRUE, ashparam$prior, ashparam$pointmass, ashparam$nullcheck, ashparam$gridmult, 
-            ashparam$mixsd, ashparam$VB, ashparam$mixcompdist)
+        res = getlist.res(res, j, n, zdat, log, TRUE, ashparam)
     }
     # Do not smooth for coarser levels, with everything the same as above but using the estimate and its variance as
     # the posterior mean and variance ie flat prior
     if (lev != 0) {
         for (j in (J - lev + 1):J) {
-            res = getlist.res(res, j, n, zdat, log, FALSE, ashparam$prior, ashparam$pointmass, ashparam$nullcheck, 
-                ashparam$gridmult, ashparam$mixsd, ashparam$VB, ashparam$mixcompdist)
+            res = getlist.res(res, j, n, zdat, log, FALSE, ashparam)
         }
     }
     recons = recons.mv(ls, res, log, n, J)

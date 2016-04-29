@@ -7,9 +7,10 @@
 wls.coef(z, disp, indexnm, n, ng, forcebin, g = NULL, repara = NULL)
 }
 \value{
-a list elements 'coef', 'se', 'mbvar'
+a list elements "coef", "se", "mbvar"
 }
 \description{
 Compute estimates and standard errors for mu and beta when fitting WLS, as well as the covariance between mu and beta
 }
+\keyword{internal}
 

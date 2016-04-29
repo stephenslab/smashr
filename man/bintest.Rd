@@ -28,4 +28,5 @@ a vector of intercept and slope estimates and their SEs
 \description{
 Returns estimates of intercept and slope as well as their SEs, given other input options. Called in glm.approx
 }
+\keyword{internal}
 

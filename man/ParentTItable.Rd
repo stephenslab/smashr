@@ -2,17 +2,24 @@
 % Please edit documentation in R/titable_poiss.R
 \name{ParentTItable}
 \alias{ParentTItable}
-\title{Produces two TI tables for Poisson counts. One is the standard TI table, and the other are the parent values used to make the TI table}
+\title{Create a TI table and a parent table.}
 \usage{
 ParentTItable(sig)
 }
 \arguments{
-\item{sig:}{a signal of length a power of 2}
+\item{sig:}{an n vector of Poisson counts at n locations}
 }
 \value{
-a list of two TI tables in the form of matrices
+a list with elements "TItable" and "parent"
 }
 \description{
-Produces two TI tables for Poisson counts. One is the standard TI table, and the other are the parent values used to make the TI table
+This function returns both a TItable and a "parent" table whose pairwise comparisons are used to create a TI table. For example, in the ith row, elements 1, 2 are the parents of the first element in the (i+1)th row of the TI table.
 }
+\details{
+This function creates a decomposition table of signal, using pairwise sums, keeping just the values that are *not* redundant under the shift-invariant scheme.
+}
+\references{
+This is very similar to TI-tables in Donoho and Coifman's TI-denoising framework
+}
+\keyword{internal}
 

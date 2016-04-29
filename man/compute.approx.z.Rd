@@ -2,13 +2,39 @@
 % Please edit documentation in R/glm_approx.R
 \name{compute.approx.z}
 \alias{compute.approx.z}
-\title{compute.approx.z
-Compute a vector of logit(p) given a vector of successes and failures, as well as its variance estimates (MLE with approximation at endpoints for mean; a mix of Berkso's estimator and Tukey's estimator for variance)}
+\title{compute.approx.z}
 \usage{
 compute.approx.z(x.s, x.f, bound, eps, pseudocounts, all, indexn = NULL,
   return.p = FALSE)
 }
 \value{
-a list with elements 'mu', 'var' and optionally 'p'
+a list with elements "mu", "var" and optionally "p"
 }
+\keyword{(MLE}
+\keyword{Berkso's}
+\keyword{Compute}
+\keyword{Tukey's}
+\keyword{a}
+\keyword{and}
+\keyword{approximation}
+\keyword{as}
+\keyword{at}
+\keyword{endpoints}
+\keyword{estimates}
+\keyword{estimator}
+\keyword{failures,}
+\keyword{for}
+\keyword{given}
+\keyword{internal}
+\keyword{its}
+\keyword{logit(p)}
+\keyword{mean;}
+\keyword{mix}
+\keyword{of}
+\keyword{successes}
+\keyword{variance}
+\keyword{variance)}
+\keyword{vector}
+\keyword{well}
+\keyword{with}
 

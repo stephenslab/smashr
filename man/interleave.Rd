@@ -7,7 +7,9 @@
 interleave(x, y)
 }
 \arguments{
-\item{x, y:}{two vectors of the same length}
+\item{x:}{a vector}
+
+\item{y:}{a vector of the same length as y}
 }
 \value{
 a vector of length twice that of x (or y)

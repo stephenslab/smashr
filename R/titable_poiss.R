@@ -13,9 +13,17 @@ simplify = function(dmat) {
 
 
 
-#' Produces two TI tables for Poisson counts. One is the standard TI table, and the other are the parent values used to make the TI table
-#' @param sig: a signal of length a power of 2
-#' @return a list of two TI tables in the form of matrices
+#' Create a TI table and a parent table.
+#' 
+#' This function returns both a TItable and a "parent" table whose pairwise comparisons are used to create a TI table. For example, in the ith row, elements 1, 2 are the parents of the first element in the (i+1)th row of the TI table.
+#'
+#' This function creates a decomposition table of signal, using pairwise sums, keeping just the values that are *not* redundant under the shift-invariant scheme.
+#'
+#' @param sig: an n vector of Poisson counts at n locations
+#' @return a list with elements "TItable" and "parent"
+#' @references This is very similar to TI-tables in Donoho and Coifman's TI-denoising framework
+#' @keywords internal
+#' @export
 ParentTItable = function(sig) {
   n = length(sig)
   J = log2(n)
@@ -48,10 +56,11 @@ ParentTItable = function(sig) {
 
 
 #' Reverse wavelet transform a set of probabilities in TItable format for Poisson data.
+#' @param est: an n-vector. Usually a constant vector with each element equal to the estimated log(total rate).
 #' @param lp: a J by n matrix of probabilities. 
 #' @param lq: a J by n matrix of complementary probabilities.
-#' @param est: an n-vector. Usually a constant vector with each element equal to the estimated log(total rate).
 #' @return reconstructed signal in the original data space.
+#' @export
 reverse.pwave = function(est, lp, lq = NULL) {
   if (is.null(lq)) {
     lq = log(1 - exp(lp))

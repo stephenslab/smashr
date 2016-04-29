@@ -7,6 +7,7 @@
 compute.lm(g, coef, se, mbvar, n, index, repara)
 }
 \value{
-a matrix with estimates for mu and beta, as well as their SEs. Optionally returns 'mbvar' if specified
+a matrix with estimates for mu and beta, as well as their SEs. Optionally returns "mbvar" if specified
 }
+\keyword{internal}
 
