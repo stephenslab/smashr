@@ -102,7 +102,7 @@ shrink.wc = function(wc, wc.var.sqrt, prior, pointmass, nullcheck, mixsd, mixcom
     if (jash == FALSE) {
         zdat.ash = suppressWarnings(ash(wc, wc.var.sqrt, prior = prior, outputlevel = 2, pointmass = pointmass, 
             mixsd = mixsd, mixcompdist = mixcompdist, gridmult = gridmult,
-            df = NULL, control = list(trace = FALSE)))
+            df = NULL))
     } else {
         zdat.ash = jasha(wc, wc.var.sqrt, df = df, SGD = SGD)
     }
@@ -126,17 +126,17 @@ mu.smooth = function(wc, data.var, basis, tsum, Wl, return.loglr, post.var, prio
             zdat.ash = shrink.wc(y[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), prior = prior, pointmass = pointmass, 
                 nullcheck = nullcheck, mixsd = mixsd, mixcompdist = mixcompdist, gridmult = gridmult, jash = FALSE, 
                 df = NULL, SGD = FALSE)
-            wmean[j + 1, ind.nnull] = zdat.ash$PosteriorMean/2
+            wmean[j + 1, ind.nnull] = ashr::get_pm(zdat.ash)/2
             wmean[j + 1, !ind.nnull] = 0
             if (return.loglr == TRUE) {
                 spins = 2^(j + 1)
-                zdat.ash$model = "EE"
-                logLR.temp = ashr:::calc_loglik(zdat.ash, y[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), NULL) -  
+                logLR.temp = ashr:::calc_loglik(ashr::get_fitted_g(zdat.ash), 
+                    ashr::set_data(y[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), NULL,0)) -  
                     sum(dnorm(y[j + 2, ind.nnull], 0, sqrt(vtable[j + 2, ind.nnull]), log = TRUE))
                 logLR.scale[j + 1] = logLR.temp/spins
             }
             if (post.var == TRUE) {
-                wvar[j + 1, ind.nnull] = zdat.ash$PosteriorSD^2/4
+                wvar[j + 1, ind.nnull] = ashr::get_psd(zdat.ash)^2/4
                 wvar[j + 1, !ind.nnull] = 0
             }
         }
@@ -163,18 +163,18 @@ mu.smooth = function(wc, data.var, basis, tsum, Wl, return.loglr, post.var, prio
             zdat.ash = shrink.wc(x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]), prior = prior, pointmass = pointmass, 
                 nullcheck = nullcheck, mixsd = mixsd, mixcompdist = mixcompdist, gridmult = gridmult, jash = FALSE, 
                 df = NULL, SGD = FALSE)
-            x.pm[ind.nnull] = zdat.ash$PosteriorMean
+            x.pm[ind.nnull] = ashr::get_pm(zdat.ash)
             x.pm[!ind.nnull] = 0
             x.w = putD(x.w, j, x.pm)
             if (return.loglr == TRUE) {
                 spins = 2^(J - j)
-                zdat.ash$model = "EE"
-                logLR.temp = ashr:::calc_loglik(zdat.ash, x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]), NULL) -  
+                logLR.temp = ashr:::calc_loglik(ashr::get_fitted_g(zdat.ash),
+                                                ashr::set_data(x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]), NULL, 0)) -  
                     sum(dnorm(x.w.j[ind.nnull], 0, sqrt(x.w.v.j[ind.nnull]), log = TRUE))
                 logLR.scale[j + 1] = logLR.temp/spins
             }
             if (post.var == TRUE) {
-                x.w.v.s[index[ind.nnull]] = zdat.ash$PosteriorSD^2
+                x.w.v.s[index[ind.nnull]] = ashr::get_psd(zdat.ash)^2
                 x.w.v.s[index[!ind.nnull]] = 0
             }
         }
@@ -218,17 +218,17 @@ var.smooth = function(data, data.var, x.var.ini, basis, v.basis, Wl, filter.numb
             zdat.ash = shrink.wc(vdtable[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), prior = prior, pointmass = pointmass, nullcheck = nullcheck, 
                 mixsd = mixsd, mixcompdist = mixcompdist, gridmult = gridmult, jash = jash, df = min(50, 2^(j + 
                   1)), SGD = SGD)
-            wmean[j + 1, ind.nnull] = zdat.ash$PosteriorMean/2
+            wmean[j + 1, ind.nnull] = ashr::get_pm(zdat.ash)/2
             wmean[j + 1, !ind.nnull] = 0
             if ((sum(is.na(wmean[j + 1, ])) > 0) & (SGD == TRUE)) {
                 zdat.ash = shrink.wc(vdtable[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), prior = prior, pointmass = pointmass, 
                   nullcheck = nullcheck, mixsd = mixsd, mixcompdist = mixcompdist, gridmult = gridmult, jash = jash, 
                   df = min(50, 2^(j + 1)), SGD = FALSE)
-                wmean[j + 1, ind.nnull] = zdat.ash$PosteriorMean/2
+                wmean[j + 1, ind.nnull] = ashr::get_pm(zdat.ash)/2
                 wmean[j + 1, !ind.nnull] = 0
             }
             if (post.var == TRUE) {
-                wvar[j + 1, ind.nnull] = zdat.ash$PosteriorSD^2/4
+                wvar[j + 1, ind.nnull] = ashr::get_psd(zdat.ash)^2/4
                 wvar[j + 1, !ind.nnull] = 0
             }
         }
@@ -251,18 +251,18 @@ var.smooth = function(data, data.var, x.var.ini, basis, v.basis, Wl, filter.numb
             zdat.ash = shrink.wc(x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]), prior = prior, pointmass = pointmass, 
                 nullcheck = nullcheck, mixsd = mixsd, mixcompdist = mixcompdist, gridmult = gridmult, jash = jash, 
                 df = min(50, 2^(j + 1)), SGD = SGD)
-            x.pm[ind.nnull] = zdat.ash$PosteriorMean
+            x.pm[ind.nnull] = ashr::get_pm(zdat.ash)
             x.pm[!ind.nnull] = 0
             if ((sum(is.na(x.pm)) > 0) & (SGD == TRUE)) {
                 zdat.ash = shrink.wc(x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]), prior = prior, pointmass = pointmass, 
                   nullcheck = nullcheck, mixsd = mixsd, mixcompdist = mixcompdist, gridmult = gridmult, jash = jash, 
                   df = min(50, 2^(j + 1)), SGD = FALSE)
-                x.pm[ind.nnull] = zdat.ash$PosteriorMean
+                x.pm[ind.nnull] = ashr::get_pm(zdat.ash)
                 x.pm[!ind.nnull] = 0
             }
             x.w = putD(x.w, j, x.pm)
             if (post.var == TRUE) {
-                x.w.v.s[index[ind.nnull]] = zdat.ash$PosteriorSD^2
+                x.w.v.s[index[ind.nnull]] = ashr::get_psd(zdat.ash)^2
                 x.w.v.s[index[!ind.nnull]] = 0
             }
         }
@@ -293,8 +293,8 @@ setAshParam.gaus = function(ashparam) {
   # by default ashparam$g=NULL
   if (!is.list(ashparam)) 
     stop("Error: invalid parameter 'ashparam'")
-  ashparam.default = list(optmethod = "mixEM", pointmass = TRUE, prior = "nullbiased", gridmult = 2, control = list(maxiter = 5000, trace = FALSE), 
-                          mixcompdist = "normal", nullweight = 10, nonzeromode = FALSE, outputlevel = 2, randomstart = FALSE, fixg = FALSE, model = "EE")
+  ashparam.default = list(pointmass = TRUE, prior = "nullbiased", gridmult = 2, 
+                          mixcompdist = "normal", nullweight = 10, outputlevel = 2, fixg = FALSE)
   ashparam = modifyList(ashparam.default, ashparam)
   if (!is.null(ashparam[["g"]])) 
     stop("Error: ash parameter 'g' can only be NULL; if you want to specify ash parameter 'g' use multiseq arguments 'fitted.g' and/or 'fitted.g.intercept'")
@@ -578,7 +578,7 @@ getlist.res = function(res, j, n, zdat, log, shrink, ashparam) {
     if (shrink == TRUE) {
         # apply ash to vector of intercept estimates and SEs
 	      zdat.ash = withCallingHandlers(do.call(ash, c(list(betahat = zdat[1, ind], sebetahat = zdat[2, ind]), ashparam)))
-        alpha.mv = list(mean = zdat.ash$PosteriorMean, var = zdat.ash$PosteriorSD^2)  #find mean and variance of alpha
+        alpha.mv = list(mean = ashr::get_pm(zdat.ash), var = ashr::get_psd(zdat.ash)^2)  #find mean and variance of alpha
     } else {
         alpha.mv = list(mean = fill.nas(zdat[1, ind]), var = fill.nas(zdat[2, ind])^2)  #find mean and variance of alpha   
     }
@@ -621,9 +621,8 @@ setAshParam.poiss = function(ashparam) {
     #by default ashparam$g = NULL
     if (!is.list(ashparam))
         stop("Error: invalid parameter 'ashparam'")
-    ashparam.default = list(optmethod = "mixEM", pointmass = TRUE,
-                   prior = "nullbiased", gridmult = 2, control = list(maxiter = 5000, trace = FALSE), outputlevel = 2,
-                   mixcompdist = "normal", nullweight = 10, nonzeromode = FALSE, randomstart = FALSE, fixg = FALSE, model = "EE")
+    ashparam.default = ashparam.default = list(pointmass = TRUE, prior = "nullbiased", gridmult = 2,  
+                                               mixcompdist = "normal", nullweight = 10, outputlevel = 2, fixg = FALSE)
     ashparam = modifyList(ashparam.default, ashparam)
     if (!is.null(ashparam[["g"]]))
         stop("Error: ash parameter 'g' can only be NULL; if you want to specify ash parameter 'g' use multiseq arguments 'fitted.g' and/or 'fitted.g.intercept'")
