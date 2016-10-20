@@ -98,11 +98,10 @@ ndwt.mat = function(n, filter.number, family) {
 
 #' a wrapper function for code in \code{mu.smooth} and \code{var.smooth}
 #' @keywords internal 
-shrink.wc = function(wc, wc.var.sqrt, prior, pointmass, nullcheck, mixsd, mixcompdist, gridmult, jash, df, SGD) {
+shrink.wc = function(wc, wc.var.sqrt, ashparam, jash, df, SGD) {
+  
     if (jash == FALSE) {
-        zdat.ash = suppressWarnings(ash(wc, wc.var.sqrt, prior = prior, outputlevel = 2, pointmass = pointmass, 
-            mixsd = mixsd, mixcompdist = mixcompdist, gridmult = gridmult,
-            df = NULL))
+        zdat.ash = withCallingHandlers(do.call(ashr::ash, c(list(betahat=wc, sebetahat=wc.var.sqrt), ashparam)))
     } else {
         zdat.ash = jasha(wc, wc.var.sqrt, df = df, SGD = SGD)
     }
@@ -113,8 +112,7 @@ shrink.wc = function(wc, wc.var.sqrt, prior, pointmass, nullcheck, mixsd, mixcom
 #' @title mu.smooth
 #' @return 'mu.est' if posterior variances are not computed, and a list with elements 'mu.est' and 'mu.est.var' otherwise
 #' @keywords internal
-mu.smooth = function(wc, data.var, basis, tsum, Wl, return.loglr, post.var, prior, pointmass, nullcheck, mixsd, mixcompdist, 
-    gridmult, J, n) {
+mu.smooth = function(wc, data.var, basis, tsum, Wl, return.loglr, post.var, ashparam, J, n) {
     wmean = matrix(0, J, n)
     wvar = matrix(0, J, n)
     if (basis[[1]] == "haar") {
@@ -123,8 +121,7 @@ mu.smooth = function(wc, data.var, basis, tsum, Wl, return.loglr, post.var, prio
         logLR.scale = 0
         for (j in 0:(J - 1)) {
             ind.nnull = (vtable[j + 2, ] != 0)
-            zdat.ash = shrink.wc(y[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), prior = prior, pointmass = pointmass, 
-                nullcheck = nullcheck, mixsd = mixsd, mixcompdist = mixcompdist, gridmult = gridmult, jash = FALSE, 
+            zdat.ash = shrink.wc(y[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), ashparam, jash = FALSE, 
                 df = NULL, SGD = FALSE)
             wmean[j + 1, ind.nnull] = ashr::get_pm(zdat.ash)/2
             wmean[j + 1, !ind.nnull] = 0
@@ -160,8 +157,7 @@ mu.smooth = function(wc, data.var, basis, tsum, Wl, return.loglr, post.var, prio
             x.w.j = accessD(x.w, j)
             x.w.v.j = x.w.v[index]
             ind.nnull = (x.w.v.j != 0)
-            zdat.ash = shrink.wc(x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]), prior = prior, pointmass = pointmass, 
-                nullcheck = nullcheck, mixsd = mixsd, mixcompdist = mixcompdist, gridmult = gridmult, jash = FALSE, 
+            zdat.ash = shrink.wc(x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]), ashparam, jash = FALSE, 
                 df = NULL, SGD = FALSE)
             x.pm[ind.nnull] = ashr::get_pm(zdat.ash)
             x.pm[!ind.nnull] = 0
@@ -206,8 +202,7 @@ mu.smooth = function(wc, data.var, basis, tsum, Wl, return.loglr, post.var, prio
 #' @title var.smooth
 #' @return 'var.est' if posterior variances are not computed, and a list with elements 'var.est' and 'var.est.var' otherwise
 #' @keywords internal
-var.smooth = function(data, data.var, x.var.ini, basis, v.basis, Wl, filter.number, family, post.var, prior, pointmass, 
-    nullcheck, mixsd, mixcompdist, gridmult, jash, weight, J, n, SGD) {
+var.smooth = function(data, data.var, x.var.ini, basis, v.basis, Wl, filter.number, family, post.var, ashparam, jash, weight, J, n, SGD) {
     wmean = matrix(0, J, n)
     wvar = matrix(0, J, n)
     if (basis[[1]] == "haar" | v.basis == FALSE) {
@@ -215,14 +210,12 @@ var.smooth = function(data, data.var, x.var.ini, basis, v.basis, Wl, filter.numb
         vdtable = cxxtitable(data)$difftable
         for (j in 0:(J - 1)) {
             ind.nnull = (vtable[j + 2, ] != 0)
-            zdat.ash = shrink.wc(vdtable[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), prior = prior, pointmass = pointmass, nullcheck = nullcheck, 
-                mixsd = mixsd, mixcompdist = mixcompdist, gridmult = gridmult, jash = jash, df = min(50, 2^(j + 
+            zdat.ash = shrink.wc(vdtable[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), ashparam, jash = jash, df = min(50, 2^(j + 
                   1)), SGD = SGD)
             wmean[j + 1, ind.nnull] = ashr::get_pm(zdat.ash)/2
             wmean[j + 1, !ind.nnull] = 0
             if ((sum(is.na(wmean[j + 1, ])) > 0) & (SGD == TRUE)) {
-                zdat.ash = shrink.wc(vdtable[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), prior = prior, pointmass = pointmass, 
-                  nullcheck = nullcheck, mixsd = mixsd, mixcompdist = mixcompdist, gridmult = gridmult, jash = jash, 
+                zdat.ash = shrink.wc(vdtable[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), ashparam, jash = jash, 
                   df = min(50, 2^(j + 1)), SGD = FALSE)
                 wmean[j + 1, ind.nnull] = ashr::get_pm(zdat.ash)/2
                 wmean[j + 1, !ind.nnull] = 0
@@ -248,14 +241,12 @@ var.smooth = function(data, data.var, x.var.ini, basis, v.basis, Wl, filter.numb
             x.w.j = accessD(x.w, j)
             x.w.v.j = x.w.v[index]
             ind.nnull = (x.w.v.j != 0)
-            zdat.ash = shrink.wc(x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]), prior = prior, pointmass = pointmass, 
-                nullcheck = nullcheck, mixsd = mixsd, mixcompdist = mixcompdist, gridmult = gridmult, jash = jash, 
+            zdat.ash = shrink.wc(x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]), ashparam, jash = jash, 
                 df = min(50, 2^(j + 1)), SGD = SGD)
             x.pm[ind.nnull] = ashr::get_pm(zdat.ash)
             x.pm[!ind.nnull] = 0
             if ((sum(is.na(x.pm)) > 0) & (SGD == TRUE)) {
-                zdat.ash = shrink.wc(x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]), prior = prior, pointmass = pointmass, 
-                  nullcheck = nullcheck, mixsd = mixsd, mixcompdist = mixcompdist, gridmult = gridmult, jash = jash, 
+                zdat.ash = shrink.wc(x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]), ashparam, jash = jash, 
                   df = min(50, 2^(j + 1)), SGD = FALSE)
                 x.pm[ind.nnull] = ashr::get_pm(zdat.ash)
                 x.pm[!ind.nnull] = 0
@@ -394,18 +385,15 @@ smash.gaus = function(x, sigma = NULL, v.est = FALSE, joint = FALSE, v.basis = F
         var.est1.ini = (x - lshift(x))^2/2
         var.est2.ini = (rshift(x) - x)^2/2
         var.est.ini = (var.est1.ini + var.est2.ini)/2
-        mu.est = mu.smooth(x.w.d, var.est.ini, basis, tsum, Wl, FALSE, FALSE, ashparam$prior, ashparam$pointmass, ashparam$nullcheck, 
-            ashparam$mixsd, ashparam$mixcompdist, ashparam$gridmult, J, n)
+        mu.est = mu.smooth(x.w.d, var.est.ini, basis, tsum, Wl, FALSE, FALSE, ashparam, J, n)
         var.est = (x - mu.est)^2
         var.var.est = 2/3 * var.est^2
-        var.est = var.smooth(var.est, var.var.est, var.est.ini, basis, v.basis, Wl, filter.number, family, FALSE, ashparam$prior, 
-            ashparam$pointmass, ashparam$nullcheck, ashparam$mixsd, ashparam$mixcompdist, ashparam$gridmult, 
-            jash, weight, J, n, SGD = SGD)
+        var.est = var.smooth(var.est, var.var.est, var.est.ini, basis, v.basis, Wl, 
+                             filter.number, family, FALSE, ashparam, jash, weight, J, n, SGD = SGD)
         var.est[var.est <= 0] = 1e-08
         sigma = sqrt(var.est)
     }
-    mu.res = mu.smooth(x.w.d, sigma^2, basis, tsum, Wl, return.loglr, post.var, ashparam$prior, ashparam$pointmass, ashparam$nullcheck, 
-        ashparam$mixsd, ashparam$mixcompdist, 64, J, n)
+    mu.res = mu.smooth(x.w.d, sigma^2, basis, tsum, Wl, return.loglr, post.var, ashparam, J, n)
     
     if (v.est == FALSE) {
         return(mu.res)
@@ -417,8 +405,7 @@ smash.gaus = function(x, sigma = NULL, v.est = FALSE, joint = FALSE, v.basis = F
         }
         var.est = (x - mu.est)^2
         var.var.est = 2/3 * var.est^2
-        var.res = var.smooth(var.est, var.var.est, 0, basis, v.basis, Wl, filter.number, family, post.var, ashparam$prior, 
-            ashparam$pointmass, ashparam$nullcheck, ashparam$mixsd, ashparam$mixcompdist, ashparam$gridmult, 
+        var.res = var.smooth(var.est, var.var.est, 0, basis, v.basis, Wl, filter.number, family, post.var, ashparam, 
             jash, 1, J, n, SGD = SGD)
         if (post.var == FALSE) {
             var.res[var.res <= 0] = min.var
