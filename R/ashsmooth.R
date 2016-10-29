@@ -608,7 +608,7 @@ setAshParam.poiss = function(ashparam) {
     #by default ashparam$g = NULL
     if (!is.list(ashparam))
         stop("Error: invalid parameter 'ashparam'")
-    ashparam.default = ashparam.default = list(pointmass = TRUE, prior = "nullbiased", gridmult = 2,  
+    ashparam.default = list(pointmass = TRUE, prior = "nullbiased", gridmult = 2,  
                                                mixcompdist = "normal", nullweight = 10, outputlevel = 2, fixg = FALSE)
     ashparam = modifyList(ashparam.default, ashparam)
     if (!is.null(ashparam[["g"]]))
