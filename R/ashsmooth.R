@@ -393,7 +393,10 @@ smash.gaus = function(x, sigma = NULL, v.est = FALSE, joint = FALSE, v.basis = F
         var.est[var.est <= 0] = 1e-08
         sigma = sqrt(var.est)
     }
-    mu.res = mu.smooth(x.w.d, sigma^2, basis, tsum, Wl, return.loglr, post.var, ashparam, J, n)
+    
+    ashparam.mean = ashparam
+    ashparam.mean$gridmult = 64
+    mu.res = mu.smooth(x.w.d, sigma^2, basis, tsum, Wl, return.loglr, post.var, ashparam.mean, J, n)
     
     if (v.est == FALSE) {
         return(mu.res)
