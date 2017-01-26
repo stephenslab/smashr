@@ -4,8 +4,7 @@
 \alias{shrink.wc}
 \title{a wrapper function for code in \code{mu.smooth} and \code{var.smooth}}
 \usage{
-shrink.wc(wc, wc.var.sqrt, prior, pointmass, nullcheck, mixsd, mixcompdist,
-  gridmult, jash, df, SGD)
+shrink.wc(wc, wc.var.sqrt, ashparam, jash, df, SGD)
 }
 \description{
 a wrapper function for code in \code{mu.smooth} and \code{var.smooth}
