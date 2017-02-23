@@ -567,7 +567,7 @@ getlist.res = function(res, j, n, zdat, log, shrink, ashparam) {
     ind = ((j - 1) * n + 1):(j * n)
     if (shrink == TRUE) {
         # apply ash to vector of intercept estimates and SEs
-	      zdat.ash = withCallingHandlers(do.call(ash, c(list(betahat = zdat[1, ind], sebetahat = zdat[2, ind]), ashparam)))
+	      zdat.ash = withCallingHandlers(do.call(ashr::ash, c(list(betahat = zdat[1, ind], sebetahat = zdat[2, ind]), ashparam)))
         alpha.mv = list(mean = ashr::get_pm(zdat.ash), var = ashr::get_psd(zdat.ash)^2)  #find mean and variance of alpha
     } else {
         alpha.mv = list(mean = fill.nas(zdat[1, ind]), var = fill.nas(zdat[2, ind])^2)  #find mean and variance of alpha   
