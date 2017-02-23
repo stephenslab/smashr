@@ -573,7 +573,7 @@ getlist.res = function(res, j, n, zdat, log, shrink, ashparam) {
         alpha.mv = list(mean = fill.nas(zdat[1, ind]), var = fill.nas(zdat[2, ind])^2)  #find mean and variance of alpha   
     }
     res.j = compute.res(alpha.mv, log)
-    res = rbindlist(list(res, res.j))
+    res = data.table::rbindlist(list(res, res.j))
     return(res)
 }
 
