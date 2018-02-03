@@ -4,8 +4,7 @@
 \alias{mu.smooth}
 \title{mu.smooth}
 \usage{
-mu.smooth(wc, data.var, basis, tsum, Wl, return.loglr, post.var, prior,
-  pointmass, nullcheck, mixsd, mixcompdist, gridmult, J, n)
+mu.smooth(wc, data.var, basis, tsum, Wl, return.loglr, post.var, ashparam, J, n)
 }
 \value{
 'mu.est' if posterior variances are not computed, and a list with elements 'mu.est' and 'mu.est.var' otherwise

@@ -5,8 +5,7 @@
 \title{var.smooth}
 \usage{
 var.smooth(data, data.var, x.var.ini, basis, v.basis, Wl, filter.number, family,
-  post.var, prior, pointmass, nullcheck, mixsd, mixcompdist, gridmult, jash,
-  weight, J, n, SGD)
+  post.var, ashparam, jash, weight, J, n, SGD)
 }
 \value{
 'var.est' if posterior variances are not computed, and a list with elements 'var.est' and 'var.est.var' otherwise

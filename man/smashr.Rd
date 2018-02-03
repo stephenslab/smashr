@@ -4,15 +4,22 @@
 \name{smashr}
 \alias{smashr}
 \alias{smashr-package}
-\title{Smash: Smoothing using Adaptive SHrinkage}
+\title{smashr: Smoothing using Adaptive SHrinkage in R}
 \description{
-This package performs nonparametric regression on univariate Poisson or Gaussian data using wavelets. For the Poisson case, the data are assumed to be i.i.d. 
-from an underlying inhomogeneous mean function that is "smooth". Similarly for the Gaussian case, the data are assumed to be independent with an underlying smooth mean function. 
-In the Gaussian case, the variances are allowed vary, but are similarly "spatially structured" as with the mean function.
+This package performs nonparametric regression on univariate Poisson or Gaussian data using multi-scale methods. 
+For the Poisson case, the data $x$ is a vector, with $x_j \sim Poi(\mu_j)$ where
+the mean vector $\mu$ is to be estimated.  
+For the Gaussian case, the data $x$ are a vector with $x_j \sim N(\mu_j, \sigma^2_j)$. Where
+the mean vector $\mu$ and variance vector $\sigma^2$ are to be estimated.
+The primary assumption is that $\mu$ is spatially structured, so $\mu_j - \mu_{j+1}$ will often be small 
+(that is, roughly, $\mu$ is smooth). Also $\sigma$ is spatially structured in the Gaussian case (or, optionally, $\sigma$ is constant, not depending on $j$).
 }
 \details{
-The functions \code{ashsmooth.gaus} and \code{ashsmooth.pois} perform smoothing for Gaussian and Poisson data respectively. The only required input is a vector of length 2^J for some integer J.
-Other options include the possibility of returning the posterior variances, specifying a wavelet basis (default is Haar, which performs well in general due to the fact that we used the translation-invariant version)
+The function \code{\link{smash}} provides a minimal interface to perform simple smoothing. 
+It is actually a wrapper to \code{\link{smash.gaus}} and \code{\link{smash.poiss}} which provide more options for advanced use.
+The only required input is a vector of length 2^J for some integer J.
+Other options include the possibility of returning the posterior variances, specifying a wavelet basis (default is Haar, which performs 
+well in general due to the fact that smash uses the translation-invariant transform)
 }
 \examples{
 # Create the baseline mean function (The "spikes" function is used as an example here)
