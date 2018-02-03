@@ -16,7 +16,7 @@ and for help using the package run
 ?smashr or ?smash
 ```
 
-#Background
+# Background
 Nonparametric regression is often used when one does not wish to assume any particular relationship (eg. linear) between a predictor and a response. Commonly seen examples come from astronomy, finance and biology. 
 
 For the Gaussian case, the statistical problem is of the form Y_i=\mu_i+\epsilon_i, i=1,...,n, where \mu is the underlying mean function and assumed to be "spatially structured", and \epsilon_i's are independent Gaussian noise with mean 0 and variance \sigma_i^2. The goal is to recover \mu as accurately as possible given Y.
@@ -25,7 +25,7 @@ For the Poisson case, the model is similar, given by Y_i\sim Pois(\mu_i), i=1,..
 
 The key idea behind the method is via wavelet transform (eg. Donoho & Johnstone (1994)) for the Gaussian case, and an extremely similar multiscale decomposition (Kolaczyk (1999)) for the Poisson case. Instead of traditional ways to perform shrinkage/thresholding however, both versions of smash make use of the Adaptive Shrinkage procedure introduced by Stephens (2015). Other details can be found in the companion paper Xing and Stephens (in preparation).
 
-#Demonstration
+# Demonstration
 The method can be used straight out of the box using the default settings, and should work for most reasonable scenarios (eg the noise does not completely overwhelm the signal). An example is shown below:
 
 ```
