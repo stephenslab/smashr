@@ -61,7 +61,7 @@ smash = function(x, model = NULL, ...){
   }
   
   if(is.null(model)){
-    if(!all.equal(trunc(x),x)){
+    if(!isTRUE(all.equal(trunc(x),x))){
       model = "gaus"
     }else{
       model = "poiss"

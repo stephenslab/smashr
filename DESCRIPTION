@@ -1,7 +1,7 @@
 Package: smashr
 Type: Package
 Title: Smoothing using Adaptive SHrinkage (SMASH)
-Version: 1.0.4
+Version: 1.0.5
 Date: 2015-01-26
 Author: Matthew Stephens, Zhengrong Xing
 Maintainer: Matthew Stephens <mstephens@uchicago.edu>
