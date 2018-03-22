@@ -17,4 +17,3 @@ a vector of length twice that of x (or y)
 \description{
 Interleave two vectors
 }
-

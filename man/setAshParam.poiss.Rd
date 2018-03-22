@@ -13,4 +13,3 @@ setAshParam.poiss(ashparam)
 Set default \code{ash} parameters.
 }
 \keyword{internal}
-

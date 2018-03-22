@@ -10,5 +10,7 @@ var.smooth(data, data.var, x.var.ini, basis, v.basis, Wl, filter.number, family,
 \value{
 'var.est' if posterior variances are not computed, and a list with elements 'var.est' and 'var.est.var' otherwise
 }
+\description{
+var.smooth
+}
 \keyword{internal}
-

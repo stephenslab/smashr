@@ -10,6 +10,9 @@ compute.approx.z(x.s, x.f, bound, eps, pseudocounts, all, indexn = NULL,
 \value{
 a list with elements "mu", "var" and optionally "p"
 }
+\description{
+compute.approx.z
+}
 \keyword{(MLE}
 \keyword{Berkso's}
 \keyword{Compute}
@@ -37,4 +40,3 @@ a list with elements "mu", "var" and optionally "p"
 \keyword{vector}
 \keyword{well}
 \keyword{with}
-

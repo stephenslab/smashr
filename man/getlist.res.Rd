@@ -9,4 +9,3 @@ getlist.res(res, j, n, zdat, log, shrink, ashparam)
 \description{
 For each resolution, performs shrinkage and returns the posterior means and variances in matrix form
 }
-

@@ -19,4 +19,3 @@ reconstructed posterior variance in the original data space.
 \description{
 Reverse wavelet transform a set of posterior variances for wavelet coefficients in TItable format, for Gaussian data.
 }
-

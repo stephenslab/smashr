@@ -13,4 +13,3 @@ return a 2 by nk/2 matrix}
 \description{
 Turns a TItable into a matrix that one can apply glm to (for Poisson denoising).
 }
-

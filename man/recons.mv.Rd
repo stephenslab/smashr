@@ -22,4 +22,3 @@ return reconstructed signal in original data space}
 \description{
 Reconstructs the signal in data space
 }
-

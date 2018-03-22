@@ -16,4 +16,3 @@ the detail coefficients of a standard wavelet decomposition
 \description{
 Modified wd() function from package 'wavethresh' to only return the detail coefficients
 }
-

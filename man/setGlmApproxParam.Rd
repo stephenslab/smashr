@@ -13,4 +13,3 @@ setGlmApproxParam(glm.approx.param)
 Set default \code{glm.approx} parameters.
 }
 \keyword{internal}
-

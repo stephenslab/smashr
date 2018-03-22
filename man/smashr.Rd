@@ -61,4 +61,3 @@ lines(mu.est, col = 2)
 \author{
 Matthew Stephens and Zhengrong Xing
 }
-

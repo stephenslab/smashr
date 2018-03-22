@@ -15,4 +15,3 @@ a TI tables in the form of a matrix
 \description{
 Produces a TI table containing the log difference between adjacent pairs of data in the same resolution.
 }
-

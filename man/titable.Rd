@@ -15,4 +15,3 @@ a list of two TI tables in the form of matrices
 \description{
 Produces two TI tables. One table contains the difference between adjacent pairs of data in the same resolution, and the other table contains the sum.
 }
-

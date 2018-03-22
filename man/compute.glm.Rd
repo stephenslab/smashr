@@ -9,5 +9,7 @@ compute.glm(x, g, d, n, na.index, repara)
 \value{
 a matrix with estimates for mu and beta, as well as their SEs. Optionally returns "mbvar" if specified
 }
+\description{
+compute.glm
+}
 \keyword{internal}
-

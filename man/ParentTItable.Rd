@@ -22,4 +22,3 @@ This function creates a decomposition table of signal, using pairwise sums, keep
 This is very similar to TI-tables in Donoho and Coifman's TI-denoising framework
 }
 \keyword{internal}
-

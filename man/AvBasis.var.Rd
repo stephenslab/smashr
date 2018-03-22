@@ -11,4 +11,3 @@ given a wst object}
 This function reconstructs variance of the mean estimate for a given wavelet basis
 given a wst object
 }
-

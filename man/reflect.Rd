@@ -15,4 +15,3 @@ an n-vector containing the indices of the original signal x
 \description{
 reflects a vector if it has length a power of 2; otherwise extends the vector to have length a power of 2 and then reflects it
 }
-

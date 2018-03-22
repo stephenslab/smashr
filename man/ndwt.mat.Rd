@@ -17,4 +17,3 @@ the NDWT matrix for the specified basis, with the entries squared
 \description{
 Computes the non-decimated wavelet transform matrix for a given basis
 }
-

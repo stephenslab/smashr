@@ -65,9 +65,6 @@ titable = function(sig) {
   return(list(sumtable = dmat, difftable = ddmat))
 }
 
-
-
-
 #' Produces a TI table containing the log difference between adjacent pairs of data in the same resolution.
 #' @param sig: a signal of length a power of 2
 #' @return a TI tables in the form of a matrix
@@ -136,7 +133,6 @@ reverse.gwave = function(est, lp, lq = NULL) {
       lpl = lpvec[1:nDo2]
       lql = lqvec[1:nDo2]
       nestl = interleave(estl + lpl, estl + lql)  #interleaves the two
-      
       
       estr = estvec[(nDo2 + 1):nD]
       lpr = lpvec[(nDo2 + 1):nD]

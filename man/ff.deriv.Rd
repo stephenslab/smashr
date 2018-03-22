@@ -9,4 +9,3 @@ ff.deriv(x)
 \description{
 first and second derivatives of ff
 }
-

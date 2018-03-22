@@ -9,5 +9,7 @@ add.counts(x.s, x.f, eps, pseudocounts, all, index1, index2, indexn = NULL)
 \value{
 a list with elements 'x.s', 'x.f'
 }
+\description{
+add.counts
+}
 \keyword{internal}
-

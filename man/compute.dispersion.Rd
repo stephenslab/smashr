@@ -14,4 +14,3 @@ a vector of dispersion parameters for each fitted model, or 1 if dispersion is a
 Computes the dispersion parameter when fitting glm
 }
 \keyword{internal}
-

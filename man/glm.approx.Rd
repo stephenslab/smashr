@@ -38,4 +38,3 @@ a matrix of 2 (or 5 if g is provided) by T (# of WCs); Each row contains alphaha
 This function fits many "simple" logistic regressions (ie zero or one covariate) simultaneously, allowing for the possibility of small sample sizes with low or zero counts. In addition, an alternative
 model in the form of a weighted least squares regression can also be fit in place of a logistic regression.
 }
-

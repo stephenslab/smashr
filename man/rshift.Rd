@@ -15,4 +15,3 @@ a vector of the same length as that of x
 \description{
 Shift a vector one unit to the right.
 }
-

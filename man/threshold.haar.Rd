@@ -10,4 +10,3 @@
 \description{
 This is a modified threshold.wd function from package 'wavethresh', designed to perform thresholding for heteroskedastic Gaussian errors when using the Haar basis
 }
-

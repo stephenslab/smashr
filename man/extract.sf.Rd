@@ -9,5 +9,7 @@ extract.sf(x, n)
 \value{
 a list with elements 'x.s', 'x.f'
 }
+\description{
+extract.sf
+}
 \keyword{internal}
-

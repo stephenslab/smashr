@@ -51,4 +51,3 @@ lines(mu.est.smash,col=4)
 \references{
 Gao, Hong-Ye (1997) Wavelet shrinkage estimates for heteroscedastic regression models. MathSoft, Inc.
 }
-

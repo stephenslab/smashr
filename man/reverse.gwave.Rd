@@ -19,4 +19,3 @@ reconstructed signal in the original data space.
 \description{
 Reverse wavelet transform a set of wavelet coefficients in TItable format for Gaussian data.
 }
-

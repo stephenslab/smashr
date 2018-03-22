@@ -12,4 +12,3 @@ wd.var(data, filter.number = 10, family = "DaubLeAsymm", type = "wavelet",
 This function performs "decomposition' of variances of detail coefficients for a given wavelet basis
 in wavelet transformation
 }
-

@@ -24,4 +24,3 @@ a vector of intercept and slope estimates and their SEs
 Modified glm function to return relevant outputs, not allowing for underdispersion
 }
 \keyword{internal}
-

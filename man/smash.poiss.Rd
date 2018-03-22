@@ -47,4 +47,3 @@ plot(mu.t,type='l')
 lines(mu.est,col=2)
 
 }
-

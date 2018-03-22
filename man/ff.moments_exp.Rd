@@ -9,4 +9,3 @@ ff.moments_exp(mx, vx)
 \description{
 return estimated E(ff(X)) and var(ff(X)) by delta method INPUT: mx =E(X) and vx = Var(X)
 }
-

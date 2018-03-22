@@ -11,4 +11,3 @@ from wd objects to wst objects}
 This function converts variances of detail coefficients for a given wavelet basis
 from wd objects to wst objects
 }
-

@@ -10,4 +10,3 @@ shrink.wc(wc, wc.var.sqrt, ashparam, jash, df, SGD)
 a wrapper function for code in \code{mu.smooth} and \code{var.smooth}
 }
 \keyword{internal}
-
