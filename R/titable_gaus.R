@@ -1,7 +1,7 @@
-# Disclaimer: All TI table (eg 'titable') and reconstruction (eg
-# 'reverse.gwave') functions and their respective Rcpp counterparts
-# are ported into R from Matlab functions 'BMSMShrink' and 'TISumProd'
-# as part of the BMSM project maintained by Eric Kolaczyk
+# DISCLAIMER: All TI table (e.g., titable) and reconstruction (e.g.,
+# reverse.gwave) functions and their respective Rcpp counterparts
+# are ported into R from MATLAB functions BMSMShrink and TISumProd
+# as part of the BMSM project maintained by Eric Kolaczyk.
 
 #' @title Interleave two vectors.
 #' 

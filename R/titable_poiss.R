@@ -1,6 +1,7 @@
-# Disclaimer: All TI table (eg 'ParentTItable')
-# and reconstruction (eg 'reverse.pwave') functions and their respective Rcpp counterparts are ported
-# into R from Matlab functions 'BMSMShrink' and 'TISumProd' as part of the BMSM project maintained by Eric Kolaczyk
+# DISCLAIMER: All TI table (e.g., titable) and reconstruction (e.g.,
+# reverse.gwave) functions and their respective Rcpp counterparts
+# are ported into R from MATLAB functions BMSMShrink and TISumProd
+# as part of the BMSM project maintained by Eric Kolaczyk.
 
 # @description Turns a TItable into a matrix that one can apply glm
 #   to (for Poisson denoising).
