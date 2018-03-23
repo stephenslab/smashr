@@ -13,12 +13,16 @@ ParentTItable(sig)
 a list with elements "TItable" and "parent"
 }
 \description{
-This function returns both a TItable and a "parent" table whose pairwise comparisons are used to create a TI table. For example, in the ith row, elements 1, 2 are the parents of the first element in the (i+1)th row of the TI table.
+This function returns both a TItable and a "parent"
+  table whose pairwise comparisons are used to create a TI table. For
+  example, in the ith row, elements 1, 2 are the parents of the first
+  element in the (i+1)th row of the TI table.  This function creates
+  a decomposition table of signal, using pairwise sums, keeping just
+  the values that are *not* redundant under the shift-invariant
+  scheme.
 }
 \details{
-This function creates a decomposition table of signal, using pairwise sums, keeping just the values that are *not* redundant under the shift-invariant scheme.
-}
-\references{
-This is very similar to TI-tables in Donoho and Coifman's TI-denoising framework
+This is very similar to TI-tables in Donoho and
+  Coifman's TI-denoising framework.x
 }
 \keyword{internal}

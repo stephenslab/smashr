@@ -13,7 +13,7 @@
 #' 
 #' @export
 #' 
-interleave = function(x, y)
+interleave = function (x, y)
   as.vector(rbind(x,y))
 
 #' @title Shift a vector one unit to the right.
@@ -24,7 +24,7 @@ interleave = function(x, y)
 #' 
 #' @export
 #' 
-rshift = function(x) {
+rshift = function (x) {
   L = length(x)
   return(c(x[L],x[-L]))
 }
@@ -36,7 +36,7 @@ rshift = function(x) {
 #' @return A vector of the same length as that of x.
 #' 
 #' @export
-lshift = function(x)
+lshift = function (x)
   c(x[-1],x[1])
 
 # @description Produces two TI tables. One table contains the
@@ -45,7 +45,7 @@ lshift = function(x)
 #
 # @param sig: a signal of length a power of 2
 #
-titable = function(sig) {
+titable = function (sig) {
   n = length(sig)
   J = log2(n)
   
@@ -84,7 +84,7 @@ titable = function(sig) {
 #
 # @return A TI table in the form of a matrix.
 #
-tirtable = function(sig) {
+tirtable = function (sig) {
   n = length(sig)
   J = log2(n)
   
@@ -128,13 +128,11 @@ tirtable = function(sig) {
 # 
 # @return Reconstructed signal in the original data space.
 # 
-reverse.gwave = function(est, lp, lq = NULL) {
-  if (is.null(lq)) {
+reverse.gwave = function (est, lp, lq = NULL) {
+  if (is.null(lq))
     lq = -lp
-  }
-  if (length(est) == 1) {
+  if (length(est) == 1)
     est = rep(est, ncol(lp))
-  }
   
   J = nrow(lp)
   
@@ -176,13 +174,11 @@ reverse.gwave = function(est, lp, lq = NULL) {
 # 
 # @return Reconstructed posterior variance in the original data space.
 # 
-reverse.gvwave = function(est, lp, lq = NULL) {
-  if (is.null(lq)) {
+reverse.gvwave = function (est, lp, lq = NULL) {
+  if (is.null(lq))
     lq = -lp
-  }
-  if (length(est) == 1) {
+  if (length(est) == 1)
     est = rep(est, ncol(lp))
-  }
   
   J = nrow(lp)
   

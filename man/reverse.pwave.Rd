@@ -2,20 +2,23 @@
 % Please edit documentation in R/titable_poiss.R
 \name{reverse.pwave}
 \alias{reverse.pwave}
-\title{Reverse wavelet transform a set of probabilities in TItable format for Poisson data.}
+\title{Reverse wavelet transform a set of probabilities in TItable
+  format for Poisson data.}
 \usage{
 reverse.pwave(est, lp, lq = NULL)
 }
 \arguments{
-\item{est:}{an n-vector. Usually a constant vector with each element equal to the estimated log(total rate).}
+\item{est}{An n-vector. Usually a constant vector with each
+element equal to the estimated log(total rate).}
 
-\item{lp:}{a J by n matrix of probabilities.}
+\item{lp}{A J by n matrix of probabilities.}
 
-\item{lq:}{a J by n matrix of complementary probabilities.}
+\item{lq}{A J by n matrix of complementary probabilities.}
 }
 \value{
-reconstructed signal in the original data space.
+Reconstructed signal in the original data space.
 }
 \description{
-Reverse wavelet transform a set of probabilities in TItable format for Poisson data.
+Reverse wavelet transform a set of probabilities in TItable
+  format for Poisson data.
 }
