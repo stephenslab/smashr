@@ -1,5 +1,13 @@
 to do
 =====
 
+* Get license info for BMSM project maintained by Eric Kolaczyk.
+
+* Revise code and roxygen2 docs in titable_gaus.R.
+
+* Revise code and roxygen2 docs in titable_poiss.R.
+
+* Revise Description field of DESCRIPTION (Peter).
+
 * Determine which functions should be exported, and which don't need
   to be exported (Zhengrong & Peter).

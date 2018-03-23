@@ -7,10 +7,10 @@
 rshift(x)
 }
 \arguments{
-\item{x:}{a vector}
+\item{x}{A vector.}
 }
 \value{
-a vector of the same length as that of x
+A vector of the same length as that of x.
 }
 \description{
 Shift a vector one unit to the right.

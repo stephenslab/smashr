@@ -77,8 +77,6 @@ smash = function(x, model = NULL, ...){
   }
 }
 
-
-
 #' Computes the non-decimated wavelet transform matrix for a given basis
 #' @param n: the sample size. Must be a power of 2
 #' @param filter.number,family: specifies the type of wavelet basis used
@@ -107,7 +105,6 @@ shrink.wc = function(wc, wc.var.sqrt, ashparam, jash, df, SGD) {
     }
     return(zdat.ash)
 }
-
 
 #' @title mu.smooth
 #' @return 'mu.est' if posterior variances are not computed, and a list with elements 'mu.est' and 'mu.est.var' otherwise

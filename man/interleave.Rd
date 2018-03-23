@@ -2,18 +2,18 @@
 % Please edit documentation in R/titable_gaus.R
 \name{interleave}
 \alias{interleave}
-\title{Interleave two vectors}
+\title{Interleave two vectors.}
 \usage{
 interleave(x, y)
 }
 \arguments{
-\item{x:}{a vector}
+\item{x}{A vector.}
 
-\item{y:}{a vector of the same length as y}
+\item{y}{A vector of the same length as y.}
 }
 \value{
-a vector of length twice that of x (or y)
+A vector of length twice that of x (or y).
 }
 \description{
-Interleave two vectors
+Interleave two vectors.
 }
