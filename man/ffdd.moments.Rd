@@ -2,10 +2,12 @@
 % Please edit documentation in R/deltamethod.R
 \name{ffdd.moments}
 \alias{ffdd.moments}
-\title{return estimated E(ff''(X)) and var(ff''(X)) by delta method INPUT: mx =E(X) and vx = Var(X)}
+\title{Return estimated E(ff''(X)) and var(ff''(X)) by delta method, with
+inputs mx = E(X) and vx = Var(X).}
 \usage{
 ffdd.moments(mx, vx)
 }
 \description{
-return estimated E(ff''(X)) and var(ff''(X)) by delta method INPUT: mx =E(X) and vx = Var(X)
+Return estimated E(ff''(X)) and var(ff''(X)) by delta method, with
+inputs mx = E(X) and vx = Var(X).
 }

@@ -2,10 +2,10 @@
 % Please edit documentation in R/deltamethod.R
 \name{ffdash.deriv}
 \alias{ffdash.deriv}
-\title{first and second derivatives of ffdash}
+\title{First and second derivatives of ffdash.}
 \usage{
 ffdash.deriv(x)
 }
 \description{
-first and second derivatives of ffdash
+First and second derivatives of ffdash.
 }

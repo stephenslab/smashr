@@ -3,7 +3,7 @@ to do
 
 * Get license info for BMSM project maintained by Eric Kolaczyk.
 
-* Revise code and roxygen2 docs in titable_poiss.R.
+* Revise code and roxygen2 docs in deltamethod.R.
 
 * Revise Description field of DESCRIPTION (Peter).
 
