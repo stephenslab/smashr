@@ -1,7 +1,5 @@
 to do
 =====
 
-* Revise Description field of DESCRIPTION (Peter).
-
 * Determine which functions should be exported, and which don't need
-  to be exported (Zhengrong & Peter).
+  to be exported.
