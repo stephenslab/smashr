@@ -1,42 +1,40 @@
-#' Compute approximately unbiased variance estimates for the estimators for logit(p) when n is small
-#' @param n: number of trials
-#' @param s: number of successes
-#' @param f: number of failures
-#' @keywords internal
-v3 = function(n, s, f) {
-    return((n + 1)/n * (1/(s + 1) + 1/(f + 1)))
+# @description Compute approximately unbiased variance estimates for
+#   the estimators for logit(p) when n is small.
+# @param n number of trials
+# @param s number of successes
+# @param f number of failures
+v3 = function (n, s, f)
+  return((n + 1)/n * (1/(s + 1) + 1/(f + 1)))
+
+# @description Compute approximately unbiased variance estimates for
+#   the estimators for logit(p) when n is small.
+# @param n number of trials
+# @param s number of successes
+# @param f number of failures
+vs = function (n, s, f) {
+  vv = v3(n, s, f)
+  return(vv * (1 - 2/n + vv/2))
 }
 
-#' Compute approximately unbiased variance estimates for the estimators for logit(p) when n is small
-#' @param n: number of trials
-#' @param s: number of successes
-#' @param f: number of failures
-#' @keywords internal
-vs = function(n, s, f) {
-    vv = v3(n, s, f)
-    return(vv * (1 - 2/n + vv/2))
-}
-
-#' Compute approximately unbiased variance estimates for the estimators for logit(p) when n is small
-#' @param n: number of trials
-#' @param s: number of successes
-#' @param f: number of failures
-#' @keywords internal
-vss = function(n, s, f) {
+# @description Compute approximately unbiased variance estimates for
+#   the estimators for logit(p) when n is small.
+# @param n number of trials
+# @param s number of successes
+# @param f number of failures
+vss = function (n, s, f) {
     vv = v3(n, s, f)
     return(vs(n, s, f) - 1/2 * vv^2 * (vv - 4/n))
 }
 
-
-#' Modified glm function to return relevant outputs, not allowing for underdispersion
-#' @param x: covariante
-#' @param y: response
-#' @param forcebin: see glm.approx
-#' @param repara: see glm.approx
-#' @param ...: other inputs to glm.fit
-#' @return a vector of intercept and slope estimates and their SEs
-#' @keywords internal
-safe.quasibinomial.glm.fit = function(x, y, forcebin = FALSE, repara = FALSE, ...) {
+# @description Modified glm function to return relevant outputs, not
+#   allowing for underdispersion.
+# @param x covariante
+# @param y response
+# @param forcebin See glm.approx.
+# @param repara See glm.approx.
+# @return A vector of intercept and slope estimates and their SEs.
+safe.quasibinomial.glm.fit = function (x, y, forcebin = FALSE,
+                                       repara = FALSE, ...) {
     if (forcebin) {
         z = glm.fit(x, y, family = binomial(), ...)
         p1 = 1L:z$rank
@@ -83,22 +81,25 @@ safe.quasibinomial.glm.fit = function(x, y, forcebin = FALSE, repara = FALSE, ..
     }
 }
 
-
-
-#' Returns estimates of intercept and slope as well as their SEs, given other input options. Called in glm.approx
-#' @param x: a 2n by 1 vector, with first n observations giving number of successes, and next n giving number of failures in a series of binomial experiments.
-#' @param g: covariate. Can be null, in which case only the intercept estimate and its SE is returned
-#' @param minobs: see glm.approx
-#' @param pseudocounts: see glm.approx
-#' @param all: see glm.approx
-#' @param forcebin: see glm.approx
-#' @param repara: see glm.approx
-#' @return a vector of intercept and slope estimates and their SEs
-#' @keywords internal
-bintest = function(x, g, minobs = 1, pseudocounts = 0.5, all = FALSE, forcebin = FALSE, repara = FALSE) {
+# @description Returns estimates of intercept and slope as well as
+#   their SEs, given other input options. Called in glm.approx.
+# @param x A 2n by 1 vector, with first n observations giving number
+#   of successes, and next n giving number of failures in a series of
+#   binomial experiments.
+# @param g covariate. Can be null, in which case only the intercept
+#   estimate and its SE is returned.
+# @param minobs See glm.approx.
+# @param pseudocounts See glm.approx.
+# @param all See glm.approx.
+# @param forcebin See glm.approx.
+# @param repara See glm.approx.
+# @return A vector of intercept and slope estimates and their SEs.
+bintest = function (x, g, minobs = 1, pseudocounts = 0.5, all = FALSE,
+                    forcebin = FALSE, repara = FALSE) {
     xmat = matrix(x, ncol = 2)
     zerosum = (apply(xmat, 1, sum) == 0)
     if (sum(!zerosum) > (minobs - 1)) {
+        
         # check for enough observations
         ind1 = (xmat[, 1] == 0)
         ind2 = (xmat[, 2] == 0)
@@ -126,6 +127,7 @@ bintest = function(x, g, minobs = 1, pseudocounts = 0.5, all = FALSE, forcebin =
             }
         }
     } else {
+        
         # not enough observations, so just return NAs
         if (repara == FALSE) {
             return(c(NA, NA, NA, NA))
@@ -136,7 +138,6 @@ bintest = function(x, g, minobs = 1, pseudocounts = 0.5, all = FALSE, forcebin =
 }
 
 #' @title extract.sf
-#' @keywords internal
 #' @return a list with elements 'x.s', 'x.f'
 extract.sf = function(x, n) {
     return(list(x.s = as.vector(t(x[, (1:(2 * n))%%2 == 1])), x.f = as.vector(t(x[, (1:(2 * n))%%2 == 0]))))

@@ -5,35 +5,28 @@
 
 # @description Turns a TItable into a matrix that one can apply glm
 #   to (for Poisson denoising).
-# 
 # @param dmat: A k by n matrix.
-# 
 # @return A 2 by n*k/2 matrix.
-# 
 simplify = function (dmat)
   matrix(t(dmat), nrow = 2)
 
-#' @title Create a TI table and a parent table.
-#' 
-#' @description This function returns both a TItable and a "parent"
-#'   table whose pairwise comparisons are used to create a TI table. For
-#'   example, in the ith row, elements 1, 2 are the parents of the first
-#'   element in the (i+1)th row of the TI table.  This function creates
-#'   a decomposition table of signal, using pairwise sums, keeping just
-#'   the values that are *not* redundant under the shift-invariant
-#'   scheme.
-#'
-#' @param sig: an n vector of Poisson counts at n locations
-#' 
-#' @return a list with elements "TItable" and "parent"
-#' 
-#' @details This is very similar to TI-tables in Donoho and
-#'   Coifman's TI-denoising framework.x
-#' 
-#' @keywords internal
-#' 
-#' @export
-#' 
+# @title Create a TI table and a parent table.
+# 
+# @description This function returns both a TItable and a "parent"
+#   table whose pairwise comparisons are used to create a TI table. For
+#   example, in the ith row, elements 1, 2 are the parents of the first
+#   element in the (i+1)th row of the TI table.  This function creates
+#   a decomposition table of signal, using pairwise sums, keeping just
+#   the values that are *not* redundant under the shift-invariant
+#   scheme.
+#
+# @param sig An n-vector of Poisson counts at n locations.
+# 
+# @return A list with elements "TItable" and "parent".
+# 
+# @details This is very similar to TI-tables in Donoho and
+#   Coifman's TI-denoising framework.
+# 
 ParentTItable = function (sig) {
   n = length(sig)
   J = log2(n)
@@ -78,7 +71,7 @@ ParentTItable = function (sig) {
 #' 
 #' @export
 #' 
-reverse.pwave = function(est, lp, lq = NULL) {
+reverse.pwave = function (est, lp, lq = NULL) {
   if (is.null(lq))
     lq = log(1 - exp(lp))
   if (length(est) == 1)
