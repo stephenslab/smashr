@@ -235,11 +235,14 @@ convert.var <- function (wd, ...) {
 
 # This function reconstructs variance of the mean estimate for a
 # given wavelet basis given a wst object.
+#
+#' @importFrom wavethresh av.basis
+#' @importFrom wavethresh nlevelsWT
 AvBasis.var <- function (wst, Ccode = TRUE, ...) {
     nlevels <- nlevelsWT(wst)
     if (is.null(wst$filter$G)) {
         if (Ccode == FALSE) {
-            answer <- av.basis(wst, level = nlevels - 1, ix1 = 0, 
+            answer <- wavethresh::av.basis(wst, level = nlevels - 1, ix1 = 0, 
                 ix2 = 1, filter = wst$filter)
         }
         else {

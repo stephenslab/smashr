@@ -1,0 +1,5 @@
+Command I am currently using to test the package:
+
+  R CMD check --as-cran --no-tests --ignore-vignettes --no-examples \
+    smashr_1.1-0.tar.gz
+

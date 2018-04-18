@@ -108,7 +108,6 @@ ndwt.mat = function(n, filter.number, family) {
   # #Wmod=Wsvd$u[,1:(n-1)]%*%diag(Wsvd$d[1:(n-1)])%*%t(Wsvd$v[1:(n-1),1:(n-1)]) #return(list(W=W,Wmod=Wmod)) }
 }
 
-
 # A wrapper function for code in mu.smooth and var.smooth.
 #
 #' @importFrom ashr ash
@@ -125,8 +124,19 @@ shrink.wc = function(wc, wc.var.sqrt, ashparam, jash, df, SGD) {
 # Returns "mu.est" if posterior variances are not computed, and a list
 # with elements "mu.est" and "mu.est.var" otherwise.
 #
+#' @importFrom stats dnorm
+#' @importFrom wavethresh accessD
+#' @importFrom wavethresh putD
+#' @importFrom wavethresh AvBasis
+#' @importFrom wavethresh convert
 #' @importFrom ashr calc_loglik
-mu.smooth = function(wc, data.var, basis, tsum, Wl, return.loglr, post.var, ashparam, J, n) {
+#' @importFrom ashr get_fitted_g
+#' @importFrom ashr set_data
+#' @importFrom ashr get_pm
+#' @importFrom ashr get_psd
+#' 
+mu.smooth = function (wc, data.var, basis, tsum, Wl, return.loglr,
+                      post.var, ashparam, J, n) {
     wmean = matrix(0, J, n)
     wvar = matrix(0, J, n)
     if (basis[[1]] == "haar") {
@@ -135,19 +145,23 @@ mu.smooth = function(wc, data.var, basis, tsum, Wl, return.loglr, post.var, ashp
         logLR.scale = 0
         for (j in 0:(J - 1)) {
             ind.nnull = (vtable[j + 2, ] != 0)
-            zdat.ash = shrink.wc(y[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), ashparam, jash = FALSE, 
+            zdat.ash = shrink.wc(y[j + 2, ind.nnull], sqrt(vtable[j + 2,
+                                 ind.nnull]), ashparam, jash = FALSE, 
                 df = NULL, SGD = FALSE)
-            wmean[j + 1, ind.nnull] = ashr::get_pm(zdat.ash)/2
+            wmean[j + 1, ind.nnull] = get_pm(zdat.ash)/2
             wmean[j + 1, !ind.nnull] = 0
             if (return.loglr == TRUE) {
                 spins = 2^(j + 1)
-                logLR.temp = calc_loglik(ashr::get_fitted_g(zdat.ash), 
-                    ashr::set_data(y[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), NULL,0)) -  
-                    sum(dnorm(y[j + 2, ind.nnull], 0, sqrt(vtable[j + 2, ind.nnull]), log = TRUE))
+                logLR.temp =
+                  calc_loglik(get_fitted_g(zdat.ash), 
+                    set_data(y[j + 2, ind.nnull],
+                      sqrt(vtable[j + 2, ind.nnull]),NULL,0)) -  
+                      sum(dnorm(y[j + 2, ind.nnull], 0,
+                                sqrt(vtable[j + 2, ind.nnull]), log = TRUE))
                 logLR.scale[j + 1] = logLR.temp/spins
             }
             if (post.var == TRUE) {
-                wvar[j + 1, ind.nnull] = ashr::get_psd(zdat.ash)^2/4
+                wvar[j + 1, ind.nnull] = get_psd(zdat.ash)^2/4
                 wvar[j + 1, !ind.nnull] = 0
             }
         }
@@ -162,43 +176,46 @@ mu.smooth = function(wc, data.var, basis, tsum, Wl, return.loglr, post.var, ashp
         }
     } else {
         x.w = wc
-        x.w.v = apply((rep(1, n * J) %o% data.var) * Wl$W2, 1, sum)  #diagonal of W*V*W' 
+
+        # Diagonal of W*V*W'.
+        x.w.v = apply((rep(1, n * J) %o% data.var) * Wl$W2, 1, sum)  
         x.pm = rep(0, n)
         x.w.v.s = rep(0, n * J)
         logLR.scale = 0
         for (j in 0:(J - 1)) {
             index = (((J - 1) - j) * n + 1):((J - j) * n)
-            x.w.j = accessD(x.w, j)
+            x.w.j = wavethresh::accessD(x.w, j)
             x.w.v.j = x.w.v[index]
             ind.nnull = (x.w.v.j != 0)
-            zdat.ash = shrink.wc(x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]), ashparam, jash = FALSE, 
-                df = NULL, SGD = FALSE)
-            x.pm[ind.nnull] = ashr::get_pm(zdat.ash)
+            zdat.ash = shrink.wc(x.w.j[ind.nnull],
+              sqrt(x.w.v.j[ind.nnull]), ashparam, jash = FALSE, 
+              df = NULL, SGD = FALSE)
+            x.pm[ind.nnull] = get_pm(zdat.ash)
             x.pm[!ind.nnull] = 0
-            x.w = putD(x.w, j, x.pm)
+            x.w = wavethresh::putD(x.w, j, x.pm)
             if (return.loglr == TRUE) {
                 spins = 2^(J - j)
-                logLR.temp = ashr:::calc_loglik(ashr::get_fitted_g(zdat.ash),
-                                                ashr::set_data(x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]), NULL, 0)) -  
-                    sum(dnorm(x.w.j[ind.nnull], 0, sqrt(x.w.v.j[ind.nnull]), log = TRUE))
+                logLR.temp = calc_loglik(get_fitted_g(zdat.ash),
+                  set_data(x.w.j[ind.nnull],
+                           sqrt(x.w.v.j[ind.nnull]), NULL, 0)) -  
+                    sum(dnorm(x.w.j[ind.nnull], 0, sqrt(x.w.v.j[ind.nnull]),
+                              log = TRUE))
                 logLR.scale[j + 1] = logLR.temp/spins
             }
             if (post.var == TRUE) {
-                x.w.v.s[index[ind.nnull]] = ashr::get_psd(zdat.ash)^2
+                x.w.v.s[index[ind.nnull]] = get_psd(zdat.ash)^2
                 x.w.v.s[index[!ind.nnull]] = 0
             }
         }
-        mu.est = AvBasis(convert(x.w))
+        mu.est = wavethresh::AvBasis(wavethresh::convert(x.w))
         if (return.loglr == TRUE) {
             logLR = sum(logLR.scale) 
         }
         if (post.var == TRUE) {
-            mv.wd = wd.var(rep(0, n), filter.number = basis$filter.number, family = basis$family, type = "station")
+            mv.wd = wd.var(rep(0, n), filter.number = basis$filter.number,
+                           family = basis$family, type = "station")
             mv.wd$D = x.w.v.s
             mu.est.var = AvBasis.var(convert.var(mv.wd))
-            # mu.est.var=apply((rep(1,n)%o%x.w.v.s)*Wl$Wi^2,1,sum) #diagonal of Winv*D*Winv'
-            # vywt=qr.solve(Wl$Wmod,diag(x.w.v.s)) mu.est.var=diag(qr.solve(Wl$Wmod,t(vywt)))
-            # mu.est.var=diag(Wl$Wi%*%diag(x.w.v.s)%*%t(Wl$Wi))
         }
     }
     if (return.loglr == TRUE & post.var == TRUE) {
@@ -212,10 +229,8 @@ mu.smooth = function(wc, data.var, basis, tsum, Wl, return.loglr, post.var, ashp
     }
 }
 
-
 #' @title var.smooth
 #' @return 'var.est' if posterior variances are not computed, and a list with elements 'var.est' and 'var.est.var' otherwise
-#' @keywords internal
 var.smooth = function(data, data.var, x.var.ini, basis, v.basis, Wl, filter.number, family, post.var, ashparam, jash, weight, J, n, SGD) {
     wmean = matrix(0, J, n)
     wvar = matrix(0, J, n)
@@ -226,16 +241,16 @@ var.smooth = function(data, data.var, x.var.ini, basis, v.basis, Wl, filter.numb
             ind.nnull = (vtable[j + 2, ] != 0)
             zdat.ash = shrink.wc(vdtable[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), ashparam, jash = jash, df = min(50, 2^(j + 
                   1)), SGD = SGD)
-            wmean[j + 1, ind.nnull] = ashr::get_pm(zdat.ash)/2
+            wmean[j + 1, ind.nnull] = get_pm(zdat.ash)/2
             wmean[j + 1, !ind.nnull] = 0
             if ((sum(is.na(wmean[j + 1, ])) > 0) & (SGD == TRUE)) {
                 zdat.ash = shrink.wc(vdtable[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), ashparam, jash = jash, 
                   df = min(50, 2^(j + 1)), SGD = FALSE)
-                wmean[j + 1, ind.nnull] = ashr::get_pm(zdat.ash)/2
+                wmean[j + 1, ind.nnull] = get_pm(zdat.ash)/2
                 wmean[j + 1, !ind.nnull] = 0
             }
             if (post.var == TRUE) {
-                wvar[j + 1, ind.nnull] = ashr::get_psd(zdat.ash)^2/4
+                wvar[j + 1, ind.nnull] = get_psd(zdat.ash)^2/4
                 wvar[j + 1, !ind.nnull] = 0
             }
         }
@@ -247,7 +262,8 @@ var.smooth = function(data, data.var, x.var.ini, basis, v.basis, Wl, filter.numb
         }
     } else {
         x.w = wd(data, filter.number = filter.number, family = family, type = "station")
-        x.w.v = apply((rep(1, n * J) %o% data.var) * Wl$W2, 1, sum)  #diagonal of W*V*W'
+        # Diagonal of W*V*W'.
+        x.w.v = apply((rep(1, n * J) %o% data.var) * Wl$W2, 1, sum)  
         x.pm = rep(0, n)
         x.w.v.s = rep(0, n * J)
         for (j in 0:(J - 1)) {
@@ -257,7 +273,7 @@ var.smooth = function(data, data.var, x.var.ini, basis, v.basis, Wl, filter.numb
             ind.nnull = (x.w.v.j != 0)
             zdat.ash = shrink.wc(x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]), ashparam, jash = jash, 
                 df = min(50, 2^(j + 1)), SGD = SGD)
-            x.pm[ind.nnull] = ashr::get_pm(zdat.ash)
+            x.pm[ind.nnull] = get_pm(zdat.ash)
             x.pm[!ind.nnull] = 0
             if ((sum(is.na(x.pm)) > 0) & (SGD == TRUE)) {
                 zdat.ash = shrink.wc(x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]), ashparam, jash = jash, 
@@ -276,9 +292,6 @@ var.smooth = function(data, data.var, x.var.ini, basis, v.basis, Wl, filter.numb
             mv.wd = wd.var(rep(0, n), filter.number = basis$filter.number, family = basis$family, type = "station")
             mv.wd$D = x.w.v.s
             var.est.var = AvBasis.var(convert.var(mv.wd))
-            # mu.est.var=apply((rep(1,n)%o%x.w.v.s)*Wl$Wi^2,1,sum) #diagonal of Winv*D*Winv'
-            # vywt=qr.solve(Wl$Wmod,diag(x.w.v.s)) mu.est.var=diag(qr.solve(Wl$Wmod,t(vywt)))
-            # mu.est.var=diag(Wl$Wi%*%diag(x.w.v.s)%*%t(Wl$Wi))
         }
     }
     if (post.var == TRUE) {
@@ -532,7 +545,8 @@ ti.thresh = function(x, sigma = NULL, method = "smash", filter.number = 1, famil
             win.size = round(n/10)
             odd.boo = (win.size%%2 == 1)
             win.size = win.size + (1 - odd.boo)
-            sigma = runmad(accessD(x.w, J - 1), win.size, endrule = "func")
+            sigma = runmad(accessD(x.w, J - 1), win.size,
+                           endrule = "func")
         } else {
             stop("Error: Method not recognized")
         }
@@ -554,13 +568,6 @@ ti.thresh = function(x, sigma = NULL, method = "smash", filter.number = 1, famil
     }
     return(mu.est)
 }
-
-
-
-
-######################################################################################################################### 
-
-
 
 #' reflects a vector if it has length a power of 2; otherwise extends the vector to have length a power of 2 and then reflects it
 #' @param x an n-vector

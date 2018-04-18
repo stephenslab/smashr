@@ -13,4 +13,3 @@ var.smooth(data, data.var, x.var.ini, basis, v.basis, Wl, filter.number, family,
 \description{
 var.smooth
 }
-\keyword{internal}
