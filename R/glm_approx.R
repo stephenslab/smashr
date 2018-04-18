@@ -94,6 +94,8 @@ safe.quasibinomial.glm.fit = function (x, y, forcebin = FALSE,
 # @param forcebin See glm.approx.
 # @param repara See glm.approx.
 # @return A vector of intercept and slope estimates and their SEs.
+#
+#' @importFrom stats sd
 bintest = function (x, g, minobs = 1, pseudocounts = 0.5, all = FALSE,
                     forcebin = FALSE, repara = FALSE) {
     xmat = matrix(x, ncol = 2)

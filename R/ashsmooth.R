@@ -1,17 +1,32 @@
-# Disclaimer: 
-
-#' @title Estimate the underlying mean or intensity function from Gaussian or Poisson data respectively
+#' @title Estimate the underlying mean or intensity function from
+#'   Gaussian or Poisson data respectively
 #'
-#' @description This is a wrapper function for \code{\link{smash.gaus}} or \code{\link{smash.poiss}} as appropriate. For details see \code{\link{smash.gaus}} and \code{\link{smash.poiss}}
+#' @description This is a wrapper function for
+#'   \code{\link{smash.gaus}} or \code{\link{smash.poiss}} as
+#'   appropriate. For details see \code{\link{smash.gaus}} and
+#'   \code{\link{smash.poiss}}
 #'
-#' @details Performs nonparametric regression on univariate Poisson or Gaussian data using wavelets. For the Poisson case, the data are assumed to be i.i.d. 
-#' from an underlying inhomogeneous mean function that is "smooth". Similarly for the Gaussian case, the data are assumed to be independent with an underlying smooth mean function. 
-#' In the Gaussian case, the variances are allowed vary, but are similarly "spatially structured" as with the mean function. The functions \code{ashsmooth.gaus} and \code{ashsmooth.pois} 
-#' perform smoothing for Gaussian and Poisson data respectively. The only required input is a vector of length 2^J for some integer J.
-#' Other options include the possibility of returning the posterior variances, specifying a wavelet basis (default is Haar, which performs well in general due to the fact that we used the translation-invariant version).
-#' @param x: a vector of observations
-#' @param model: specifies the model (Gaussian or Poisson). Can be NULL, in which case the Poisson model is assumed if x
-#' consists of integers, and the Gaussian model is assumed otherwise. One of 'gaus' or 'poiss' can also be specified to fit a specific model. 
+#' @details Performs nonparametric regression on univariate Poisson or
+#'   Gaussian data using wavelets. For the Poisson case, the data are
+#'   assumed to be i.i.d.  from an underlying inhomogeneous mean
+#'   function that is "smooth". Similarly for the Gaussian case, the
+#'   data are assumed to be independent with an underlying smooth mean
+#'   function.  In the Gaussian case, the variances are allowed vary,
+#'   but are similarly "spatially structured" as with the mean
+#'   function. The functions \code{ashsmooth.gaus} and
+#'   \code{ashsmooth.pois} perform smoothing for Gaussian and Poisson
+#'   data respectively. The only required input is a vector of length
+#'   2^J for some integer J.  Other options include the possibility of
+#'   returning the posterior variances, specifying a wavelet basis
+#'   (default is Haar, which performs well in general due to the fact
+#'   that we used the translation-invariant version).
+#' 
+#' @param x A vector of observations.
+#' 
+#' @param model Specifies the model (Gaussian or Poisson). Can be
+#'   NULL, in which case the Poisson model is assumed if x consists of
+#'   integers, and the Gaussian model is assumed otherwise. One of
+#'   'gaus' or 'poiss' can also be specified to fit a specific model.
 #' 
 #' @return See \code{smash.gaus} or \code{smash.poiss} for details.
 #' 
@@ -297,25 +312,64 @@ setAshParam.gaus = function(ashparam) {
 
 #' @title Estimate the underlying mean function from noisy Gaussian data
 #'
-#' @description This function takes a data vector of length a power of 2 and performs signal denoising using wavelet decomposition and an adaptive shrinkage prior on the wavelet parameters. The data are assumed to be (mostly) independent and Gaussian, but not necessarily identically distributed. 
+#' @description This function takes a data vector of length a power of
+#'   2 and performs signal denoising using wavelet decomposition and an
+#'   adaptive shrinkage prior on the wavelet parameters. The data are
+#'   assumed to be (mostly) independent and Gaussian, but not
+#'   necessarily identically distributed.
 #' 
-#' @details We assume that the data come from the model $Y_t = \mu_t + \epsilon_t$ for t=1,...,T, where $\mu_t$ is an underlying mean, assumed to be spatially
-#' structured (or treated as points sampled from a smooth continous function), and $\epsilon_t \sim N(0, \sigma_t)$, and are independent. 
-#' Smash provides estimates of $\mu_t$ and $\sigma_t^2$ (and their posterior variances if desired).
-#' @param x: a vector of observations. Length of \code{x} must be a power of 2.
-#' @param sigma: a vector of standard deviations. Can be provided if known or estimated beforehand.
-#' @param v.est: bool, indicating if variance estimation should be performed instead.
+#' @details We assume that the data come from the model \eqn{Y_t =
+#'   \mu_t + \epsilon_t} for \eqn{t=1,...,T}, where \eqn{\mu_t} is an
+#'   underlying mean, assumed to be spatially structured (or treated as
+#'   points sampled from a smooth continous function), and
+#'   \eqn{\epsilon_t \sim N(0, \sigma_t)}, and are independent. Smash
+#'   provides estimates of \eqn{\mu_t} and \eqn{\sigma_t^2} (and their
+#'   posterior variances if desired).
+#' 
+#' @param x: a vector of observations. Length of \code{x} must be a
+#'   power of 2.
+#' 
+#' @param sigma: a vector of standard deviations. Can be provided if
+#'   known or estimated beforehand.
+#' 
+#' @param v.est: bool, indicating if variance estimation should be
+#'   performed instead.
+#' 
 #' @param joint: bool, indicating if results of mean and variance estimation should be returned together.
-#' @param v.basis: bool, indicating if the same wavelet basis should be used for variance estimation as mean estimation. If false, defaults to Haar basis for variance estimation (this is much faster than other bases).
-#' @param post.var: bool, indicating if the posterior variance should be returned for the mean and/or variance estiamtes.
+#' 
+#' @param v.basis: bool, indicating if the same wavelet basis should
+#'   be used for variance estimation as mean estimation. If false,
+#'   defaults to Haar basis for variance estimation (this is much faster
+#'   than other bases).
+#' 
+#' @param post.var: bool, indicating if the posterior variance should
+#'   be returned for the mean and/or variance estiamtes.
+#' 
 #' @param family: choice of wavelet basis to be used, as in \code{wavethresh}.
-#' @param filter.number: choice of wavelet basis to be used, as in \code{wavethresh}.
+#' 
+#' @param filter.number: choice of wavelet basis to be used, as in
+#'   \code{wavethresh}.
+#' 
 #' @param return.loglr: bool, indicating if a logLR should be returned.
-#' @param jash: indicates if the prior from method JASH should be used. This will often provide slightly better variance estimates (especially for nonsmooth variance functions), at the cost of computational efficiency. Defaults to FALSE.
-#' @param SGD: bool, indicating if stochastic gradient descent should be used in the EM. Only applicable if jash=TRUE.
-#' @param weight: optional parameter used in estimating overall variance. Only works for Haar basis. Defaults to 0.5. Setting this to 1 might improve variance estimation slightly
-#' @param min.var: The minimum positive value to be set if the variance estimates are non-positive.
-#' @param ashparam: a list of parameters to be passed to \code{ash}; default values are set by function \code{\link{setAshParam.gaus}}.
+#' 
+#' @param jash: indicates if the prior from method JASH should be
+#'   used. This will often provide slightly better variance estimates
+#'   (especially for nonsmooth variance functions), at the cost of
+#'   computational efficiency. Defaults to FALSE.
+#' 
+#' @param SGD: bool, indicating if stochastic gradient descent should
+#'   be used in the EM. Only applicable if jash=TRUE.
+#' 
+#' @param weight: optional parameter used in estimating overall
+#'   variance. Only works for Haar basis. Defaults to 0.5. Setting this
+#'   to 1 might improve variance estimation slightly.
+#' 
+#' @param min.var: The minimum positive value to be set if the
+#'   variance estimates are non-positive.
+#' 
+#' @param ashparam: a list of parameters to be passed to \code{ash};
+#'   default values are set by function \code{\link{setAshParam.gaus}}.
+#' 
 #' @return \code{smash.gaus} returns the following by default:
 #' \item{mu.res}{a list with the mean estimate, its posterior variance if \code{post.var} is TRUE, the logLR if \code{return.loglr} is TRUE, or a vector of mean estimates if neither \code{post.var} nor \code{return.loglr} are TRUE}
 #' If \code{v.est} is TRUE, then \code{smash.gaus} returns the following:
@@ -640,25 +694,49 @@ setGlmApproxParam = function(glm.approx.param){
   return(glm.approx.param)
 }
 
-
-
 #' @title Estimate the underlying intensity for Poisson counts.
 #'
-#' @description Main smoothing procedure for Poisson data. Takes a univariate inhomogeneous Poisson process and estimates its mean intensity.
+#' @description Main smoothing procedure for Poisson data. Takes a
+#'   univariate inhomogeneous Poisson process and estimates its mean
+#'   intensity.
 #' 
-#' @details We assume that the data come from the model $Y_t \sim Pois(\mu_t)$ for t=1,...,T, where $\mu_t$ is the underlying intensity, assumed to be spatially
-#' structured (or treated as points sampled from a smooth continous function). The $Y_t$ are assumed to be independent. 
-#' Smash provides estimates of $\mu_t$ (and its posterior variance if desired).
+#' @details We assume that the data come from the model \eqn{Y_t \sim
+#'   Pois(\mu_t)} for \eqn{t=1,...,T}, where \eqn{\mu_t} is the
+#'   underlying intensity, assumed to be spatially structured (or
+#'   treated as points sampled from a smooth continous function). The
+#'   \eqn{Y_t} are assumed to be independent. Smash provides estimates
+#'   of \eqn{\mu_t} (and its posterior variance if desired).
 #' 
-#' @param x: a vector of Poisson counts (reflection is done automatically if length of \code{x} is not a power of 2)
-#' @param post.var: bool, indicates if the posterior variance should be returned
-#' @param log: bool, determines if smoothed signal is returned on log scale or not
-#' @param reflect: bool, indicates if the signals should be reflected; otherwise periodicity is assumed
-#' @param glm.approx.param: a list of parameters to be passed to \code{glm.approx}; default values are set by function \code{\link{setGlmApproxParam}}.
-#' @param ashparam: a list of parameters to be passed to \code{ash}; default values are set by function \code{\link{setAshParam.poiss}}.
-#' @param cxx: bool, indicates if C++ code should be used to create TI tables.
-#' @param lev: integer from 0 to J-1, indicating primary level of resolution. Should NOT be used (ie shrinkage is performed at all resolutions) unless there is good reason to do so.
-#' @return \code{smash.poiss} returns the mean estimate by default, with the posterior variance as an additional component if \code{post.var} is TRUE
+#' @param x A vector of Poisson counts (reflection is done
+#'   automatically if length of \code{x} is not a power of 2).
+#' 
+#' @param post.var Boolean, indicates if the posterior variance should
+#'   be returned.
+#' 
+#' @param log bool, determines if smoothed signal is returned on log
+#'   scale or not
+#' 
+#' @param reflect bool, indicates if the signals should be reflected;
+#'   otherwise periodicity is assumed.
+#' 
+#' @param glm.approx.param A list of parameters to be passed to
+#'   \code{glm.approx}; default values are set by function
+#'   \code{\link{setGlmApproxParam}}.
+#' 
+#' @param ashparam A list of parameters to be passed to \code{ash};
+#'   default values are set by function \code{\link{setAshParam.poiss}}.
+#' 
+#' @param cxx bool, indicates if C++ code should be used to create TI
+#'   tables.
+#' 
+#' @param lev integer from 0 to J-1, indicating primary level of
+#'   resolution. Should NOT be used (ie shrinkage is performed at all
+#'   resolutions) unless there is good reason to do so.
+#' 
+#' @return \code{smash.poiss} returns the mean estimate by default,
+#'   with the posterior variance as an additional component if
+#'   \code{post.var} is TRUE.
+#' 
 #' @examples
 #' n=2^10
 #' t=1:n/n
@@ -671,10 +749,12 @@ setGlmApproxParam = function(glm.approx.param){
 #' lines(mu.est,col=2)
 #'
 #' @export
-smash.poiss = function(x, post.var = FALSE, log = FALSE, reflect = FALSE, glm.approx.param = list(), 
-                       ashparam = list(), cxx = TRUE, lev = 0) {
+smash.poiss = function (x, post.var = FALSE, log = FALSE, reflect = FALSE,
+                        glm.approx.param = list(), ashparam = list(),
+                        cxx = TRUE, lev = 0) {
     if (is.matrix(x)) {
         if (nrow(x) == 1) {
+            
             # change matrix x to vector
             x = as.vector(x)
         } else {
@@ -689,7 +769,6 @@ smash.poiss = function(x, post.var = FALSE, log = FALSE, reflect = FALSE, glm.ap
         stop("Error: invalid parameter 'x': 'x' must be numeric")
     if (!is.logical(reflect)) 
         stop("Error: invalid parameter 'reflect', 'reflect' must be bool")
-
     
     J = log2(length(x))
     if ((J%%1) != 0) 
@@ -714,12 +793,15 @@ smash.poiss = function(x, post.var = FALSE, log = FALSE, reflect = FALSE, glm.ap
     zdat = withCallingHandlers(do.call(glm.approx, c(list(x = y, g = NULL), glm.approx.param))) 
     
     res = list()
-    # loop through resolutions, smoothing each resolution separately
+    
+    # Loop through resolutions, smoothing each resolution separately
     for (j in 1:(J - lev)) {
         res = getlist.res(res, j, n, zdat, log, TRUE, ashparam)
     }
-    # Do not smooth for coarser levels, with everything the same as above but using the estimate and its variance as
-    # the posterior mean and variance ie flat prior
+    
+    # Do not smooth for coarser levels, with everything the same as
+    # above but using the estimate and its variance as the posterior
+    # mean and variance ie flat prior.
     if (lev != 0) {
         for (j in (J - lev + 1):J) {
             res = getlist.res(res, j, n, zdat, log, FALSE, ashparam)
@@ -731,7 +813,9 @@ smash.poiss = function(x, post.var = FALSE, log = FALSE, reflect = FALSE, glm.ap
         recons$est.var = recons$est.var[reflect.indices]
     }
     if (post.var == FALSE) {
-        # if post.var=TRUE then only estimate (and not variance) is returned
+        
+        # If post.var = TRUE then only estimate (and not variance) is
+        # returned.
         return(est = recons$est.mean)
     } else {
         return(list(est = recons$est.mean, var = recons$est.var))

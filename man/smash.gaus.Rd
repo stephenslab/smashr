@@ -10,33 +10,49 @@ smash.gaus(x, sigma = NULL, v.est = FALSE, joint = FALSE,
   SGD = TRUE, weight = 0.5, min.var = 1e-08, ashparam = list())
 }
 \arguments{
-\item{x:}{a vector of observations. Length of \code{x} must be a power of 2.}
+\item{x:}{a vector of observations. Length of \code{x} must be a
+power of 2.}
 
-\item{sigma:}{a vector of standard deviations. Can be provided if known or estimated beforehand.}
+\item{sigma:}{a vector of standard deviations. Can be provided if
+known or estimated beforehand.}
 
-\item{v.est:}{bool, indicating if variance estimation should be performed instead.}
+\item{v.est:}{bool, indicating if variance estimation should be
+performed instead.}
 
 \item{joint:}{bool, indicating if results of mean and variance estimation should be returned together.}
 
-\item{v.basis:}{bool, indicating if the same wavelet basis should be used for variance estimation as mean estimation. If false, defaults to Haar basis for variance estimation (this is much faster than other bases).}
+\item{v.basis:}{bool, indicating if the same wavelet basis should
+be used for variance estimation as mean estimation. If false,
+defaults to Haar basis for variance estimation (this is much faster
+than other bases).}
 
-\item{post.var:}{bool, indicating if the posterior variance should be returned for the mean and/or variance estiamtes.}
+\item{post.var:}{bool, indicating if the posterior variance should
+be returned for the mean and/or variance estiamtes.}
 
 \item{family:}{choice of wavelet basis to be used, as in \code{wavethresh}.}
 
-\item{filter.number:}{choice of wavelet basis to be used, as in \code{wavethresh}.}
+\item{filter.number:}{choice of wavelet basis to be used, as in
+\code{wavethresh}.}
 
 \item{return.loglr:}{bool, indicating if a logLR should be returned.}
 
-\item{jash:}{indicates if the prior from method JASH should be used. This will often provide slightly better variance estimates (especially for nonsmooth variance functions), at the cost of computational efficiency. Defaults to FALSE.}
+\item{jash:}{indicates if the prior from method JASH should be
+used. This will often provide slightly better variance estimates
+(especially for nonsmooth variance functions), at the cost of
+computational efficiency. Defaults to FALSE.}
 
-\item{SGD:}{bool, indicating if stochastic gradient descent should be used in the EM. Only applicable if jash=TRUE.}
+\item{SGD:}{bool, indicating if stochastic gradient descent should
+be used in the EM. Only applicable if jash=TRUE.}
 
-\item{weight:}{optional parameter used in estimating overall variance. Only works for Haar basis. Defaults to 0.5. Setting this to 1 might improve variance estimation slightly}
+\item{weight:}{optional parameter used in estimating overall
+variance. Only works for Haar basis. Defaults to 0.5. Setting this
+to 1 might improve variance estimation slightly.}
 
-\item{min.var:}{The minimum positive value to be set if the variance estimates are non-positive.}
+\item{min.var:}{The minimum positive value to be set if the
+variance estimates are non-positive.}
 
-\item{ashparam:}{a list of parameters to be passed to \code{ash}; default values are set by function \code{\link{setAshParam.gaus}}.}
+\item{ashparam:}{a list of parameters to be passed to \code{ash};
+default values are set by function \code{\link{setAshParam.gaus}}.}
 }
 \value{
 \code{smash.gaus} returns the following by default:
@@ -46,12 +62,20 @@ If \code{v.est} is TRUE, then \code{smash.gaus} returns the following:
 In addition, if \code{joint} is TRUE, then both \code{mu.res} and \code{var.res} are returned.
 }
 \description{
-This function takes a data vector of length a power of 2 and performs signal denoising using wavelet decomposition and an adaptive shrinkage prior on the wavelet parameters. The data are assumed to be (mostly) independent and Gaussian, but not necessarily identically distributed.
+This function takes a data vector of length a power of
+  2 and performs signal denoising using wavelet decomposition and an
+  adaptive shrinkage prior on the wavelet parameters. The data are
+  assumed to be (mostly) independent and Gaussian, but not
+  necessarily identically distributed.
 }
 \details{
-We assume that the data come from the model $Y_t = \mu_t + \epsilon_t$ for t=1,...,T, where $\mu_t$ is an underlying mean, assumed to be spatially
-structured (or treated as points sampled from a smooth continous function), and $\epsilon_t \sim N(0, \sigma_t)$, and are independent. 
-Smash provides estimates of $\mu_t$ and $\sigma_t^2$ (and their posterior variances if desired).
+We assume that the data come from the model \eqn{Y_t =
+  \mu_t + \epsilon_t} for \eqn{t=1,...,T}, where \eqn{\mu_t} is an
+  underlying mean, assumed to be spatially structured (or treated as
+  points sampled from a smooth continous function), and
+  \eqn{\epsilon_t \sim N(0, \sigma_t)}, and are independent. Smash
+  provides estimates of \eqn{\mu_t} and \eqn{\sigma_t^2} (and their
+  posterior variances if desired).
 }
 \examples{
 n=2^10

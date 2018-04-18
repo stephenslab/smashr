@@ -2,28 +2,43 @@
 % Please edit documentation in R/ashsmooth.R
 \name{smash}
 \alias{smash}
-\title{Estimate the underlying mean or intensity function from Gaussian or Poisson data respectively}
+\title{Estimate the underlying mean or intensity function from
+  Gaussian or Poisson data respectively}
 \usage{
 smash(x, model = NULL, ...)
 }
 \arguments{
-\item{x:}{a vector of observations}
+\item{x}{A vector of observations.}
 
-\item{model:}{specifies the model (Gaussian or Poisson). Can be NULL, in which case the Poisson model is assumed if x
-consists of integers, and the Gaussian model is assumed otherwise. One of 'gaus' or 'poiss' can also be specified to fit a specific model.}
+\item{model}{Specifies the model (Gaussian or Poisson). Can be
+NULL, in which case the Poisson model is assumed if x consists of
+integers, and the Gaussian model is assumed otherwise. One of
+'gaus' or 'poiss' can also be specified to fit a specific model.}
 }
 \value{
 See \code{smash.gaus} or \code{smash.poiss} for details.
 }
 \description{
-This is a wrapper function for \code{\link{smash.gaus}} or \code{\link{smash.poiss}} as appropriate. For details see \code{\link{smash.gaus}} and \code{\link{smash.poiss}}
+This is a wrapper function for
+  \code{\link{smash.gaus}} or \code{\link{smash.poiss}} as
+  appropriate. For details see \code{\link{smash.gaus}} and
+  \code{\link{smash.poiss}}
 }
 \details{
-Performs nonparametric regression on univariate Poisson or Gaussian data using wavelets. For the Poisson case, the data are assumed to be i.i.d. 
-from an underlying inhomogeneous mean function that is "smooth". Similarly for the Gaussian case, the data are assumed to be independent with an underlying smooth mean function. 
-In the Gaussian case, the variances are allowed vary, but are similarly "spatially structured" as with the mean function. The functions \code{ashsmooth.gaus} and \code{ashsmooth.pois} 
-perform smoothing for Gaussian and Poisson data respectively. The only required input is a vector of length 2^J for some integer J.
-Other options include the possibility of returning the posterior variances, specifying a wavelet basis (default is Haar, which performs well in general due to the fact that we used the translation-invariant version).
+Performs nonparametric regression on univariate Poisson or
+  Gaussian data using wavelets. For the Poisson case, the data are
+  assumed to be i.i.d.  from an underlying inhomogeneous mean
+  function that is "smooth". Similarly for the Gaussian case, the
+  data are assumed to be independent with an underlying smooth mean
+  function.  In the Gaussian case, the variances are allowed vary,
+  but are similarly "spatially structured" as with the mean
+  function. The functions \code{ashsmooth.gaus} and
+  \code{ashsmooth.pois} perform smoothing for Gaussian and Poisson
+  data respectively. The only required input is a vector of length
+  2^J for some integer J.  Other options include the possibility of
+  returning the posterior variances, specifying a wavelet basis
+  (default is Haar, which performs well in general due to the fact
+  that we used the translation-invariant version).
 }
 \examples{
 # Create the baseline mean function (The "spikes" function is used as an example here)

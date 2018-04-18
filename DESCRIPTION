@@ -6,7 +6,7 @@ Authors@R: c(person("Zhengrong","Xing",role="aut"),
 	     person("Matthew","Stephens",role="aut"),
              person("Peter","Carbonetto",role=c("aut","cre"),
 	            email="pcarbo@uchicago.edu"))
-Title: smashr: Smoothing using Adaptive Shrinkage in R
+Title: Smoothing using Adaptive Shrinkage in R
 Version: 1.1-0
 Date: 2018-04-17
 Description: Fast, wavelet-based Empirical Bayes shrinkage methods for
@@ -16,8 +16,8 @@ Description: Fast, wavelet-based Empirical Bayes shrinkage methods for
     shrinkage (smash): denoising Poisson and heteroskedastic Gaussian
     signals" (Z. Xing & M. Stephens, 2016, <arXiv:1605.07787>).
 License: GPL (>= 3)
-Depends:
-    R (>= 3.1.1),
+Depends: R (>= 3.1.1),
+Imports:
     Rcpp (>= 0.11.1),
     ashr,
     wavethresh,

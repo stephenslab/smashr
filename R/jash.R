@@ -1,39 +1,41 @@
-# Disclaimer: The functions defined in this file are adapted from the same functions used in the project 'JASH',
-# supervised by Mengyin Lu and Matthew Stephens
+# Disclaimer: The functions defined in this file are adapted from the
+# same functions used in the JASH project developed by Mengyin Lu
+# and Matthew Stephens
 
-# Y: N by n observation matrix (N tests, n replicate obs for each test) Model: Y_{jk}|beta_j,tau_j ~
-# N(beta_j,1/tau_j) Prior: beta_j|tau_j~N(mu_j,1/(c_l*tau_j)), tau_j~lambda_k*Gamma(a_m,a_m), w.p. pi_{klm} Mixture
-# constraint: sum(pi_{klm})=1 Or: sum(pi_k)=1, sum(pi_l)=1, sum(pi_m)=1 for each param a_m, lambda_k, c_l, mu_j are
-# known
-library(qvalue)
-qval.from.localfdr = function(localfdr) {
-    o = order(localfdr)
-    qvalue = rep(NA, length(localfdr))
-    qvalue[o] = (cumsum(sort(localfdr))/(1:sum(!is.na(localfdr))))
-    return(qvalue)
+# Y: N by n observation matrix (N tests, n replicate obs for each
+# test)
+#
+# Model: Y_{jk}|beta_j,tau_j ~ N(beta_j,1/tau_j)
+#
+# Prior: beta_j|tau_j~N(mu_j,1/(c_l*tau_j)),
+# tau_j~lambda_k*Gamma(a_m,a_m), w.p. pi_{klm}
+#
+# Mixture constraint: sum(pi_{klm})=1 Or: sum(pi_k)=1, sum(pi_l)=1,
+# sum(pi_m)=1 for each param a_m, lambda_k, c_l, mu_j are known.
+qval.from.localfdr = function (localfdr) {
+  o = order(localfdr)
+  qvalue = rep(NA, length(localfdr))
+  qvalue[o] = (cumsum(sort(localfdr))/(1:sum(!is.na(localfdr))))
+  return(qvalue)
 }
 
-
-# post_pi computes the posterior probability P(beta_j,tau_j belongs to the i'th component | Y)
-post_pi = function(N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN, SSE, pi) {
-    post.gammab = 0.5 * (outer(SSE, rep(1, M * L * K)) + outer((MEAN - mu)^2, n * d.vec) + outer(rep(1, N), 2 * b.vec))
-    post.pi.mat = exp(outer(rep(1, N), log(pi) + a.vec * log(b.vec) - lgamma(a.vec) + 0.5 * log(d.vec) + lgamma(a.vec + 
-        n/2)) - log(post.gammab) * outer(rep(1, N), a.vec + n/2))
-    return(list(gammab = post.gammab, pimat = post.pi.mat))
-    
-    # post.pi.mat = exp(outer(rep(1,N),log(pi)+a.vec*log(b.vec)-lgamma(a.vec)+log(sqrt(d.vec)+lgamma(a.vec+n/2))-
-    # log(0.5*(outer(SSE,rep(1,M*L*K))+outer((MEAN-mu)^2,n*d.vec)+outer(rep(1,N),2*b.vec)))* outer(rep(1,N),a.vec+n/2))
-    
-    # post.pi.mat = outer(rep(1,N),pi*(b.vec)^a.vec/gamma(a.vec)*sqrt(d.vec*(gamma(a.vec+n/2)))/
-    # (0.5*(outer(SSE,rep(1,M*L*K))+outer((MEAN-mu)^2,n*d.vec)+outer(rep(1,N),2*b.vec)))^ outer(rep(1,N),a.vec+n/2)
+# post_pi computes the posterior probability P(beta_j,tau_j belongs to
+# the i'th component | Y)
+post_pi = function (N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN, SSE, pi) {
+  post.gammab = 0.5 * (outer(SSE, rep(1, M * L * K)) +
+        outer((MEAN - mu)^2, n * d.vec) + outer(rep(1, N), 2 * b.vec))
+  post.pi.mat = exp(outer(rep(1, N), log(pi) + a.vec * log(b.vec) -
+      lgamma(a.vec) + 0.5 * log(d.vec) + lgamma(a.vec + n/2)) -
+      log(post.gammab) * outer(rep(1, N), a.vec + n/2))
+  return(list(gammab = post.gammab, pimat = post.pi.mat))
 }
 
-
-
-# indep_post_pi computes the posterior probability P(beta_j,tau_j belongs to the i'th component of
-# precShape/precMulti.compprecPrior| Y) groupind: i indicates that the current component correspond to the i'th
-# comp of precShape/precMulti/compprecPrior
-indep_post_pi = function(N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN, SSE, pi.a, pi.lambda, pi.c, prior, groupind) {
+# indep_post_pi computes the posterior probability P(beta_j, tau_j
+# belongs to the i'th component of precShape/precMulti.compprecPrior |
+# Y) groupind: i indicates that the current component correspond to
+# the i'th comp of precShape/precMulti/compprecPrior
+indep_post_pi = function (N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN,
+                          SSE, pi.a, pi.lambda, pi.c, prior, groupind) {
     pi = rep(pi.a, L * K) * rep(rep(pi.lambda, each = M), L) * rep(pi.c, each = M * K)
     mm = post_pi(N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN, SSE, pi)
     pi.mat = mm$pimat
@@ -41,7 +43,6 @@ indep_post_pi = function(N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN, SSE, pi.a
     norm.pi.mat = normalized_pi(pi.mat)
     indep.post.pi = rep(0, max(groupind))
     temp = colSums(norm.pi.mat) + prior - 5/(M * K)
-    # temp=colSums(norm.pi.mat)
     for (i in 1:max(groupind)) {
         indep.post.pi[i] = sum(temp[groupind == i])
     }
@@ -50,95 +51,104 @@ indep_post_pi = function(N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN, SSE, pi.a
     return(list(indep.pi = indep.post.pi, pi.mat = pi.mat, normpi.mat = norm.pi.mat, postb = postb))
 }
 
-# Normalize pi to make sum(pi)=1
-normalized_pi = function(pi.mat) {
+# Normalize pi to make sum(pi) = 1.
+normalized_pi = function (pi.mat) {
     n = dim(pi.mat)[2]
     pi.normalized = pi.mat/outer(rowSums(pi.mat), rep(1, n))
     return(pi.normalized)
 }
 
-# Compute posterior distribution P(tau|Y), P(beta|Y) pi: (M*L*K) vector mu: N vector
-post_distn = function(N, n, M, K, L, a.vec, b.vec, c.vec, mu, MEAN, SSE, pi) {
+# Compute posterior distribution P(tau|Y), P(beta|Y) pi: (M*L*K)
+# vector mu: N vector
+post_distn = function (N, n, M, K, L, a.vec, b.vec, c.vec, mu, MEAN, SSE, pi) {
     d.vec = 1/(n/c.vec + 1)
-    post.pi = normalized_pi(post_pi(N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN, SSE, pi)$pimat)
+    post.pi = normalized_pi(post_pi(N, n, M, K, L, a.vec, b.vec, d.vec,
+                            mu, MEAN, SSE, pi)$pimat)
     
     post.gamma.parama = outer(rep(1, N), a.vec + n/2)
-    post.gamma.paramb = 0.5 * (outer(SSE, rep(1, M * L * K)) + outer((MEAN - mu)^2, n * d.vec) + outer(rep(1, N), 2 * 
-        b.vec))
+    post.gamma.paramb = 0.5 * (outer(SSE, rep(1, M * L * K)) +
+      outer((MEAN - mu)^2, n * d.vec) + outer(rep(1, N), 2 * b.vec))
     
-    # Posterior mean: E(tau|Y)
-    post.tau = apply(post.gamma.parama/post.gamma.paramb * post.pi, 1, sum)/apply(post.pi, 1, sum)
+    # Posterior mean: E(tau|Y).
+    post.tau = apply(post.gamma.parama/post.gamma.paramb * post.pi, 1, sum) /
+      apply(post.pi, 1, sum)
     
-    # Posterior mean: E(beta|Y)
+    # Posterior mean: E(beta|Y).
     post.norm.mean = outer(MEAN, 1 - d.vec) + outer(mu, d.vec)
     post.norm.prec = n + c.vec  # if tau given, outer(tau,n+c.vec)
     post.norm.c = outer(rep(1, N), n + c.vec)
-    post.gamma.dens = dgamma(outer(post.tau, rep(1, M * L * K)), shape = post.gamma.parama, rate = post.gamma.paramb)
+    post.gamma.dens = dgamma(outer(post.tau, rep(1, M * L * K)),
+      shape = post.gamma.parama, rate = post.gamma.paramb)
     post.beta = apply(post.pi * post.norm.mean, 1, sum)
     
-    return(list(pi = post.pi, tau = post.tau, beta = post.beta, gammaa = post.gamma.parama, gammab = post.gamma.paramb, 
-        gammadens = post.gamma.dens, normmean = post.norm.mean, normc = post.norm.c, normprec = post.norm.prec))
+    return(list(pi = post.pi, tau = post.tau, beta = post.beta,
+                gammaa = post.gamma.parama, gammab = post.gamma.paramb, 
+                gammadens = post.gamma.dens, normmean = post.norm.mean,
+                normc = post.norm.c, normprec = post.norm.prec))
 }
 
-# loglike=function(params){
-loglike = function(params, N, n, M, K, L, mu, MEAN, SSE, pi, groupind) {
+loglike = function (params, N, n, M, K, L, mu, MEAN, SSE, pi, groupind) {
     a.vec = rep(params[1:M], L * K)
     b.vec = rep(rep(params[(M + 1):(M + K)], each = M), L)
-    # d.vec = rep(params[(M+K+1):(M+K+L)],each=M*K)
     d.vec = rep(c(params[(M + K + 1):(M + K + L - 1)], 1), each = M * K)
-    post.gammab = 0.5 * (outer(SSE, rep(1, M * L * K)) + outer((MEAN - mu)^2, n * d.vec) + outer(rep(1, N), 2 * b.vec))
-    pimat = exp(outer(rep(1, N), log(pi) + a.vec * log(b.vec) - lgamma(a.vec) + 0.5 * log(d.vec) + lgamma(a.vec + n/2)) - 
-        log(post.gammab) * outer(rep(1, N), a.vec + n/2))
-    # classprob=pimat/rowSums(pimat)
+    post.gammab = 0.5 * (outer(SSE, rep(1, M * L * K)) +
+      outer((MEAN - mu)^2, n * d.vec) + outer(rep(1, N), 2 * b.vec))
+    pimat = exp(outer(rep(1, N), log(pi) + a.vec * log(b.vec) -
+      lgamma(a.vec) + 0.5 * log(d.vec) + lgamma(a.vec + n/2)) - 
+      log(post.gammab) * outer(rep(1, N), a.vec + n/2))
     logl = sum(log(rowSums(pimat)))
-    
-    # grad=rep(0,K+M+L) for (i in 1:M){ idx=(groupind[,1]==i) a=params[i]
-    # grad[i]=sum(classprob[,idx]*(outer(rep(1,N),log(b.vec[idx]))-log(post.gammab[,idx])+outer(rep(1,N),rep(digamma(a+n/2)-digamma(a),length(idx)))))
-    # } for (i in 1:K){ idx=(groupind[,2]==i) b=params[i+M]
-    # grad[i+M]=sum(classprob[,idx]*(outer(rep(1,N),a.vec[idx]/b)-outer(rep(1,N),a.vec[idx]+n/2)/post.gammab[,idx])) }
-    # for (i in 1:L){ idx=(groupind[,3]==i) d=params[i+M+K]
-    # grad[i+M+K]=sum(classprob[,idx]*(1/(2*d)-outer(n*(MEAN-mu)^2/2,a.vec[idx]+n/2)/post.gammab[,idx])) } attr(logl,
-    # 'gradient') = grad
     return(-logl)
 }
 
-gradloglike = function(params, N, n, M, K, L, mu, MEAN, SSE, pi, groupind) {
+gradloglike = function (params, N, n, M, K, L, mu, MEAN, SSE, pi, groupind) {
     a.vec = rep(params[1:M], L * K)
     b.vec = rep(rep(params[(M + 1):(M + K)], each = M), L)
     d.vec = rep(c(params[(M + K + 1):(M + K + L - 1)], 1), each = M * K)
-    # d.vec = rep(params[(M+K+1):(M+K+L)],each=M*K)
-    post.gammab = 0.5 * (outer(SSE, rep(1, M * L * K)) + outer((MEAN - mu)^2, n * d.vec) + outer(rep(1, N), 2 * b.vec))
-    pimat = exp(outer(rep(1, N), log(pi) + a.vec * log(b.vec) - lgamma(a.vec) + 0.5 * log(d.vec) + lgamma(a.vec + n/2)) - 
-        log(post.gammab) * outer(rep(1, N), a.vec + n/2))
+    post.gammab = 0.5 * (outer(SSE, rep(1, M * L * K)) +
+      outer((MEAN - mu)^2, n * d.vec) + outer(rep(1, N), 2 * b.vec))
+    pimat = exp(outer(rep(1, N), log(pi) + a.vec * log(b.vec) -
+      lgamma(a.vec) + 0.5 * log(d.vec) + lgamma(a.vec + n/2)) - 
+      log(post.gammab) * outer(rep(1, N), a.vec + n/2))
     classprob = pimat/rowSums(pimat)
     grad = rep(0, K + M + L - 1)
     for (i in 1:M) {
         idx = (groupind[, 1] == i)
         a = params[i]
-        grad[i] = -sum(classprob[, idx] * (outer(rep(1, N), log(b.vec[idx])) - log(post.gammab[, idx]) + outer(rep(1, 
-            N), rep(digamma(a + n/2) - digamma(a), length(idx)))))
+        grad[i] =
+          -sum(classprob[, idx] * (outer(rep(1, N), log(b.vec[idx])) -
+                                   log(post.gammab[, idx]) +
+                                   outer(rep(1,N), rep(digamma(a + n/2) -
+                                                    digamma(a), length(idx)))))
     }
     for (i in 1:K) {
         idx = (groupind[, 2] == i)
         b = params[i + M]
-        grad[i + M] = -sum(classprob[, idx] * (outer(rep(1, N), a.vec[idx]/b) - outer(rep(1, N), a.vec[idx] + n/2)/post.gammab[, 
-            idx]))
+        grad[i + M] = -sum(classprob[, idx] * (outer(rep(1, N), a.vec[idx]/b) -
+                                               outer(rep(1, N), a.vec[idx] +
+                                                     n/2)/post.gammab[,idx]))
     }
     for (i in 1:(L - 1)) {
         idx = (groupind[, 3] == i)
         d = params[i + M + K]
-        grad[i + M + K] = -sum(classprob[, idx] * (1/(2 * d) - outer(n * (MEAN - mu)^2/2, a.vec[idx] + n/2)/post.gammab[, 
-            idx]))
+        grad[i + M + K] = -sum(classprob[, idx] *
+                               (1/(2 * d) - outer(n * (MEAN - mu)^2/2,
+                                 a.vec[idx] + n/2)/post.gammab[,idx]))
     }
     return(grad)
 }
 
-# Use EM algorithm to estimate a, lambda lik: likelihood matrix SGD: use stochastic gradient descent method
-a_lambda_c_est = function(classprob, postb, N, n, M, K, L, a.vec, b.vec, d.vec, groupind, SGD, learnrate) {
+# Use EM algorithm to estimate a, lambda. lik: likelihood matrix SGD:
+# use stochastic gradient descent method.
+#
+#' @importFrom stats uniroot
+#' 
+a_lambda_c_est = function (classprob, postb, N, n, M, K, L, a.vec, b.vec,
+                           d.vec, groupind, SGD, learnrate) {
     if (SGD == TRUE) {
-        dl_da = sum(classprob * (outer(rep(1, N), log(b.vec)) - log(postb) + outer(rep(1, N), digamma(a.vec + n/2) - 
-            digamma(a.vec))))
-        dl_db = sum(classprob * (outer(rep(1, N), a.vec/b.vec) - outer(rep(1, N), a.vec + n/2)/postb))
+        dl_da = sum(classprob * (outer(rep(1, N), log(b.vec)) - log(postb) +
+                outer(rep(1, N), digamma(a.vec + n/2) - digamma(a.vec))))
+        dl_db = sum(classprob * (outer(rep(1, N), a.vec/b.vec) -
+                outer(rep(1, N), a.vec + n/2)/postb))
         a.vec = pmin(a.vec - learnrate * dl_da, 1e-10)
         b.vec = pmin(b.vec - learnrate * dl_db, 1e-10)
         print(dl_da)
@@ -147,8 +157,11 @@ a_lambda_c_est = function(classprob, postb, N, n, M, K, L, a.vec, b.vec, d.vec, 
         for (i in 1:max(group.ind[, 1])) {
             idx = (group.ind[, 1] == i)
             fa = function(a) {
-                res = sum(classprob[, idx] * (outer(rep(1, N), log(b.vec[idx])) - log(postb[, idx]) + outer(rep(1, 
-                  N), rep(digamma(a + n/2) - digamma(a), length(idx)))))
+                res = sum(classprob[, idx] *
+                  (outer(rep(1, N), log(b.vec[idx])) -
+                   log(postb[, idx]) +
+                   outer(rep(1,N), rep(digamma(a + n/2) -
+                                       digamma(a), length(idx)))))
                 return(res)
             }
             a.vec[idx] = uniroot(fa, c(1e-10, 1e+05))$root
@@ -156,20 +169,20 @@ a_lambda_c_est = function(classprob, postb, N, n, M, K, L, a.vec, b.vec, d.vec, 
         for (i in 1:max(group.ind[, 2])) {
             idx = (group.ind[, 2] == i)
             fb = function(b) {
-                res = sum(classprob[, idx] * (outer(rep(1, N), a.vec[idx]/b) - outer(rep(1, N), a.vec[idx] + n/2)/postb[, 
+                res = sum(classprob[, idx] * (outer(rep(1, N), a.vec[idx]/b) -
+                    outer(rep(1, N), a.vec[idx] + n/2)/postb[, 
                   idx]))
                 return(res)
             }
             b.vec[idx] = uniroot(fb, c(1e-10, 1e+05))$root
         }
-        # for(i in 1:max(group.ind[,3])){ idx=(group.ind[,3]==i) fd=function(d) {
-        # res=sum(classprob[,idx]*(1/(2*d)-outer(n*(MEAN-mu)^2/2,a.vec[idx]+n/2)/postb[,idx])) return(res) }
-        # optd=uniroot(fd,c(1e-10,1e10))$root if (optd<1){ d.vec[idx]=optd }else{ d.vec[idx]=1 }
         for (i in 1:(max(group.ind[, 3]))) {
             idx = (group.ind[, 3] == i)
             fc = function(c) {
-                res = sum(classprob[, idx] * (n/(2 * c * (n + c)) - outer(n/(n + c)^2 * 0.5 * n * (MEAN - mu)^2, a.vec[idx] + 
-                  n/2)/postb[, idx]))
+                res = sum(classprob[, idx] *
+                    (n/(2 * c * (n + c)) -
+                     outer(n/(n + c)^2 * 0.5 * n * (MEAN - mu)^2, a.vec[idx] + 
+                           n/2)/postb[, idx]))
                 return(res)
             }
             c.vec[idx] = uniroot(fd, c(1e-10, 1e+10))$root
@@ -178,20 +191,20 @@ a_lambda_c_est = function(classprob, postb, N, n, M, K, L, a.vec, b.vec, d.vec, 
     return(list(a.vec = a.vec, b.vec = b.vec, d.vec = d.vec, c.vec = c.vec))
 }
 
-
-
-# Use EM algorithm to estimate pi from data ltol: likelihood convergence tolerance maxiter: max number of
-# iterations indepprior: whether assume that there are independent priors for a_m, lambda_k and c_l i.e.
-# pi_{klm}=pi.lambda_k*pi.c_l*pi.a_m, where sum(pi.a_m)=sum(pi.lambda_k)=sum(pi.c_l)
-EMest_pi = function(params, N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN, SSE, pi, prior, a.lambda.c.est, SGD, indepprior = TRUE, 
-    ltol = 1e-04, maxiter = 5000, usePointMass) {
+# Use EM algorithm to estimate pi from data ltol: likelihood
+# convergence tolerance maxiter: max number of iterations indepprior:
+# whether assume that there are independent priors for a_m, lambda_k
+# and c_l i.e. pi_{klm}=pi.lambda_k*pi.c_l*pi.a_m, where
+# sum(pi.a_m)=sum(pi.lambda_k)=sum(pi.c_l)
+EMest_pi = function (params, N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN,
+                     SSE, pi, prior, a.lambda.c.est, SGD, indepprior = TRUE, 
+                     ltol = 1e-04, maxiter = 5000, usePointMass) {
     group.a = rep(1:M, L * K)
     group.lambda = rep(rep(1:K, each = M), L)
     group.c = rep(1:L, each = M * K)
     groupind = cbind(group.a, group.lambda, group.c)
     
     if (is.null(prior)) {
-        # NEED TESTING
         prior = rep(5/(L * M * K), L * M * K)
         prior[d.vec == max(d.vec)] = 5/(M * K)
     } else if (prior == "uniform") {
@@ -214,32 +227,38 @@ EMest_pi = function(params, N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN, SSE, p
         loglik[1] = sum(log(m.rowsum))
         classprob = m/m.rowsum
         
-        est = nlminb(params, loglike, gradloglike, lower = rep(1e-10, M + K + L), upper = c(rep(1e+05, M + K), rep(0.95, 
-            L)), N = N, n = n, M = M, K = K, L = L, mu = mu, MEAN = MEAN, SSE = SSE, pi = pi, groupind = groupind)
+        est = nlminb(params, loglike, gradloglike,
+                     lower = rep(1e-10, M + K + L),
+                     upper = c(rep(1e+05, M + K), rep(0.95,L)), N = N, n = n,
+                     M = M, K = K, L = L, mu = mu, MEAN = MEAN, SSE = SSE,
+                     pi = pi, groupind = groupind)
         params = est$par
         for (i in 2:maxiter) {
             if (a.lambda.c.est == TRUE) {
                 if (SGD == TRUE && i > 5) {
-                  params = params - 1e-04/sqrt(i) * gradloglike(params, N, n, M, K, L, mu, MEAN, SSE, pi, groupind)
+                  params = params - 1e-04/sqrt(i) *
+                    gradloglike(params, N, n, M, K, L, mu,
+                                MEAN, SSE, pi, groupind)
                   params = pmax(params, rep(1e-10, M + K + L - 1))
                   params = pmin(params, c(rep(1e+05, M + K), rep(0.95, L - 1)))
                   a.vec = rep(params[1:M], L * K)
                   b.vec = rep(rep(params[(M + 1):(M + K)], each = M), L)
-                  d.vec = rep(c(params[(M + K + 1):(M + K + L - 1)], 1), each = M * K)
+                  d.vec = rep(c(params[(M + K + 1):(M + K + L - 1)], 1),
+                              each = M * K)
                 } else {
-                  est = nlminb(params, loglike, gradloglike, lower = rep(1e-10, M + K + L), upper = c(rep(1e+05, M + 
+                  est = nlminb(params, loglike, gradloglike,
+                               lower = rep(1e-10, M + K + L),
+                               upper = c(rep(1e+05, M + 
                     K), rep(0.95, L)), N = N, n = n, M = M, K = K, L = L, mu = mu, MEAN = MEAN, SSE = SSE, pi = pi, 
                     groupind = groupind)
                   a.vec = rep(est$par[1:M], L * K)
                   b.vec = rep(rep(est$par[(M + 1):(M + K)], each = M), L)
                   d.vec = rep(c(est$par[(M + K + 1):(M + K + L - 1)], 1), each = M * K)
-                  # d.vec=rep(est$par[(M+K+1):(M+K+L)],each=M*K)
                   params = est$par
                 }
                 
             }
             pi = colSums(classprob) + prior - 5/(M * K)
-            # pi=colSums(classprob)
             pi = ifelse(pi < 0, 0, pi)
             pi = pi/sum(pi)
             mm = post_pi(N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN, SSE, pi)
@@ -282,7 +301,6 @@ EMest_pi = function(params, N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN, SSE, p
                   a.vec = rep(est$par[1:M], L * K)
                   b.vec = rep(rep(est$par[(M + 1):(M + K)], each = M), L)
                   d.vec = rep(c(est$par[(M + K + 1):(M + K + L - 1)], 1), each = M * K)
-                  # d.vec=rep(est$par[(M+K+1):(M+K+L)],each=M*K)
                   params = est$par
                 }
             }
@@ -304,7 +322,6 @@ EMest_pi = function(params, N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN, SSE, p
     } else {
         c.vec = c((n * d.vec/(1 - d.vec))[1:(L - 1)], 1e+10)
     }
-    # c.vec=n*d.vec/(1-d.vec)
     converged = (i < maxiter)
     niter = min(c(i, maxiter))
     return(list(pi = pi, pi.a = pi.a, pi.lambda = pi.lambda, pi.c = pi.c, classprob = classprob, loglik.final = loglik, 
@@ -312,9 +329,11 @@ EMest_pi = function(params, N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN, SSE, p
         c.vec = c.vec))
 }
 
-# Compute P(beta|Y,hat(tau)), where hat(tau) is the posterior mean estimate for tau ZeroProb=P(beta=0|Y,hat(tau)),
-# PositiveProb=P(beta>0|Y,hat(tau)), NegativeProb=P(beta<0|Y,hat(tau))
-CondPostprob = function(pi, tau, gammaa, gammab, gammadens, normmean, normprec, c.vec) {
+# Compute P(beta|Y,hat(tau)), where hat(tau) is the posterior mean
+# estimate for tau ZeroProb=P(beta=0|Y,hat(tau)),
+# PositiveProb=P(beta>0|Y,hat(tau)), NegativeProb=P(beta<0|Y,hat(tau)).
+CondPostprob = function (pi, tau, gammaa, gammab, gammadens, normmean,
+                         normprec, c.vec) {
     ZeroProb = rowSums(pi[, c.vec == Inf, drop = FALSE])
     Cond.pi = pi * gammadens/rowSums(pi * gammadens)
     normsd = 1/sqrt(outer(tau, normprec))
@@ -325,22 +344,23 @@ CondPostprob = function(pi, tau, gammaa, gammab, gammadens, normmean, normprec, 
         normmean = normmean))
 }
 
-# Compute P(beta|Y) ZeroProb=P(beta=0|Y), PositiveProb=P(beta>0|Y), NegativeProb=P(beta<0)
-Postprob = function(mu, pi, gammaa, gammab, normmean, normc, c.vec) {
+# Compute P(beta|Y) ZeroProb=P(beta=0|Y), PositiveProb=P(beta>0|Y),
+# NegativeProb=P(beta<0).
+Postprob = function (mu, pi, gammaa, gammab, normmean, normc, c.vec) {
     ZeroProb = rowSums(pi[, c.vec == Inf, drop = FALSE])
     mumat = outer(mu, rep(1, length(c.vec)))
     T.std = ((mumat - normmean)/sqrt(gammab/(gammaa * normc)))[, c.vec != Inf, drop = FALSE]
     pval.mat = 2 * pt(abs(T.std), df = gammaa[, c.vec != Inf] * 2, lower.tail = FALSE)
-    # pval.mat=rowSums(pi*pval.mat)
     PositiveProb = rowSums(pi[, c.vec != Inf, drop = FALSE] * pt(T.std, df = gammaa[, c.vec != Inf, drop = FALSE] * 
         2, lower.tail = TRUE))
     NegativeProb = 1 - PositiveProb - ZeroProb
     return(list(ZeroProb = ZeroProb, PositiveProb = PositiveProb, NegativeProb = NegativeProb, pval.mat = pval.mat))
 }
 
-# Compute local FALSE sign rate & FALSE discovery rate
-computefdr = function(ZeroProb, PositiveProb, NegativeProb) {
-    localfsr = ifelse(PositiveProb < NegativeProb, PositiveProb + ZeroProb, NegativeProb + ZeroProb)
+# Compute local FALSE sign rate & FALSE discovery rate.
+computefdr = function (ZeroProb, PositiveProb, NegativeProb) {
+    localfsr = ifelse(PositiveProb < NegativeProb, PositiveProb + ZeroProb,
+                      NegativeProb + ZeroProb)
     if (sum(ZeroProb) > 0) {
         localfdr = ZeroProb
     } else {
@@ -349,7 +369,10 @@ computefdr = function(ZeroProb, PositiveProb, NegativeProb) {
     return(list(localfsr = localfsr, localfdr = localfdr))
 }
 
-lmreg = function(Y, fac, nA, nB) {
+#' @importFrom stats coef
+#' @importFrom stats lm
+#' @importFrom stats model.matrix
+lmreg = function (Y, fac, nA, nB) {
     nfac = length(unique(fac))
     design = model.matrix(~fac)
     N = dim(Y)[1]
@@ -374,7 +397,9 @@ lmreg1 = function(Y, fac, nA, nB) {
     MEAN = betahat/sqrt(XXinv * (nA + nB - 1))
     return(list(MEAN = MEAN, SSE = SSE, scale = sqrt(XXinv * (nA + nB - 1))))
 }
-########### NEED TESTING!#########
+
+#' @importFrom stats median
+#' @importFrom stats var
 autoselect.precMulti = function(Y) {
     n = dim(Y)[2]
     Y.var = apply(Y, 1, var) * (n - 1)/n
@@ -385,24 +410,32 @@ autoselect.precMulti = function(Y) {
     return(precMulti)
 }
 
-# Sample posterior beta & tau from P(beta|Y), P(tau|Y) obs: obs need to be sampled nsamp: num of sampled beta & tau
-# for each obs
+# Sample posterior beta & tau from P(beta|Y), P(tau|Y) obs: obs need
+# to be sampled nsamp: num of sampled beta & tau for each obs.
 posterior_sample_jash = function(post, nsamp, obs) {
-    component.tau = as.vector(apply(post$pi[obs, ], 1, sample_component, nsamp = nsamp))
+    component.tau = as.vector(apply(post$pi[obs, ], 1, sample_component,
+                              nsamp = nsamp))
     ML = ncol(post$pi)
     obs.vec = rep(obs, each = nsamp)
     index.tau = cbind(obs.vec, component.tau)
-    tau = rgamma(length(component.tau), shape = post$gammaa[index.tau], rate = post$gammab[index.tau])
+    tau = rgamma(length(component.tau),
+                 shape = post$gammaa[index.tau],
+                 rate = post$gammab[index.tau])
     normsd = 1/sqrt(outer(tau, post$normprec))
-    beta = rnorm(length(tau), mean = post$normmean[index.tau], sd = normsd[cbind(1:length(tau), component.tau)])
-    res = list(beta = matrix(beta, ncol = nsamp, byrow = TRUE), tau = matrix(tau, ncol = nsamp, byrow = TRUE), obs.vec = obs.vec)
+    beta = rnorm(length(tau), mean = post$normmean[index.tau],
+                 sd = normsd[cbind(1:length(tau), component.tau)])
+    res = list(beta = matrix(beta, ncol = nsamp, byrow = TRUE),
+               tau = matrix(tau, ncol = nsamp, byrow = TRUE),
+               obs.vec = obs.vec)
     return(res)
 }
 
-# Y: data matrix, N by n precShape: vector of a_m precMulti: vector of lambda_k compprecPrior: vector of c_l fac:
-# group factor vec
-jash = function(Y, fac, auto = FALSE, precShape = NULL, precMulti = NULL, compprecPrior = NULL, mu = NULL, pi = NULL, 
-    prior = NULL, usePointMass = FALSE, localfdr = TRUE, a.lambda.c.est = TRUE, SGD = TRUE) {
+# Y: data matrix, N by n precShape: vector of a_m precMulti: vector of
+# lambda_k compprecPrior: vector of c_l fac: group factor vec
+jash = function (Y, fac, auto = FALSE, precShape = NULL, precMulti = NULL,
+                 compprecPrior = NULL, mu = NULL, pi = NULL, prior = NULL,
+                 usePointMass = FALSE, localfdr = TRUE,
+                 a.lambda.c.est = TRUE, SGD = TRUE) {
     N = dim(Y)[1]
     
     if (is.null(mu)) {
@@ -459,8 +492,6 @@ jash = function(Y, fac, auto = FALSE, precShape = NULL, precMulti = NULL, comppr
     pifit = EMest_pi(params, N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN, SSE, pi, prior, a.lambda.c.est, SGD, indepprior = FALSE, 
         ltol = 1e-04, maxiter = 2000, usePointMass)
     post = post_distn(N, n, M, K, L, pifit$a.vec, pifit$b.vec, pifit$c.vec, mu, MEAN, SSE, pifit$pi)
-    # condpost =
-    # CondPostprob(post$pi,post$tau,post$gammaa,post$gammab,post$gammadens,post$normmean,post$normprec,post$c.vec)
     postprob = Postprob(mu, post$pi, post$gammaa, post$gammab, post$normmean, post$normc, pifit$c.vec)
     if (localfdr == TRUE) {
         localfdr = computefdr(postprob$ZeroProb, postprob$PositiveProb, postprob$NegativeProb)$localfdr
@@ -474,8 +505,6 @@ jash = function(Y, fac, auto = FALSE, precShape = NULL, precMulti = NULL, comppr
     } else {
         null.postprob = NULL
     }
-    # fitted =
-    # list(pi=pifit$pi,a.vec=post$a.vec,lambda.vec=post$lambda.vec,c.vec=post$c.vec,pi.a=pifit$pi.a,pi.lambda=pifit$pi.lambda,pi.c=pifit$pi.c)
     PosteriorMean = post$beta * reg$scale
     return(list(PosteriorMean = PosteriorMean, PosteriorPrec = post$tau, pifit = pifit, post = post, postprob = postprob, 
         localfdr = localfdr, qvalue = qvalue, null.postprob = null.postprob, a.vec = pifit$a.vec, lambda.vec = pifit$lambda.vec, 
@@ -530,8 +559,6 @@ jasha = function(betahat, betahatsd, df, auto = FALSE, precShape = NULL, precMul
     pifit = EMest_pi(params, N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN, SSE, pi, prior, a.lambda.c.est, SGD, indepprior = FALSE, 
         ltol = 1e-04, maxiter = 2000, usePointMass)
     post = post_distn(N, n, M, K, L, pifit$a.vec, pifit$b.vec, pifit$c.vec, mu, MEAN, SSE, pifit$pi)
-    # condpost =
-    # CondPostprob(post$pi,post$tau,post$gammaa,post$gammab,post$gammadens,post$normmean,post$normprec,post$c.vec)
     postprob = Postprob(mu, post$pi, post$gammaa, post$gammab, post$normmean, post$normc, pifit$c.vec)
     if (localfdr == TRUE) {
         localfdr = computefdr(postprob$ZeroProb, postprob$PositiveProb, postprob$NegativeProb)$localfdr
@@ -546,8 +573,6 @@ jasha = function(betahat, betahatsd, df, auto = FALSE, precShape = NULL, precMul
         null.postprob = NULL
     }
     
-    # fitted =
-    # list(pi=pifit$pi,a.vec=post$a.vec,lambda.vec=post$lambda.vec,c.vec=post$c.vec,pi.a=pifit$pi.a,pi.lambda=pifit$pi.lambda,pi.c=pifit$pi.c)
     PosteriorMean = post$beta * sqrt(n)
     params = c(pifit$a.vec[1], pifit$b.vec[1]/n, pifit$c.vec[1])
     loglik = loglike(params, N, n, M, K, L, mu, MEAN, rep(0, N), pifit$pi, 0)

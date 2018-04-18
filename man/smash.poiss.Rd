@@ -8,32 +8,49 @@ smash.poiss(x, post.var = FALSE, log = FALSE, reflect = FALSE,
   glm.approx.param = list(), ashparam = list(), cxx = TRUE, lev = 0)
 }
 \arguments{
-\item{x:}{a vector of Poisson counts (reflection is done automatically if length of \code{x} is not a power of 2)}
+\item{x}{A vector of Poisson counts (reflection is done
+automatically if length of \code{x} is not a power of 2).}
 
-\item{post.var:}{bool, indicates if the posterior variance should be returned}
+\item{post.var}{Boolean, indicates if the posterior variance should
+be returned.}
 
-\item{log:}{bool, determines if smoothed signal is returned on log scale or not}
+\item{log}{bool, determines if smoothed signal is returned on log
+scale or not}
 
-\item{reflect:}{bool, indicates if the signals should be reflected; otherwise periodicity is assumed}
+\item{reflect}{bool, indicates if the signals should be reflected;
+otherwise periodicity is assumed.}
 
-\item{glm.approx.param:}{a list of parameters to be passed to \code{glm.approx}; default values are set by function \code{\link{setGlmApproxParam}}.}
+\item{glm.approx.param}{A list of parameters to be passed to
+\code{glm.approx}; default values are set by function
+\code{\link{setGlmApproxParam}}.}
 
-\item{ashparam:}{a list of parameters to be passed to \code{ash}; default values are set by function \code{\link{setAshParam.poiss}}.}
+\item{ashparam}{A list of parameters to be passed to \code{ash};
+default values are set by function \code{\link{setAshParam.poiss}}.}
 
-\item{cxx:}{bool, indicates if C++ code should be used to create TI tables.}
+\item{cxx}{bool, indicates if C++ code should be used to create TI
+tables.}
 
-\item{lev:}{integer from 0 to J-1, indicating primary level of resolution. Should NOT be used (ie shrinkage is performed at all resolutions) unless there is good reason to do so.}
+\item{lev}{integer from 0 to J-1, indicating primary level of
+resolution. Should NOT be used (ie shrinkage is performed at all
+resolutions) unless there is good reason to do so.}
 }
 \value{
-\code{smash.poiss} returns the mean estimate by default, with the posterior variance as an additional component if \code{post.var} is TRUE
+\code{smash.poiss} returns the mean estimate by default,
+  with the posterior variance as an additional component if
+  \code{post.var} is TRUE.
 }
 \description{
-Main smoothing procedure for Poisson data. Takes a univariate inhomogeneous Poisson process and estimates its mean intensity.
+Main smoothing procedure for Poisson data. Takes a
+  univariate inhomogeneous Poisson process and estimates its mean
+  intensity.
 }
 \details{
-We assume that the data come from the model $Y_t \sim Pois(\mu_t)$ for t=1,...,T, where $\mu_t$ is the underlying intensity, assumed to be spatially
-structured (or treated as points sampled from a smooth continous function). The $Y_t$ are assumed to be independent. 
-Smash provides estimates of $\mu_t$ (and its posterior variance if desired).
+We assume that the data come from the model \eqn{Y_t \sim
+  Pois(\mu_t)} for \eqn{t=1,...,T}, where \eqn{\mu_t} is the
+  underlying intensity, assumed to be spatially structured (or
+  treated as points sampled from a smooth continous function). The
+  \eqn{Y_t} are assumed to be independent. Smash provides estimates
+  of \eqn{\mu_t} (and its posterior variance if desired).
 }
 \examples{
 n=2^10
