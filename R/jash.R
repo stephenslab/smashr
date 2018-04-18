@@ -36,7 +36,8 @@ post_pi = function (N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN, SSE, pi) {
 # the i'th comp of precShape/precMulti/compprecPrior
 indep_post_pi = function (N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN,
                           SSE, pi.a, pi.lambda, pi.c, prior, groupind) {
-    pi = rep(pi.a, L * K) * rep(rep(pi.lambda, each = M), L) * rep(pi.c, each = M * K)
+    pi = rep(pi.a, L * K) * rep(rep(pi.lambda, each = M), L) *
+         rep(pi.c, each = M * K)
     mm = post_pi(N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN, SSE, pi)
     pi.mat = mm$pimat
     postb = mm$gammab
@@ -48,7 +49,8 @@ indep_post_pi = function (N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN,
     }
     indep.post.pi = ifelse(indep.post.pi < 0, 0, indep.post.pi)
     indep.post.pi = indep.post.pi/sum(indep.post.pi)
-    return(list(indep.pi = indep.post.pi, pi.mat = pi.mat, normpi.mat = norm.pi.mat, postb = postb))
+    return(list(indep.pi = indep.post.pi, pi.mat = pi.mat,
+                normpi.mat = norm.pi.mat, postb = postb))
 }
 
 # Normalize pi to make sum(pi) = 1.
@@ -75,7 +77,9 @@ post_distn = function (N, n, M, K, L, a.vec, b.vec, c.vec, mu, MEAN, SSE, pi) {
     
     # Posterior mean: E(beta|Y).
     post.norm.mean = outer(MEAN, 1 - d.vec) + outer(mu, d.vec)
-    post.norm.prec = n + c.vec  # if tau given, outer(tau,n+c.vec)
+
+    # if tau given, outer(tau,n + c.vec).
+    post.norm.prec = n + c.vec  
     post.norm.c = outer(rep(1, N), n + c.vec)
     post.gamma.dens = dgamma(outer(post.tau, rep(1, M * L * K)),
       shape = post.gamma.parama, rate = post.gamma.paramb)
@@ -137,60 +141,6 @@ gradloglike = function (params, N, n, M, K, L, mu, MEAN, SSE, pi, groupind) {
     return(grad)
 }
 
-# Use EM algorithm to estimate a, lambda. lik: likelihood matrix SGD:
-# use stochastic gradient descent method.
-#
-#' @importFrom stats uniroot
-#' 
-a_lambda_c_est = function (classprob, postb, N, n, M, K, L, a.vec, b.vec,
-                           d.vec, groupind, SGD, learnrate) {
-    if (SGD == TRUE) {
-        dl_da = sum(classprob * (outer(rep(1, N), log(b.vec)) - log(postb) +
-                outer(rep(1, N), digamma(a.vec + n/2) - digamma(a.vec))))
-        dl_db = sum(classprob * (outer(rep(1, N), a.vec/b.vec) -
-                outer(rep(1, N), a.vec + n/2)/postb))
-        a.vec = pmin(a.vec - learnrate * dl_da, 1e-10)
-        b.vec = pmin(b.vec - learnrate * dl_db, 1e-10)
-        print(dl_da)
-        print(dl_db)
-    } else {
-        for (i in 1:max(group.ind[, 1])) {
-            idx = (group.ind[, 1] == i)
-            fa = function(a) {
-                res = sum(classprob[, idx] *
-                  (outer(rep(1, N), log(b.vec[idx])) -
-                   log(postb[, idx]) +
-                   outer(rep(1,N), rep(digamma(a + n/2) -
-                                       digamma(a), length(idx)))))
-                return(res)
-            }
-            a.vec[idx] = uniroot(fa, c(1e-10, 1e+05))$root
-        }
-        for (i in 1:max(group.ind[, 2])) {
-            idx = (group.ind[, 2] == i)
-            fb = function(b) {
-                res = sum(classprob[, idx] * (outer(rep(1, N), a.vec[idx]/b) -
-                    outer(rep(1, N), a.vec[idx] + n/2)/postb[, 
-                  idx]))
-                return(res)
-            }
-            b.vec[idx] = uniroot(fb, c(1e-10, 1e+05))$root
-        }
-        for (i in 1:(max(group.ind[, 3]))) {
-            idx = (group.ind[, 3] == i)
-            fc = function(c) {
-                res = sum(classprob[, idx] *
-                    (n/(2 * c * (n + c)) -
-                     outer(n/(n + c)^2 * 0.5 * n * (MEAN - mu)^2, a.vec[idx] + 
-                           n/2)/postb[, idx]))
-                return(res)
-            }
-            c.vec[idx] = uniroot(fd, c(1e-10, 1e+10))$root
-        }
-    }
-    return(list(a.vec = a.vec, b.vec = b.vec, d.vec = d.vec, c.vec = c.vec))
-}
-
 # Use EM algorithm to estimate pi from data ltol: likelihood
 # convergence tolerance maxiter: max number of iterations indepprior:
 # whether assume that there are independent priors for a_m, lambda_k
@@ -248,9 +198,10 @@ EMest_pi = function (params, N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN,
                 } else {
                   est = nlminb(params, loglike, gradloglike,
                                lower = rep(1e-10, M + K + L),
-                               upper = c(rep(1e+05, M + 
-                    K), rep(0.95, L)), N = N, n = n, M = M, K = K, L = L, mu = mu, MEAN = MEAN, SSE = SSE, pi = pi, 
-                    groupind = groupind)
+                               upper = c(rep(1e+05, M + K), rep(0.95, L)),
+                               N = N, n = n, M = M, K = K, L = L, mu = mu,
+                               MEAN = MEAN, SSE = SSE, pi = pi, 
+                               groupind = groupind)
                   a.vec = rep(est$par[1:M], L * K)
                   b.vec = rep(rep(est$par[(M + 1):(M + K)], each = M), L)
                   d.vec = rep(c(est$par[(M + K + 1):(M + K + L - 1)], 1), each = M * K)

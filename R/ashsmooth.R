@@ -109,21 +109,23 @@ ndwt.mat = function(n, filter.number, family) {
 }
 
 
-#' a wrapper function for code in \code{mu.smooth} and \code{var.smooth}
-#' @keywords internal 
+# A wrapper function for code in mu.smooth and var.smooth.
+#
+#' @importFrom ashr ash
 shrink.wc = function(wc, wc.var.sqrt, ashparam, jash, df, SGD) {
-  
     if (jash == FALSE) {
-        zdat.ash = withCallingHandlers(do.call(ashr::ash, c(list(betahat=wc, sebetahat=wc.var.sqrt), ashparam)))
+      zdat.ash = withCallingHandlers(do.call(ash,
+        c(list(betahat=wc, sebetahat=wc.var.sqrt), ashparam)))
     } else {
-        zdat.ash = jasha(wc, wc.var.sqrt, df = df, SGD = SGD)
+      zdat.ash = jasha(wc, wc.var.sqrt, df = df, SGD = SGD)
     }
     return(zdat.ash)
 }
 
-#' @title mu.smooth
-#' @return 'mu.est' if posterior variances are not computed, and a list with elements 'mu.est' and 'mu.est.var' otherwise
-#' @keywords internal
+# Returns "mu.est" if posterior variances are not computed, and a list
+# with elements "mu.est" and "mu.est.var" otherwise.
+#
+#' @importFrom ashr calc_loglik
 mu.smooth = function(wc, data.var, basis, tsum, Wl, return.loglr, post.var, ashparam, J, n) {
     wmean = matrix(0, J, n)
     wvar = matrix(0, J, n)
@@ -139,7 +141,7 @@ mu.smooth = function(wc, data.var, basis, tsum, Wl, return.loglr, post.var, ashp
             wmean[j + 1, !ind.nnull] = 0
             if (return.loglr == TRUE) {
                 spins = 2^(j + 1)
-                logLR.temp = ashr:::calc_loglik(ashr::get_fitted_g(zdat.ash), 
+                logLR.temp = calc_loglik(ashr::get_fitted_g(zdat.ash), 
                     ashr::set_data(y[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), NULL,0)) -  
                     sum(dnorm(y[j + 2, ind.nnull], 0, sqrt(vtable[j + 2, ind.nnull]), log = TRUE))
                 logLR.scale[j + 1] = logLR.temp/spins
