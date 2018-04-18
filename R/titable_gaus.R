@@ -3,48 +3,31 @@
 # are ported into R from MATLAB functions BMSMShrink and TISumProd
 # as part of the BMSM project maintained by Eric Kolaczyk.
 
-#' @title Interleave two vectors.
-#' 
-#' @param x A vector.
-#' 
-#' @param y A vector of the same length as y.
-#' 
-#' @return A vector of length twice that of x (or y).
-#' 
-#' @export
-#' 
+# @title Interleave two vectors.
+# @param x A vector.
+# @param y A vector of the same length as y.
+# @return A vector of length twice that of x (or y).
 interleave = function (x, y)
   as.vector(rbind(x,y))
 
-#' @title Shift a vector one unit to the right.
-#' 
-#' @param x A vector.
-#' 
-#' @return A vector of the same length as that of x.
-#' 
-#' @export
-#' 
+# @title Shift a vector one unit to the right.
+# @param x A vector.
+# @return A vector of the same length as that of x.
 rshift = function (x) {
   L = length(x)
   return(c(x[L],x[-L]))
 }
 
-#' @title Shift a vector one unit to the left.
-#' 
-#' @param x A vector.
-#' 
-#' @return A vector of the same length as that of x.
-#' 
-#' @export
+# @title Shift a vector one unit to the left.
+# @param x A vector.
+# @return A vector of the same length as that of x.
 lshift = function (x)
   c(x[-1],x[1])
 
 # @description Produces two TI tables. One table contains the
 #   difference between adjacent pairs of data in the same resolution,
 #   and the other table contains the sum.
-#
-# @param sig: a signal of length a power of 2
-#
+# @param sig a signal of length a power of 2
 titable = function (sig) {
   n = length(sig)
   J = log2(n)
@@ -79,11 +62,8 @@ titable = function (sig) {
 
 # @description Produces a TI table containing the log difference
 #   between adjacent pairs of data in the same resolution.
-#
 # @param sig A signal of length a power of 2.
-#
 # @return A TI table in the form of a matrix.
-#
 tirtable = function (sig) {
   n = length(sig)
   J = log2(n)
@@ -118,16 +98,11 @@ tirtable = function (sig) {
 
 # @title Reverse wavelet transform a set of wavelet coefficients in
 #   TItable format for Gaussian data.
-# 
 # @param lp A J by n matrix of estimated wavelet coefficients.
-# 
 # @param lq A J by n matrix of complementary wavelet coefficients.
-# 
 # @param est An n-vector. Usually a constant vector with each element
 #   equal to the estimated total mean.
-# 
 # @return Reconstructed signal in the original data space.
-# 
 reverse.gwave = function (est, lp, lq = NULL) {
   if (is.null(lq))
     lq = -lp
@@ -165,15 +140,10 @@ reverse.gwave = function (est, lp, lq = NULL) {
 
 # @description Reverse wavelet transform a set of posterior variances
 # for wavelet coefficients in TItable format, for Gaussian data.
-# 
 # @param lp A J by n matrix of estimated variances.
-# 
 # @param lq A J by n matrix of complementary variances (=lp).
-# 
 # @param est Nn n-vector. Usually 0.
-# 
 # @return Reconstructed posterior variance in the original data space.
-# 
 reverse.gvwave = function (est, lp, lq = NULL) {
   if (is.null(lq))
     lq = -lp

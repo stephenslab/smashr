@@ -5,7 +5,7 @@
 
 # @description Turns a TItable into a matrix that one can apply glm
 #   to (for Poisson denoising).
-# @param dmat: A k by n matrix.
+# @param dmat A k by n matrix.
 # @return A 2 by n*k/2 matrix.
 simplify = function (dmat)
   matrix(t(dmat), nrow = 2)
