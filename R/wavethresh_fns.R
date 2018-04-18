@@ -1,19 +1,24 @@
-#Disclaimer: The functions defined in this file are adapted and modified from their counterparts as defined in package "wavethresh" under the GPL license, authored by Guy Nason.
+# Disclaimer: The functions defined in this file are adapted from
+# their counterparts defined in the wavethresh package under the GPL
+# license, developed by Guy Nason.
 
-
-#' Modified wd() function from package 'wavethresh' to only return the detail coefficients
-#' @param data,filter.number,family,type,bc,berbose,min.scale,precond: as in wd()
-#' @return the detail coefficients of a standard wavelet decomposition
-wd.D = function(data, filter.number = 10, family = "DaubLeAsymm", type = "wavelet", bc = "periodic", verbose = FALSE, 
-                min.scale = 0, precond = TRUE) {
-  l = wd(data = data, filter.number = filter.number, family = family, type = type, bc = bc, verbose = verbose, 
+# Modified wd() function from package 'wavethresh' to only return the
+# detail coefficients. It returns the detail coefficients of a
+# standard wavelet decomposition.
+wd.D = function (data, filter.number = 10, family = "DaubLeAsymm",
+                 type = "wavelet", bc = "periodic", verbose = FALSE, 
+                 min.scale = 0, precond = TRUE) {
+  l = wd(data = data, filter.number = filter.number, family = family,
+         type = type, bc = bc, verbose = verbose, 
          min.scale = min.scale, precond = precond)
   return(l$D)
 }
 
-
-#' This is a modified threshold.wd function from package 'wavethresh', designed to perform thresholding for heteroskedastic Gaussian errors when using the Haar basis
-threshold.haar <- function(vdtable, vtable, lambda.thresh, levels, type = "hard", policy = "universal") {
+# This is a modified threshold.wd function from package 'wavethresh',
+# designed to perform thresholding for heteroskedastic Gaussian errors
+# when using the Haar basis
+threshold.haar <- function (vdtable, vtable, lambda.thresh, levels,
+                            type = "hard", policy = "universal") {
   wmean <- vdtable[-1, ]/2
   d <- NULL
   n <- dim(vdtable)[2]
@@ -43,9 +48,10 @@ threshold.haar <- function(vdtable, vtable, lambda.thresh, levels, type = "hard"
   return(wmean)
 }
 
-
-#' This is a modified threshold.wd function from package 'wavethresh', designed to perform thresholding for heteroskedastic Gaussian errors when using non-Haar basis
-threshold.var <- function(x.w, x.w.v, lambda.thresh, levels, type = "hard") {
+# This is a modified threshold.wd function from package 'wavethresh',
+# designed to perform thresholding for heteroskedastic Gaussian errors
+# when using non-Haar basis.
+threshold.var <- function (x.w, x.w.v, lambda.thresh, levels, type = "hard") {
   d <- NULL
   n <- 2^nlevelsWT(x.w)
   J <- nlevelsWT(x.w)
@@ -76,13 +82,11 @@ threshold.var <- function(x.w, x.w.v, lambda.thresh, levels, type = "hard") {
   return(x.w)
 }
 
-
-
-#' This function performs "decomposition' of variances of detail coefficients for a given wavelet basis
-#' in wavelet transformation
-wd.var <- function (data, filter.number = 10, family = "DaubLeAsymm", type = "wavelet", 
-    bc = "periodic", verbose = FALSE, min.scale = 0, precond = TRUE) 
-{
+# This function performs "decomposition" of variances of detail
+# coefficients for a given wavelet basis in wavelet transformation.
+wd.var <- function (data, filter.number = 10, family = "DaubLeAsymm",
+                    type = "wavelet", bc = "periodic", verbose = FALSE,
+                    min.scale = 0, precond = TRUE) {
     if (verbose == TRUE) 
         cat("wd: Argument checking...")
     if (!is.atomic(data)) 
@@ -102,20 +106,23 @@ wd.var <- function (data, filter.number = 10, family = "DaubLeAsymm", type = "wa
         cat("...done\nFilter...")
     if (verbose == TRUE) 
         cat("...selected\nFirst/last database...")
-    fl.dbase <- first.last(LengthH = length(filter$H), DataLength = DataLength, 
-        type = type, bc = bc)
+    fl.dbase <- first.last(LengthH = length(filter$H),
+                           DataLength = DataLength, 
+                           type = type, bc = bc)
     if (bc == "interval") {
         ans <- wd.int(data = data, preferred.filter.number = filter.number, 
             min.scale = min.scale, precond = precond)
-        fl.dbase <- first.last(LengthH = length(filter$H), DataLength = DataLength, 
+        fl.dbase <- first.last(LengthH = length(filter$H),
+                               DataLength = DataLength, 
             type = type, bc = bc, current.scale = min.scale)
         filter <- list(name = paste("CDV", filter.number, sep = ""), 
             family = "CDV", filter.number = filter.number)
         l <- list(transformed.vector = ans$transformed.vector, 
-            current.scale = ans$current.scale, filters.used = ans$filters.used, 
-            preconditioned = ans$preconditioned, date = ans$date, 
-            nlevels = IsPowerOfTwo(length(ans$transformed.vector)), 
-            fl.dbase = fl.dbase, type = type, bc = bc, filter = filter)
+                  current.scale = ans$current.scale,
+                  filters.used = ans$filters.used, 
+                  preconditioned = ans$preconditioned, date = ans$date, 
+                  nlevels = IsPowerOfTwo(length(ans$transformed.vector)), 
+                  fl.dbase = fl.dbase, type = type, bc = bc, filter = filter)
         class(l) <- "wd"
         return(l)
     }
@@ -134,32 +141,40 @@ wd.var <- function (data, filter.number = 10, family = "DaubLeAsymm", type = "wa
         stop("Unknown boundary condition")
     ntype <- switch(type, wavelet = 1, station = 2)
     if (is.null(filter$G)) {
-        wavelet.decomposition <- .C("wavedecomp", C = as.double(C), 
-            D = as.double(rep(0, fl.dbase$ntotal.d)), H = as.double(filter$H), 
-            LengthH = as.integer(length(filter$H)), nlevels = as.integer(nlevels), 
-            firstC = as.integer(fl.dbase$first.last.c[, 1]), 
-            lastC = as.integer(fl.dbase$first.last.c[, 2]), offsetC = as.integer(fl.dbase$first.last.c[, 
-                3]), firstD = as.integer(fl.dbase$first.last.d[, 
+        wavelet.decomposition <-
+          .C("wavedecomp", C = as.double(C),
+             D = as.double(rep(0, fl.dbase$ntotal.d)),
+             H = as.double(filter$H), 
+             LengthH = as.integer(length(filter$H)),
+             nlevels = as.integer(nlevels), 
+             firstC = as.integer(fl.dbase$first.last.c[, 1]), 
+             lastC = as.integer(fl.dbase$first.last.c[, 2]),
+             offsetC = as.integer(fl.dbase$first.last.c[,3]),
+             firstD = as.integer(fl.dbase$first.last.d[, 
                 1]), lastD = as.integer(fl.dbase$first.last.d[, 
                 2]), offsetD = as.integer(fl.dbase$first.last.d[, 
                 3]), ntype = as.integer(ntype), nbc = as.integer(nbc), 
             error = as.integer(error), PACKAGE = "wavethresh")
     }
     else {
-        wavelet.decomposition <- .C("comwd", CR = as.double(Re(C)), 
-            CI = as.double(Im(C)), LengthC = as.integer(fl.dbase$ntotal), 
-            DR = as.double(rep(0, fl.dbase$ntotal.d)), DI = as.double(rep(0, 
-                fl.dbase$ntotal.d)), LengthD = as.integer(fl.dbase$ntotal.d), 
-            HR = as.double(Re(filter$H)), HI = as.double(-Im(filter$H)), 
-            GR = as.double(Re(filter$G)), GI = as.double(-Im(filter$G)), 
-            LengthH = as.integer(length(filter$H)), nlevels = as.integer(nlevels), 
-            firstC = as.integer(fl.dbase$first.last.c[, 1]), 
-            lastC = as.integer(fl.dbase$first.last.c[, 2]), offsetC = as.integer(fl.dbase$first.last.c[, 
-                3]), firstD = as.integer(fl.dbase$first.last.d[, 
-                1]), lastD = as.integer(fl.dbase$first.last.d[, 
-                2]), offsetD = as.integer(fl.dbase$first.last.d[, 
-                3]), ntype = as.integer(ntype), nbc = as.integer(nbc), 
-            error = as.integer(error), PACKAGE = "wavethresh")
+        wavelet.decomposition <-
+          .C("comwd", CR = as.double(Re(C)), 
+             CI = as.double(Im(C)), LengthC = as.integer(fl.dbase$ntotal), 
+             DR = as.double(rep(0, fl.dbase$ntotal.d)),
+             DI = as.double(rep(0, fl.dbase$ntotal.d)),
+             LengthD = as.integer(fl.dbase$ntotal.d), 
+             HR = as.double(Re(filter$H)), HI = as.double(-Im(filter$H)), 
+             GR = as.double(Re(filter$G)), GI = as.double(-Im(filter$G)), 
+             LengthH = as.integer(length(filter$H)),
+             nlevels = as.integer(nlevels), 
+             firstC = as.integer(fl.dbase$first.last.c[, 1]), 
+             lastC = as.integer(fl.dbase$first.last.c[, 2]),
+             offsetC = as.integer(fl.dbase$first.last.c[,3]),
+             firstD = as.integer(fl.dbase$first.last.d[,1]),
+             lastD = as.integer(fl.dbase$first.last.d[,2]),
+             offsetD = as.integer(fl.dbase$first.last.d[,3]),
+             ntype = as.integer(ntype), nbc = as.integer(nbc), 
+             error = as.integer(error), PACKAGE = "wavethresh")
     }
     if (verbose == TRUE) 
         cat("done\n")
@@ -175,25 +190,22 @@ wd.var <- function (data, filter.number = 10, family = "DaubLeAsymm", type = "wa
     }
     else {
         l <- list(C = complex(real = wavelet.decomposition$CR, 
-            imaginary = wavelet.decomposition$CI), D = complex(real = wavelet.decomposition$DR, 
-            imaginary = wavelet.decomposition$DI), nlevels = nlevelsWT(wavelet.decomposition), 
-            fl.dbase = fl.dbase, filter = filter, type = type, 
-            bc = bc, date = date())
+                              imaginary = wavelet.decomposition$CI),
+                  D = complex(real = wavelet.decomposition$DR, 
+                              imaginary = wavelet.decomposition$DI),
+                  nlevels = nlevelsWT(wavelet.decomposition), 
+                  fl.dbase = fl.dbase, filter = filter, type = type, 
+                  bc = bc, date = date())
     }
     class(l) <- "wd"
     if (!is.null(dtsp)) 
         tsp(l) <- dtsp
-    l
+    return(l)
 }
 
-
-
-
-
-#' This function converts variances of detail coefficients for a given wavelet basis
-#' from wd objects to wst objects
-convert.var <- function (wd, ...) 
-{
+# This function converts variances of detail coefficients for a given
+# wavelet basis from wd objects to wst objects.
+convert.var <- function (wd, ...) {
     if (wd$type != "station") 
         stop("Object to convert must be of type \"station\" ")
     n <- 2^nlevelsWT(wd)
@@ -221,11 +233,9 @@ convert.var <- function (wd, ...)
     tmpwst
 }
 
-
-#' This function reconstructs variance of the mean estimate for a given wavelet basis
-#' given a wst object
-AvBasis.var <- function (wst, Ccode = TRUE, ...) 
-{
+# This function reconstructs variance of the mean estimate for a
+# given wavelet basis given a wst object.
+AvBasis.var <- function (wst, Ccode = TRUE, ...) {
     nlevels <- nlevelsWT(wst)
     if (is.null(wst$filter$G)) {
         if (Ccode == FALSE) {
@@ -236,11 +246,13 @@ AvBasis.var <- function (wst, Ccode = TRUE, ...)
             error <- 0
             answer <- rep(0, 2^nlevels)
             H <- wst$filter$H
-            aobj <- .C("av_basisWRAP", wstR = as.double(wst$wp), 
-                wstC = as.double(wst$Carray), LengthData = as.integer(length(answer)), 
-                level = as.integer(nlevels - 1), H = as.double(H), 
-                LengthH = as.integer(length(H)), answer = as.double(answer), 
-                error = as.integer(error), PACKAGE = "wavethresh")
+            aobj <-
+              .C("av_basisWRAP", wstR = as.double(wst$wp), 
+                 wstC = as.double(wst$Carray),
+                 LengthData = as.integer(length(answer)), 
+                 level = as.integer(nlevels - 1), H = as.double(H), 
+                 LengthH = as.integer(length(H)), answer = as.double(answer), 
+                 error = as.integer(error), PACKAGE = "wavethresh")
             if (aobj$error != 0) 
                 stop(paste("av_basisWRAP returned error code", 
                   aobj$error))
@@ -253,19 +265,19 @@ AvBasis.var <- function (wst, Ccode = TRUE, ...)
         H <- wst$filter$H
         G <- wst$filter$G
         aobj <- .C("comAB_WRAP", wstR = as.double(Re(wst$wp)), 
-            wstI = as.double(Im(wst$wp)), wstCR = as.double(Re(wst$Carray)), 
-            wstCI = as.double(Im(wst$Carray)), LengthData = as.integer(length(answerR)), 
-            level = as.integer(nlevels - 1), HR = as.double(Re(H)), 
-            HI = as.double(Im(H)), GR = as.double(Re(G)), GI = as.double(Im(G)), 
-            LengthH = as.integer(length(H)), answerR = as.double(answerR), 
-            answerI = as.double(answerI), error = as.integer(error), 
-            PACKAGE = "wavethresh")
+                   wstI = as.double(Im(wst$wp)),
+                   wstCR = as.double(Re(wst$Carray)), 
+                   wstCI = as.double(Im(wst$Carray)),
+                   LengthData = as.integer(length(answerR)), 
+                   level = as.integer(nlevels - 1), HR = as.double(Re(H)), 
+                   HI = as.double(Im(H)), GR = as.double(Re(G)),
+                   GI = as.double(Im(G)), LengthH = as.integer(length(H)),
+                   answerR = as.double(answerR), answerI = as.double(answerI),
+                   error = as.integer(error), 
+                   PACKAGE = "wavethresh")
         if (aobj$error != 0) 
             stop(paste("av_basisWRAP returned error code", aobj$error))
         answer <- aobj$answerR
     }
     answer
 }
-
-
-
