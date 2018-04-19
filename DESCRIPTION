@@ -21,10 +21,10 @@ Imports:
     utils,
     stats,
     Rcpp (>= 0.11.1),
+    data.table,
     ashr,
     wavethresh,
     Matrix,
-    data.table,
     caTools
 Suggests:
     knitr,

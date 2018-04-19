@@ -229,8 +229,11 @@ mu.smooth = function (wc, data.var, basis, tsum, Wl, return.loglr,
     }
 }
 
-#' @title var.smooth
-#' @return 'var.est' if posterior variances are not computed, and a list with elements 'var.est' and 'var.est.var' otherwise
+# Returns "var.est" if posterior variances are not computed, and a
+# list with elements 'var.est' and 'var.est.var' otherwise.
+#
+#' @importFrom ashr get_pm
+#' @importFrom ashr get_psd
 var.smooth = function (data, data.var, x.var.ini, basis, v.basis, Wl,
                        filter.number, family, post.var, ashparam, jash,
                        weight, J, n, SGD) {
@@ -280,12 +283,12 @@ var.smooth = function (data, data.var, x.var.ini, basis, v.basis, Wl,
             if ((sum(is.na(x.pm)) > 0) & (SGD == TRUE)) {
                 zdat.ash = shrink.wc(x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]), ashparam, jash = jash, 
                   df = min(50, 2^(j + 1)), SGD = FALSE)
-                x.pm[ind.nnull] = ashr::get_pm(zdat.ash)
+                x.pm[ind.nnull] = get_pm(zdat.ash)
                 x.pm[!ind.nnull] = 0
             }
             x.w = putD(x.w, j, x.pm)
             if (post.var == TRUE) {
-                x.w.v.s[index[ind.nnull]] = ashr::get_psd(zdat.ash)^2
+                x.w.v.s[index[ind.nnull]] = get_psd(zdat.ash)^2
                 x.w.v.s[index[!ind.nnull]] = 0
             }
         }
@@ -629,36 +632,23 @@ compute.res <- function (alpha, log) {
     }
 }
 
-
-#' For each resolution, performs shrinkage and returns the posterior means and variances in matrix form
-getlist.res = function (res, j, n, zdat, log, shrink, ashparam) {
-    ind = ((j - 1) * n + 1):(j * n)
-    if (shrink == TRUE) {
-        # apply ash to vector of intercept estimates and SEs
-	      zdat.ash = withCallingHandlers(do.call(ashr::ash, c(list(betahat = zdat[1, ind], sebetahat = zdat[2, ind]), ashparam)))
-        alpha.mv = list(mean = ashr::get_pm(zdat.ash), var = ashr::get_psd(zdat.ash)^2)  #find mean and variance of alpha
-    } else {
-        alpha.mv = list(mean = fill.nas(zdat[1, ind]), var = fill.nas(zdat[2, ind])^2)  #find mean and variance of alpha   
-    }
-    res.j = compute.res(alpha.mv, log)
-    res = data.table::rbindlist(list(res, res.j))
-    return(res)
-}
-
-#' Reconstructs the signal in data space
-#' @param ls: estimated total intensity
-#' @param res: the matrix of wavelet proportions/probabilities
-#' @param log: bool, indicating if signal reconstruction should be in log space
-#' @param n: length of data
-#' @param J: =log2(n)
-#' 
-#' return reconstructed signal in original data space
+# Reconstructs the signal in data space.
+#
+# @param ls estimated total intensity
+# @param res the matrix of wavelet proportions/probabilities
+# @param log bool, indicating if signal reconstruction should be in log space
+# @param n length of data
+# @param J log2(n)
+# 
+# Return reconstructed signal in original data space.
 recons.mv = function (ls, res, log, n, J) {
     if (log == TRUE) {
+
         # reconstructs estimate from the 'wavelet' space on the log level
         est.mean = cxxreverse_pwave(log(ls), matrix(res$lp.mean, J, n, byrow = TRUE), matrix(res$lq.mean, J, n, byrow = TRUE))
         est.var = cxxreverse_pwave(0, matrix(res$lp.var, J, n, byrow = TRUE), matrix(res$lq.var, J, n, byrow = TRUE))
     } else {
+        
         # reconstruction on non-log level
         est.mean = exp(cxxreverse_pwave(log(ls), log(matrix(res$lp.mean, J, n, byrow = TRUE)), log(matrix(res$lq.mean, 
             J, n, byrow = TRUE))))
@@ -669,27 +659,34 @@ recons.mv = function (ls, res, log, n, J) {
     return(list(est.mean = est.mean, est.var = est.var))
 }
 
-#' Set default \code{ash} parameters.
-#' @export
-#' @keywords internal 
-#' @param ashparam: a list of parameters to be passed to ash.
+# Set default ash parameters. By default, ashparam$df = NULL,
+# ashparam$mixsd = NULL and ashparam$g = NULL.
+#
+#' @importFrom utils modifyList
 setAshParam.poiss = function (ashparam) {
-    #by default ashparam$df = NULL
-    #by default ashparam$mixsd = NULL
-    #by default ashparam$g = NULL
     if (!is.list(ashparam))
         stop("Error: invalid parameter 'ashparam'")
-    ashparam.default = list(pointmass = TRUE, prior = "nullbiased", gridmult = 2,  
-                                               mixcompdist = "normal", nullweight = 10, outputlevel = 2, fixg = FALSE)
+    ashparam.default = list(pointmass = TRUE, prior = "nullbiased",
+                            gridmult = 2, mixcompdist = "normal",
+                            nullweight = 10, outputlevel = 2, fixg = FALSE)
     ashparam = modifyList(ashparam.default, ashparam)
     if (!is.null(ashparam[["g"]]))
-        stop("Error: ash parameter 'g' can only be NULL; if you want to specify ash parameter 'g' use multiseq arguments 'fitted.g' and/or 'fitted.g.intercept'")
+      stop(paste("Error: ash parameter 'g' can only be NULL; if you want",
+                 "to specify ash parameter 'g' use multiseq arguments",
+                 "'fitted.g' and/or 'fitted.g.intercept'"))
     
-    if(!((is.null(ashparam[["mixsd"]])) | (is.numeric(ashparam[["mixsd"]]) & (length(ashparam[["mixsd"]]) < 2)))) stop("Error: invalid parameter 'mixsd', 'mixsd'  must be null or a numeric vector of length >=2")
-    if(!((ashparam[["prior"]] == "nullbiased") | (ashparam[["prior"]] == "uniform") | is.numeric(ashparam[["prior"]]))) stop("Error: invalid parameter 'prior', 'prior' can be a number or 'nullbiased' or 'uniform'")
+    if(!((is.null(ashparam[["mixsd"]])) |
+         (is.numeric(ashparam[["mixsd"]])
+          & (length(ashparam[["mixsd"]]) < 2))))
+      stop(paste("Error: invalid parameter 'mixsd', 'mixsd' must be null",
+                 "or a numeric vector of length >=2"))
+    if(!((ashparam[["prior"]] == "nullbiased") |
+         (ashparam[["prior"]] == "uniform") |
+         is.numeric(ashparam[["prior"]])))
+      stop(paste("Error: invalid parameter 'prior', 'prior' can be a",
+                 "number or 'nullbiased' or 'uniform'"))
     return(ashparam)
 }
-
 
 # Set default glm.approx parameters.
 #

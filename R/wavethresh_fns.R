@@ -242,7 +242,7 @@ AvBasis.var <- function (wst, Ccode = TRUE, ...) {
     nlevels <- nlevelsWT(wst)
     if (is.null(wst$filter$G)) {
         if (Ccode == FALSE) {
-            answer <- wavethresh::av.basis(wst, level = nlevels - 1, ix1 = 0, 
+            answer <- av.basis(wst, level = nlevels - 1, ix1 = 0, 
                 ix2 = 1, filter = wst$filter)
         }
         else {

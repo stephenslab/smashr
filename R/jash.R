@@ -62,6 +62,8 @@ normalized_pi = function (pi.mat) {
 
 # Compute posterior distribution P(tau|Y), P(beta|Y) pi: (M*L*K)
 # vector mu: N vector
+#
+#' @importFrom stats dgamma
 post_distn = function (N, n, M, K, L, a.vec, b.vec, c.vec, mu, MEAN, SSE, pi) {
     d.vec = 1/(n/c.vec + 1)
     post.pi = normalized_pi(post_pi(N, n, M, K, L, a.vec, b.vec, d.vec,
@@ -204,7 +206,8 @@ EMest_pi = function (params, N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN,
                                groupind = groupind)
                   a.vec = rep(est$par[1:M], L * K)
                   b.vec = rep(rep(est$par[(M + 1):(M + K)], each = M), L)
-                  d.vec = rep(c(est$par[(M + K + 1):(M + K + L - 1)], 1), each = M * K)
+                  d.vec = rep(c(est$par[(M + K + 1):(M + K + L - 1)], 1),
+                              each = M * K)
                   params = est$par
                 }
                 
@@ -283,6 +286,8 @@ EMest_pi = function (params, N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN,
 # Compute P(beta|Y,hat(tau)), where hat(tau) is the posterior mean
 # estimate for tau ZeroProb=P(beta=0|Y,hat(tau)),
 # PositiveProb=P(beta>0|Y,hat(tau)), NegativeProb=P(beta<0|Y,hat(tau)).
+#
+#' @importFrom stats pnorm
 CondPostprob = function (pi, tau, gammaa, gammab, gammadens, normmean,
                          normprec, c.vec) {
     ZeroProb = rowSums(pi[, c.vec == Inf, drop = FALSE])
