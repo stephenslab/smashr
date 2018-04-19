@@ -233,6 +233,7 @@ mu.smooth = function (wc, data.var, basis, tsum, Wl, return.loglr,
 #
 #' @importFrom ashr get_pm
 #' @importFrom ashr get_psd
+#' @importFrom wavethresh wd
 var.smooth = function (data, data.var, x.var.ini, basis, v.basis, Wl,
                        filter.number, family, post.var, ashparam, jash,
                        weight, J, n, SGD) {
@@ -259,13 +260,16 @@ var.smooth = function (data, data.var, x.var.ini, basis, v.basis, Wl,
             }
         }
         wwmean = -wmean
-        var.est = cxxreverse_gwave(weight * sum(data) + (1 - weight) * sum(x.var.ini), wmean, wwmean)
+        var.est = cxxreverse_gwave(weight * sum(data) + (1 - weight) *
+                                   sum(x.var.ini), wmean, wwmean)
         if (post.var == TRUE) {
             wwvar = wvar
             var.est.var = cxxreverse_gvwave(0, wvar, wwvar)
         }
     } else {
-        x.w = wd(data, filter.number = filter.number, family = family, type = "station")
+        x.w = wavethresh::wd(data, filter.number = filter.number,
+                             family = family, type = "station")
+        
         # Diagonal of W*V*W'.
         x.w.v = apply((rep(1, n * J) %o% data.var) * Wl$W2, 1, sum)  
         x.pm = rep(0, n)
@@ -275,12 +279,15 @@ var.smooth = function (data, data.var, x.var.ini, basis, v.basis, Wl,
             x.w.j = accessD(x.w, j)
             x.w.v.j = x.w.v[index]
             ind.nnull = (x.w.v.j != 0)
-            zdat.ash = shrink.wc(x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]), ashparam, jash = jash, 
-                df = min(50, 2^(j + 1)), SGD = SGD)
+            zdat.ash = shrink.wc(x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]),
+                                 ashparam, jash = jash, 
+                                  df = min(50, 2^(j + 1)), SGD = SGD)
             x.pm[ind.nnull] = get_pm(zdat.ash)
             x.pm[!ind.nnull] = 0
             if ((sum(is.na(x.pm)) > 0) & (SGD == TRUE)) {
-                zdat.ash = shrink.wc(x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]), ashparam, jash = jash, 
+                zdat.ash =
+                   shrink.wc(x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]),
+                             ashparam, jash = jash, 
                   df = min(50, 2^(j + 1)), SGD = FALSE)
                 x.pm[ind.nnull] = get_pm(zdat.ash)
                 x.pm[!ind.nnull] = 0
@@ -293,7 +300,8 @@ var.smooth = function (data, data.var, x.var.ini, basis, v.basis, Wl,
         }
         var.est = AvBasis(convert(x.w))
         if (post.var == TRUE) {
-            mv.wd = wd.var(rep(0, n), filter.number = basis$filter.number, family = basis$family, type = "station")
+            mv.wd = wd.var(rep(0, n), filter.number = basis$filter.number,
+                           family = basis$family, type = "station")
             mv.wd$D = x.w.v.s
             var.est.var = AvBasis.var(convert.var(mv.wd))
         }
@@ -550,8 +558,10 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
 #' lines(mu.est.smash,col=4)
 #'
 #' @importFrom wavethresh wd
+#' @importFrom caTools runmad
 #' 
 #' @export
+#' 
 ti.thresh = function (x, sigma = NULL, method = "smash", filter.number = 1,
                       family = "DaubExPhase", min.level = 3,
                       ashparam = list()) {

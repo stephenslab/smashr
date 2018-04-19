@@ -1,4 +1,6 @@
-Commands I am currently using to test the package:
+* Packages I removed from Imports: Matrix.
+
+* Commands I am currently using to test the package:
 
   R CMD build --no-build-vignettes smashr
   R CMD check --as-cran --no-tests --ignore-vignettes --no-examples \

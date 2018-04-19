@@ -5,12 +5,14 @@
 # Modified wd() function from package 'wavethresh' to only return the
 # detail coefficients. It returns the detail coefficients of a
 # standard wavelet decomposition.
+#
+#' @importFrom wavethresh wd
 wd.D = function (data, filter.number = 10, family = "DaubLeAsymm",
                  type = "wavelet", bc = "periodic", verbose = FALSE, 
                  min.scale = 0, precond = TRUE) {
-  l = wd(data = data, filter.number = filter.number, family = family,
-         type = type, bc = bc, verbose = verbose, 
-         min.scale = min.scale, precond = precond)
+  l = wavethresh::wd(data = data, filter.number = filter.number,
+                     family = family, type = type, bc = bc, verbose = verbose, 
+                     min.scale = min.scale, precond = precond)
   return(l$D)
 }
 
