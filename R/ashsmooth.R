@@ -68,7 +68,7 @@
 #' lines(mu.est, col = 2) 
 #' 
 #' @export
-smash = function(x, model = NULL, ...){
+smash = function (x, model = NULL, ...){
   if(!is.null(model)){
     if(!(model == "gaus" | model == "poiss")){
       stop("Error: model must be NULL or one of 'gaus' or 'poiss'")
@@ -96,7 +96,7 @@ smash = function(x, model = NULL, ...){
 #' @param n: the sample size. Must be a power of 2
 #' @param filter.number,family: specifies the type of wavelet basis used
 #' @return the NDWT matrix for the specified basis, with the entries squared
-ndwt.mat = function(n, filter.number, family) {
+ndwt.mat = function (filter.number, family) {
   J = log2(n)
   X = diag(rep(1, n))
   W = matrix(0, n * J, n)
@@ -111,7 +111,7 @@ ndwt.mat = function(n, filter.number, family) {
 # A wrapper function for code in mu.smooth and var.smooth.
 #
 #' @importFrom ashr ash
-shrink.wc = function(wc, wc.var.sqrt, ashparam, jash, df, SGD) {
+shrink.wc = function (wc, wc.var.sqrt, ashparam, jash, df, SGD) {
     if (jash == FALSE) {
       zdat.ash = withCallingHandlers(do.call(ash,
         c(list(betahat=wc, sebetahat=wc.var.sqrt), ashparam)))
@@ -231,7 +231,9 @@ mu.smooth = function (wc, data.var, basis, tsum, Wl, return.loglr,
 
 #' @title var.smooth
 #' @return 'var.est' if posterior variances are not computed, and a list with elements 'var.est' and 'var.est.var' otherwise
-var.smooth = function(data, data.var, x.var.ini, basis, v.basis, Wl, filter.number, family, post.var, ashparam, jash, weight, J, n, SGD) {
+var.smooth = function (data, data.var, x.var.ini, basis, v.basis, Wl,
+                       filter.number, family, post.var, ashparam, jash,
+                       weight, J, n, SGD) {
     wmean = matrix(0, J, n)
     wvar = matrix(0, J, n)
     if (basis[[1]] == "haar" | v.basis == FALSE) {
@@ -301,29 +303,35 @@ var.smooth = function(data, data.var, x.var.ini, basis, v.basis, Wl, filter.numb
     }
 }
 
-
-#' Set default \code{ash} parameters.
-#' @keywords internal 
-#' @param ashparam: a list of parameters to be passed to ash.
-setAshParam.gaus = function(ashparam) {
-  # by default ashparam$df=NULL 
-  # by default ashparam$mixsd=NULL 
-  # by default ashparam$g=NULL
+# Set default ash parameters. By default, ashparam$df = NULL,
+# ashparam$mixsd = NULL and ashparam$g = NULL.
+#
+#' @importFrom utils modifyList
+setAshParam.gaus = function (ashparam) {
+    
   if (!is.list(ashparam)) 
     stop("Error: invalid parameter 'ashparam'")
-  ashparam.default = list(pointmass = TRUE, prior = "nullbiased", gridmult = 2, 
-                          mixcompdist = "normal", nullweight = 10, outputlevel = 2, fixg = FALSE)
+  ashparam.default = list(pointmass = TRUE, prior = "nullbiased",
+                          gridmult = 2, mixcompdist = "normal",
+                          nullweight = 10, outputlevel = 2, fixg = FALSE)
   ashparam = modifyList(ashparam.default, ashparam)
   if (!is.null(ashparam[["g"]])) 
-    stop("Error: ash parameter 'g' can only be NULL; if you want to specify ash parameter 'g' use multiseq arguments 'fitted.g' and/or 'fitted.g.intercept'")
+    stop(paste("Error: ash parameter 'g' can only be NULL; if you want",
+               "to specify ash parameter 'g' use multiseq arguments",
+               "'fitted.g' and/or 'fitted.g.intercept'"))
   
-  if (!((is.null(ashparam[["mixsd"]])) | (is.numeric(ashparam[["mixsd"]]) & (length(ashparam[["mixsd"]]) < 2)))) 
-    stop("Error: invalid parameter 'mixsd', 'mixsd'  must be null or a numeric vector of length >=2")
-  if (!((ashparam[["prior"]] == "nullbiased") | (ashparam[["prior"]] == "uniform") | is.numeric(ashparam[["prior"]]))) 
-    stop("Error: invalid parameter 'prior', 'prior' can be a number or 'nullbiased' or 'uniform'")
+  if (!((is.null(ashparam[["mixsd"]])) |
+        (is.numeric(ashparam[["mixsd"]]) &
+         (length(ashparam[["mixsd"]]) < 2)))) 
+    stop(paste("Error: invalid parameter 'mixsd', 'mixsd' must be",
+               "null or a numeric vector of length >=2"))
+  if (!((ashparam[["prior"]] == "nullbiased") |
+        (ashparam[["prior"]] == "uniform") |
+        is.numeric(ashparam[["prior"]]))) 
+    stop(paste("Error: invalid parameter 'prior', 'prior' can be",
+               "a number or 'nullbiased' or 'uniform'"))
   return(ashparam)
 }
-
 
 #' @title Estimate the underlying mean function from noisy Gaussian data
 #'
@@ -408,7 +416,7 @@ setAshParam.gaus = function(ashparam) {
 #' lines(mu.est,col=2)
 #'
 #' @export
-smash.gaus = function(x, sigma = NULL, v.est = FALSE, joint = FALSE, v.basis = FALSE, post.var = FALSE, filter.number = 1, 
+smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE, v.basis = FALSE, post.var = FALSE, filter.number = 1, 
     family = "DaubExPhase", return.loglr = FALSE, jash = FALSE, SGD = TRUE, weight = 0.5, min.var = 1e-08, ashparam = list()) {
     n = length(x)
     J = log2(n)
@@ -524,7 +532,7 @@ smash.gaus = function(x, sigma = NULL, v.est = FALSE, joint = FALSE, v.basis = F
 #' lines(mu.est.smash,col=4)
 #'
 #' @export
-ti.thresh = function(x, sigma = NULL, method = "smash", filter.number = 1, family = "DaubExPhase", min.level = 3, ashparam = list()) {
+ti.thresh = function (x, sigma = NULL, method = "smash", filter.number = 1, family = "DaubExPhase", min.level = 3, ashparam = list()) {
     n = length(x)
     J = log2(n)
     if (length(sigma) == 1) 
@@ -572,7 +580,7 @@ ti.thresh = function(x, sigma = NULL, method = "smash", filter.number = 1, famil
 #' reflects a vector if it has length a power of 2; otherwise extends the vector to have length a power of 2 and then reflects it
 #' @param x an n-vector
 #' @return an n-vector containing the indices of the original signal x 
-reflect <- function(x) {
+reflect <- function (x) {
     n = length(x)
     J = log2(n)
     if ((J%%1) == 0) {
@@ -609,7 +617,7 @@ reflect <- function(x) {
 #' is the probability of going left and q=1-p.
 #' @param log: indicates if mean estimation is to be performed on the log scale
 #' @return a list with elements 'lp.mean', 'lp.var', 'lq.mean', 'lq.var' 
-compute.res <- function(alpha, log) {
+compute.res <- function (alpha, log) {
     if (log == TRUE) {
         lp = ff.moments(alpha$mean, alpha$var)
         lq = ff.moments(-alpha$mean, alpha$var)  #find mean and variance of log(q)
@@ -623,7 +631,7 @@ compute.res <- function(alpha, log) {
 
 
 #' For each resolution, performs shrinkage and returns the posterior means and variances in matrix form
-getlist.res = function(res, j, n, zdat, log, shrink, ashparam) {
+getlist.res = function (res, j, n, zdat, log, shrink, ashparam) {
     ind = ((j - 1) * n + 1):(j * n)
     if (shrink == TRUE) {
         # apply ash to vector of intercept estimates and SEs
@@ -645,7 +653,7 @@ getlist.res = function(res, j, n, zdat, log, shrink, ashparam) {
 #' @param J: =log2(n)
 #' 
 #' return reconstructed signal in original data space
-recons.mv = function(ls, res, log, n, J) {
+recons.mv = function (ls, res, log, n, J) {
     if (log == TRUE) {
         # reconstructs estimate from the 'wavelet' space on the log level
         est.mean = cxxreverse_pwave(log(ls), matrix(res$lp.mean, J, n, byrow = TRUE), matrix(res$lq.mean, J, n, byrow = TRUE))
@@ -665,7 +673,7 @@ recons.mv = function(ls, res, log, n, J) {
 #' @export
 #' @keywords internal 
 #' @param ashparam: a list of parameters to be passed to ash.
-setAshParam.poiss = function(ashparam) {
+setAshParam.poiss = function (ashparam) {
     #by default ashparam$df = NULL
     #by default ashparam$mixsd = NULL
     #by default ashparam$g = NULL
@@ -683,22 +691,25 @@ setAshParam.poiss = function(ashparam) {
 }
 
 
-#' Set default \code{glm.approx} parameters.
-#' @keywords internal 
-#' @param glm.approx.param: a list of parameters to be passed to glm.approx.
-setGlmApproxParam = function(glm.approx.param){
+# Set default glm.approx parameters.
+#
+#' @importFrom utils modifyList
+setGlmApproxParam = function (glm.approx.param) {
   if(!is.list(glm.approx.param))
     stop("Error: invalid parameter 'glm.approx.param'")
-  glm.approx.param.default = list(minobs = 1, pseudocounts = 0.5, all = FALSE, center = FALSE, forcebin = TRUE, 
-                                  repara = TRUE, lm.approx = FALSE, disp = "add")
+  glm.approx.param.default =
+    list(minobs = 1, pseudocounts = 0.5, all = FALSE, center = FALSE,
+         forcebin = TRUE, repara = TRUE, lm.approx = FALSE, disp = "add")
   glm.approx.param = modifyList(glm.approx.param.default, glm.approx.param)
   
   if(glm.approx.param[["minobs"]]%%1 != 0|glm.approx.param[["minobs"]] <1 )
     stop("Error: minobs must be an integer larger than or equal to 1")
   if(!(glm.approx.param[["disp"]] %in% c("add", "mult")))
     stop("Error: parameter disp must be 'add' or 'mult'")
-  if(!(is.numeric(glm.approx.param[["pseudocounts"]]) & glm.approx.param[["pseudocounts"]] > 0)) 
-    stop("Error: invalid parameter 'pseudocounts', 'pseudocounts' must be a positive number")
+  if(!(is.numeric(glm.approx.param[["pseudocounts"]]) &
+       glm.approx.param[["pseudocounts"]] > 0)) 
+    stop(paste("Error: invalid parameter 'pseudocounts',",
+               "'pseudocounts' must be a positive number"))
   
   return(glm.approx.param)
 }

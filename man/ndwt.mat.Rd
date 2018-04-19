@@ -4,7 +4,7 @@
 \alias{ndwt.mat}
 \title{Computes the non-decimated wavelet transform matrix for a given basis}
 \usage{
-ndwt.mat(n, filter.number, family)
+ndwt.mat(filter.number, family)
 }
 \arguments{
 \item{filter.number, family:}{specifies the type of wavelet basis used}

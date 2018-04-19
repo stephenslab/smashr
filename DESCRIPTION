@@ -18,6 +18,8 @@ Description: Fast, wavelet-based Empirical Bayes shrinkage methods for
 License: GPL (>= 3)
 Depends: R (>= 3.1.1),
 Imports:
+    utils,
+    stats,
     Rcpp (>= 0.11.1),
     ashr,
     wavethresh,

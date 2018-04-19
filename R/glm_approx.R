@@ -33,6 +33,10 @@ vss = function (n, s, f) {
 # @param forcebin See glm.approx.
 # @param repara See glm.approx.
 # @return A vector of intercept and slope estimates and their SEs.
+#
+#' @importFrom stats glm.fit
+#' @importFrom stats binomial
+#' @importFrom stats quasibinomial
 safe.quasibinomial.glm.fit = function (x, y, forcebin = FALSE,
                                        repara = FALSE, ...) {
     if (forcebin) {

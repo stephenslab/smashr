@@ -297,15 +297,21 @@ CondPostprob = function (pi, tau, gammaa, gammab, gammadens, normmean,
 
 # Compute P(beta|Y) ZeroProb=P(beta=0|Y), PositiveProb=P(beta>0|Y),
 # NegativeProb=P(beta<0).
+#
+#' @importFrom stats pt
 Postprob = function (mu, pi, gammaa, gammab, normmean, normc, c.vec) {
     ZeroProb = rowSums(pi[, c.vec == Inf, drop = FALSE])
     mumat = outer(mu, rep(1, length(c.vec)))
-    T.std = ((mumat - normmean)/sqrt(gammab/(gammaa * normc)))[, c.vec != Inf, drop = FALSE]
-    pval.mat = 2 * pt(abs(T.std), df = gammaa[, c.vec != Inf] * 2, lower.tail = FALSE)
-    PositiveProb = rowSums(pi[, c.vec != Inf, drop = FALSE] * pt(T.std, df = gammaa[, c.vec != Inf, drop = FALSE] * 
+    T.std = ((mumat - normmean)/
+             sqrt(gammab/(gammaa * normc)))[, c.vec != Inf, drop = FALSE]
+    pval.mat = 2 * pt(abs(T.std), df = gammaa[, c.vec != Inf] * 2,
+                      lower.tail = FALSE)
+    PositiveProb = rowSums(pi[, c.vec != Inf, drop = FALSE] *
+        pt(T.std, df = gammaa[, c.vec != Inf, drop = FALSE] * 
         2, lower.tail = TRUE))
     NegativeProb = 1 - PositiveProb - ZeroProb
-    return(list(ZeroProb = ZeroProb, PositiveProb = PositiveProb, NegativeProb = NegativeProb, pval.mat = pval.mat))
+    return(list(ZeroProb = ZeroProb, PositiveProb = PositiveProb,
+                NegativeProb = NegativeProb, pval.mat = pval.mat))
 }
 
 # Compute local FALSE sign rate & FALSE discovery rate.
@@ -363,6 +369,9 @@ autoselect.precMulti = function(Y) {
 
 # Sample posterior beta & tau from P(beta|Y), P(tau|Y) obs: obs need
 # to be sampled nsamp: num of sampled beta & tau for each obs.
+#
+#' @importFrom stats rgamma
+#' @importFrom stats rnorm
 posterior_sample_jash = function(post, nsamp, obs) {
     component.tau = as.vector(apply(post$pi[obs, ], 1, sample_component,
                               nsamp = nsamp))
