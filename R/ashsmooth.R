@@ -92,20 +92,19 @@ smash = function (x, model = NULL, ...){
   }
 }
 
-#' Computes the non-decimated wavelet transform matrix for a given basis
-#' @param n: the sample size. Must be a power of 2
-#' @param filter.number,family: specifies the type of wavelet basis used
-#' @return the NDWT matrix for the specified basis, with the entries squared
-ndwt.mat = function (filter.number, family) {
+# @description Computes the non-decimated wavelet transform matrix for
+#   a given basis.
+# @param n The sample size. Must be a power of 2.
+# @param filter.number Specifies the type of wavelet basis used.
+# @param family Specifies the type of wavelet basis used.
+# @return The NDWT matrix for the specified basis, with the entries squared.
+ndwt.mat = function (n, filter.number, family) {
   J = log2(n)
   X = diag(rep(1, n))
   W = matrix(0, n * J, n)
-  # for(i in 1:n){ W[,i]=wd(X[i,],filter.number,family,type='station')$D }
-  W = apply(X, 1, wd.D, filter.number = filter.number, family = family, type = "station")
-  # W=Matrix(W,sparse=TRUE) if(post.var==FALSE){
+  W = apply(X, 1, wd.D, filter.number = filter.number, family = family,
+            type = "station")
   return(list(W2 = W^2))
-  # }else{ Winv=ginv(W) return(list(W=W,Wi=Winv)) #Wsvd=svd(W)
-  # #Wmod=Wsvd$u[,1:(n-1)]%*%diag(Wsvd$d[1:(n-1)])%*%t(Wsvd$v[1:(n-1),1:(n-1)]) #return(list(W=W,Wmod=Wmod)) }
 }
 
 # A wrapper function for code in mu.smooth and var.smooth.
@@ -336,7 +335,7 @@ setAshParam.gaus = function (ashparam) {
   return(ashparam)
 }
 
-#' @title Estimate the underlying mean function from noisy Gaussian data
+#' @title Estimate underlying mean function from noisy Gaussian data.
 #'
 #' @description This function takes a data vector of length a power of
 #'   2 and performs signal denoising using wavelet decomposition and an
@@ -352,56 +351,65 @@ setAshParam.gaus = function (ashparam) {
 #'   provides estimates of \eqn{\mu_t} and \eqn{\sigma_t^2} (and their
 #'   posterior variances if desired).
 #' 
-#' @param x: a vector of observations. Length of \code{x} must be a
+#' @param x A vector of observations. Length of \code{x} must be a
 #'   power of 2.
 #' 
-#' @param sigma: a vector of standard deviations. Can be provided if
+#' @param sigma A vector of standard deviations. Can be provided if
 #'   known or estimated beforehand.
 #' 
-#' @param v.est: bool, indicating if variance estimation should be
+#' @param v.est Boolean indicating if variance estimation should be
 #'   performed instead.
 #' 
-#' @param joint: bool, indicating if results of mean and variance estimation should be returned together.
+#' @param joint Boolean indicating if results of mean and variance
+#'   estimation should be returned together.
 #' 
-#' @param v.basis: bool, indicating if the same wavelet basis should
+#' @param v.basis Boolean indicating if the same wavelet basis should
 #'   be used for variance estimation as mean estimation. If false,
 #'   defaults to Haar basis for variance estimation (this is much faster
 #'   than other bases).
 #' 
-#' @param post.var: bool, indicating if the posterior variance should
+#' @param post.var Boolean indicating if the posterior variance should
 #'   be returned for the mean and/or variance estiamtes.
 #' 
-#' @param family: choice of wavelet basis to be used, as in \code{wavethresh}.
-#' 
-#' @param filter.number: choice of wavelet basis to be used, as in
+#' @param family Choice of wavelet basis to be used, as in
 #'   \code{wavethresh}.
 #' 
-#' @param return.loglr: bool, indicating if a logLR should be returned.
+#' @param filter.number Choice of wavelet basis to be used, as in
+#'   \code{wavethresh}.
 #' 
-#' @param jash: indicates if the prior from method JASH should be
+#' @param return.loglr Boolean indicating if a logLR should be returned.
+#' 
+#' @param jash Indicates if the prior from method JASH should be
 #'   used. This will often provide slightly better variance estimates
 #'   (especially for nonsmooth variance functions), at the cost of
 #'   computational efficiency. Defaults to FALSE.
 #' 
-#' @param SGD: bool, indicating if stochastic gradient descent should
+#' @param SGD Boolean indicating if stochastic gradient descent should
 #'   be used in the EM. Only applicable if jash=TRUE.
 #' 
-#' @param weight: optional parameter used in estimating overall
+#' @param weight Optional parameter used in estimating overall
 #'   variance. Only works for Haar basis. Defaults to 0.5. Setting this
 #'   to 1 might improve variance estimation slightly.
 #' 
-#' @param min.var: The minimum positive value to be set if the
+#' @param min.var The minimum positive value to be set if the
 #'   variance estimates are non-positive.
 #' 
-#' @param ashparam: a list of parameters to be passed to \code{ash};
+#' @param ashparam A list of parameters to be passed to \code{ash};
 #'   default values are set by function \code{\link{setAshParam.gaus}}.
 #' 
 #' @return \code{smash.gaus} returns the following by default:
-#' \item{mu.res}{a list with the mean estimate, its posterior variance if \code{post.var} is TRUE, the logLR if \code{return.loglr} is TRUE, or a vector of mean estimates if neither \code{post.var} nor \code{return.loglr} are TRUE}
-#' If \code{v.est} is TRUE, then \code{smash.gaus} returns the following:
-#' \item{var.res}{a list with the variance estimate, its posterior variance if \code{post.var} is TRUE, or a vector of variance estimates if \code{post.var} is FALSE}
-#' In addition, if \code{joint} is TRUE, then both \code{mu.res} and \code{var.res} are returned.
+#'   \item{mu.res}{a list with the mean estimate, its posterior variance
+#'   if \code{post.var} is TRUE, the logLR if \code{return.loglr} is
+#'   TRUE, or a vector of mean estimates if neither \code{post.var} nor
+#'   \code{return.loglr} are TRUE} If \code{v.est} is TRUE, then
+#'   \code{smash.gaus} returns the following: \item{var.res}{a list with
+#'   the variance estimate, its posterior variance if \code{post.var} is
+#'   TRUE, or a vector of variance estimates if \code{post.var} is
+#'   \code{FALSE} In addition, if \code{joint} is TRUE, then both
+#'   \code{mu.res} and \code{var.res} are returned.
+#' 
 #' @examples
+#' 
 #' n=2^10
 #' t=1:n/n
 #' spike.f=function(x) (0.75*exp(-500*(x-0.23)^2)+1.5*exp(-2000*(x-0.33)^2)+3*exp(-8000*(x-0.47)^2)+2.25*exp(-16000*(x-0.69)^2)+0.5*exp(-32000*(x-0.83)^2))
@@ -418,9 +426,15 @@ setAshParam.gaus = function (ashparam) {
 #' plot(mu.t,type='l')
 #' lines(mu.est,col=2)
 #'
+#' @importFrom wavethresh wd
+#' 
 #' @export
-smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE, v.basis = FALSE, post.var = FALSE, filter.number = 1, 
-    family = "DaubExPhase", return.loglr = FALSE, jash = FALSE, SGD = TRUE, weight = 0.5, min.var = 1e-08, ashparam = list()) {
+#' 
+smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
+                       v.basis = FALSE, post.var = FALSE, filter.number = 1, 
+                       family = "DaubExPhase", return.loglr = FALSE,
+                       jash = FALSE, SGD = TRUE, weight = 0.5,
+                       min.var = 1e-08, ashparam = list()) {
     n = length(x)
     J = log2(n)
     if (!isTRUE(all.equal(J, trunc(J)))) {
@@ -441,9 +455,9 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE, v.basis = 
     } else {
         basis = list(family = family, filter.number = filter.number)
     }
-    # if(post.var==TRUE&basis[[1]]!='haar'){stop('Error: posterior variances returned only with Haar basis')}
     if (post.var == TRUE & v.est == TRUE & jash == TRUE) {
-        stop("Error: Posterior variances for variance estimate not returned for method JASH")
+        stop(paste("Error: Posterior variances for variance estimate",
+                   "not returned for method JASH"))
     }
     if (joint == TRUE) {
         v.est = TRUE
@@ -454,7 +468,8 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE, v.basis = 
     x.w.d = cxxtitable(x)$difftable
     Wl = NULL
     if (basis[[1]] != "haar") {
-        x.w.d = wd(x, filter.number = filter.number, family = family, type = "station")
+        x.w.d = wavethresh::wd(x, filter.number = filter.number,
+                               family = family, type = "station")
         Wl = ndwt.mat(n, filter.number = filter.number, family = family)
     }
     
@@ -462,18 +477,21 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE, v.basis = 
         var.est1.ini = (x - lshift(x))^2/2
         var.est2.ini = (rshift(x) - x)^2/2
         var.est.ini = (var.est1.ini + var.est2.ini)/2
-        mu.est = mu.smooth(x.w.d, var.est.ini, basis, tsum, Wl, FALSE, FALSE, ashparam, J, n)
+        mu.est = mu.smooth(x.w.d, var.est.ini, basis, tsum, Wl, FALSE,
+                           FALSE, ashparam, J, n)
         var.est = (x - mu.est)^2
         var.var.est = 2/3 * var.est^2
-        var.est = var.smooth(var.est, var.var.est, var.est.ini, basis, v.basis, Wl, 
-                             filter.number, family, FALSE, ashparam, jash, weight, J, n, SGD = SGD)
+        var.est = var.smooth(var.est, var.var.est, var.est.ini, basis,
+                             v.basis, Wl, filter.number, family, FALSE,
+                             ashparam, jash, weight, J, n, SGD = SGD)
         var.est[var.est <= 0] = 1e-08
         sigma = sqrt(var.est)
     }
     
     ashparam.mean = ashparam
     ashparam.mean$gridmult = 64
-    mu.res = mu.smooth(x.w.d, sigma^2, basis, tsum, Wl, return.loglr, post.var, ashparam.mean, J, n)
+    mu.res = mu.smooth(x.w.d, sigma^2, basis, tsum, Wl, return.loglr,
+                       post.var, ashparam.mean, J, n)
     
     if (v.est == FALSE) {
         return(mu.res)
@@ -485,8 +503,9 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE, v.basis = 
         }
         var.est = (x - mu.est)^2
         var.var.est = 2/3 * var.est^2
-        var.res = var.smooth(var.est, var.var.est, 0, basis, v.basis, Wl, filter.number, family, post.var, ashparam, 
-            jash, 1, J, n, SGD = SGD)
+        var.res = var.smooth(var.est, var.var.est, 0, basis, v.basis, Wl,
+                             filter.number, family, post.var, ashparam, 
+                             jash, 1, J, n, SGD = SGD)
         if (post.var == FALSE) {
             var.res[var.res <= 0] = min.var
         } else {
@@ -499,10 +518,6 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE, v.basis = 
         }
     }
 }
-
-
-
-
 
 #' This function performs TI thresholding for the case where the errors are heteroskedastic.
 #'
@@ -534,8 +549,12 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE, v.basis = 
 #' lines(mu.est.rmad,col=2)
 #' lines(mu.est.smash,col=4)
 #'
+#' @importFrom wavethresh wd
+#' 
 #' @export
-ti.thresh = function (x, sigma = NULL, method = "smash", filter.number = 1, family = "DaubExPhase", min.level = 3, ashparam = list()) {
+ti.thresh = function (x, sigma = NULL, method = "smash", filter.number = 1,
+                      family = "DaubExPhase", min.level = 3,
+                      ashparam = list()) {
     n = length(x)
     J = log2(n)
     if (length(sigma) == 1) 
@@ -552,7 +571,8 @@ ti.thresh = function (x, sigma = NULL, method = "smash", filter.number = 1, fami
             sigma = sqrt(smash.gaus(x, v.est = TRUE, v.basis = TRUE, filter.number = filter.number, family = family, 
                 ashparam = ashparam, weight = 1))
         } else if (method == "rmad") {
-            x.w = wd(x, filter.number = filter.number, family = family, type = "station")
+            x.w = wavethresh::wd(x, filter.number = filter.number,
+                                 family = family, type = "station")
             win.size = round(n/10)
             odd.boo = (win.size%%2 == 1)
             win.size = win.size + (1 - odd.boo)
@@ -571,7 +591,8 @@ ti.thresh = function (x, sigma = NULL, method = "smash", filter.number = 1, fami
         wwmean = -wmean
         mu.est = cxxreverse_gwave(tsum, wmean, wwmean)
     } else {
-        x.w = wd(x, filter.number = filter.number, family = family, type = "station")
+        x.w = wavethresh::wd(x, filter.number = filter.number,
+                             family = family, type = "station")
         Wl = ndwt.mat(n, filter.number = filter.number, family = family)
         x.w.v = apply((rep(1, n * J) %o% (sigma^2)) * Wl$W2, 1, sum)  #diagonal of W*V*W'
         x.w.t = threshold.var(x.w, x.w.v, lambda.thresh, levels = (min.level):(J - 1), type = "hard")

@@ -148,6 +148,8 @@ gradloglike = function (params, N, n, M, K, L, mu, MEAN, SSE, pi, groupind) {
 # whether assume that there are independent priors for a_m, lambda_k
 # and c_l i.e. pi_{klm}=pi.lambda_k*pi.c_l*pi.a_m, where
 # sum(pi.a_m)=sum(pi.lambda_k)=sum(pi.c_l)
+#
+#' @importFrom stats nlminb
 EMest_pi = function (params, N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN,
                      SSE, pi, prior, a.lambda.c.est, SGD, indepprior = TRUE, 
                      ltol = 1e-04, maxiter = 5000, usePointMass) {
@@ -444,7 +446,8 @@ jash = function (Y, fac, auto = FALSE, precShape = NULL, precMulti = NULL,
     M = length(precShape)
     K = length(precMulti)
     L = length(compprecPrior)
-    params = c(precShape, precShape/precMulti, (compprecPrior/(n + compprecPrior))[1:(L - 1)])
+    params = c(precShape, precShape/precMulti,
+               (compprecPrior/(n + compprecPrior))[1:(L - 1)])
     a.vec = rep(precShape, L * K)
     lambda.vec = rep(rep(precMulti, each = M), L)
     b.vec = a.vec/lambda.vec
@@ -454,12 +457,16 @@ jash = function (Y, fac, auto = FALSE, precShape = NULL, precMulti = NULL,
     group.lambda = rep(rep(1:K, each = M), L)
     group.c = rep(1:L, each = M * K)
     
-    pifit = EMest_pi(params, N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN, SSE, pi, prior, a.lambda.c.est, SGD, indepprior = FALSE, 
-        ltol = 1e-04, maxiter = 2000, usePointMass)
-    post = post_distn(N, n, M, K, L, pifit$a.vec, pifit$b.vec, pifit$c.vec, mu, MEAN, SSE, pifit$pi)
-    postprob = Postprob(mu, post$pi, post$gammaa, post$gammab, post$normmean, post$normc, pifit$c.vec)
+    pifit = EMest_pi(params, N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN,
+                     SSE, pi, prior, a.lambda.c.est, SGD, indepprior = FALSE, 
+                     ltol = 1e-04, maxiter = 2000, usePointMass)
+    post = post_distn(N, n, M, K, L, pifit$a.vec, pifit$b.vec, pifit$c.vec,
+                      mu, MEAN, SSE, pifit$pi)
+    postprob = Postprob(mu, post$pi, post$gammaa, post$gammab, post$normmean,
+                        post$normc, pifit$c.vec)
     if (localfdr == TRUE) {
-        localfdr = computefdr(postprob$ZeroProb, postprob$PositiveProb, postprob$NegativeProb)$localfdr
+        localfdr = computefdr(postprob$ZeroProb, postprob$PositiveProb,
+                              postprob$NegativeProb)$localfdr
         qvalue = qval.from.localfdr(localfdr)
     } else {
         localfdr = NULL
@@ -471,13 +478,17 @@ jash = function (Y, fac, auto = FALSE, precShape = NULL, precMulti = NULL,
         null.postprob = NULL
     }
     PosteriorMean = post$beta * reg$scale
-    return(list(PosteriorMean = PosteriorMean, PosteriorPrec = post$tau, pifit = pifit, post = post, postprob = postprob, 
-        localfdr = localfdr, qvalue = qvalue, null.postprob = null.postprob, a.vec = pifit$a.vec, lambda.vec = pifit$lambda.vec, 
-        c.vec = pifit$c.vec, mu = mu))
+    return(list(PosteriorMean = PosteriorMean, PosteriorPrec = post$tau,
+                pifit = pifit, post = post, postprob = postprob, 
+                localfdr = localfdr, qvalue = qvalue,
+                null.postprob = null.postprob, a.vec = pifit$a.vec,
+                lambda.vec = pifit$lambda.vec, c.vec = pifit$c.vec, mu = mu))
 }
 
-jasha = function(betahat, betahatsd, df, auto = FALSE, precShape = NULL, precMulti = NULL, compprecPrior = NULL, mu = NULL, 
-    pi = NULL, prior = NULL, usePointMass = TRUE, localfdr = FALSE, a.lambda.c.est = TRUE, SGD = TRUE) {
+jasha = function (betahat, betahatsd, df, auto = FALSE, precShape = NULL,
+                  precMulti = NULL, compprecPrior = NULL, mu = NULL,
+                  pi = NULL, prior = NULL, usePointMass = TRUE,
+                  localfdr = FALSE, a.lambda.c.est = TRUE, SGD = TRUE) {
     N = length(betahat)
     n = df + 1
     
@@ -511,7 +522,8 @@ jasha = function(betahat, betahatsd, df, auto = FALSE, precShape = NULL, precMul
     M = length(precShape)
     K = length(precMulti)
     L = length(compprecPrior)
-    params = c(precShape, precShape/precMulti, (compprecPrior/(n + compprecPrior))[1:(L - 1)])
+    params = c(precShape, precShape/precMulti,
+               (compprecPrior/(n + compprecPrior))[1:(L - 1)])
     a.vec = rep(precShape, L * K)
     lambda.vec = rep(rep(precMulti, each = M), L)
     b.vec = a.vec/lambda.vec
@@ -521,12 +533,16 @@ jasha = function(betahat, betahatsd, df, auto = FALSE, precShape = NULL, precMul
     group.lambda = rep(rep(1:K, each = M), L)
     group.c = rep(1:L, each = M * K)
     
-    pifit = EMest_pi(params, N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN, SSE, pi, prior, a.lambda.c.est, SGD, indepprior = FALSE, 
-        ltol = 1e-04, maxiter = 2000, usePointMass)
-    post = post_distn(N, n, M, K, L, pifit$a.vec, pifit$b.vec, pifit$c.vec, mu, MEAN, SSE, pifit$pi)
-    postprob = Postprob(mu, post$pi, post$gammaa, post$gammab, post$normmean, post$normc, pifit$c.vec)
+    pifit = EMest_pi(params, N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN,
+                     SSE, pi, prior, a.lambda.c.est, SGD, indepprior = FALSE, 
+                     ltol = 1e-04, maxiter = 2000, usePointMass)
+    post = post_distn(N, n, M, K, L, pifit$a.vec, pifit$b.vec, pifit$c.vec,
+                      mu, MEAN, SSE, pifit$pi)
+    postprob = Postprob(mu, post$pi, post$gammaa, post$gammab,
+                        post$normmean, post$normc, pifit$c.vec)
     if (localfdr == TRUE) {
-        localfdr = computefdr(postprob$ZeroProb, postprob$PositiveProb, postprob$NegativeProb)$localfdr
+        localfdr = computefdr(postprob$ZeroProb, postprob$PositiveProb,
+                              postprob$NegativeProb)$localfdr
         qvalue = qval.from.localfdr(localfdr)
     } else {
         localfdr = NULL
@@ -542,7 +558,10 @@ jasha = function(betahat, betahatsd, df, auto = FALSE, precShape = NULL, precMul
     params = c(pifit$a.vec[1], pifit$b.vec[1]/n, pifit$c.vec[1])
     loglik = loglike(params, N, n, M, K, L, mu, MEAN, rep(0, N), pifit$pi, 0)
     
-    return(list(PosteriorMean = PosteriorMean, PosteriorPrec = post$tau, pifit = pifit, post = post, postprob = postprob, 
-        localfdr = localfdr, qvalue = qvalue, null.postprob = null.postprob, a.vec = pifit$a.vec, lambda.vec = pifit$lambda.vec, 
-        c.vec = pifit$c.vec, mu = mu, loglik = loglik))
+    return(list(PosteriorMean = PosteriorMean, PosteriorPrec = post$tau,
+                pifit = pifit, post = post, postprob = postprob, 
+                localfdr = localfdr, qvalue = qvalue,
+                null.postprob = null.postprob, a.vec = pifit$a.vec,
+                lambda.vec = pifit$lambda.vec, c.vec = pifit$c.vec,
+                mu = mu, loglik = loglik))
 } 
