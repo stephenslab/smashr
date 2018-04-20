@@ -140,7 +140,7 @@ wd.var <- function (data, filter.number = 10, family = "DaubLeAsymm",
                filters.used = ans$filters.used, 
                preconditioned = ans$preconditioned, date = ans$date, 
                nlevels =
-                 wavehthresh::IsPowerOfTwo(length(ans$transformed.vector)), 
+                 wavethresh::IsPowerOfTwo(length(ans$transformed.vector)), 
                fl.dbase = fl.dbase, type = type, bc = bc, filter = filter)
         class(l) <- "wd"
         return(l)
