@@ -2,7 +2,7 @@
 % Please edit documentation in R/ashsmooth.R
 \name{smash.gaus}
 \alias{smash.gaus}
-\title{Estimate the underlying mean function from noisy Gaussian data}
+\title{Estimate underlying mean function from noisy Gaussian data.}
 \usage{
 smash.gaus(x, sigma = NULL, v.est = FALSE, joint = FALSE,
   v.basis = FALSE, post.var = FALSE, filter.number = 1,
@@ -10,56 +10,51 @@ smash.gaus(x, sigma = NULL, v.est = FALSE, joint = FALSE,
   SGD = TRUE, weight = 0.5, min.var = 1e-08, ashparam = list())
 }
 \arguments{
-\item{x:}{a vector of observations. Length of \code{x} must be a
+\item{x}{A vector of observations. Length of \code{x} must be a
 power of 2.}
 
-\item{sigma:}{a vector of standard deviations. Can be provided if
+\item{sigma}{A vector of standard deviations. Can be provided if
 known or estimated beforehand.}
 
-\item{v.est:}{bool, indicating if variance estimation should be
+\item{v.est}{Boolean indicating if variance estimation should be
 performed instead.}
 
-\item{joint:}{bool, indicating if results of mean and variance estimation should be returned together.}
+\item{joint}{Boolean indicating if results of mean and variance
+estimation should be returned together.}
 
-\item{v.basis:}{bool, indicating if the same wavelet basis should
+\item{v.basis}{Boolean indicating if the same wavelet basis should
 be used for variance estimation as mean estimation. If false,
 defaults to Haar basis for variance estimation (this is much faster
 than other bases).}
 
-\item{post.var:}{bool, indicating if the posterior variance should
+\item{post.var}{Boolean indicating if the posterior variance should
 be returned for the mean and/or variance estiamtes.}
 
-\item{family:}{choice of wavelet basis to be used, as in \code{wavethresh}.}
-
-\item{filter.number:}{choice of wavelet basis to be used, as in
+\item{filter.number}{Choice of wavelet basis to be used, as in
 \code{wavethresh}.}
 
-\item{return.loglr:}{bool, indicating if a logLR should be returned.}
+\item{family}{Choice of wavelet basis to be used, as in
+\code{wavethresh}.}
 
-\item{jash:}{indicates if the prior from method JASH should be
+\item{return.loglr}{Boolean indicating if a logLR should be returned.}
+
+\item{jash}{Indicates if the prior from method JASH should be
 used. This will often provide slightly better variance estimates
 (especially for nonsmooth variance functions), at the cost of
 computational efficiency. Defaults to FALSE.}
 
-\item{SGD:}{bool, indicating if stochastic gradient descent should
+\item{SGD}{Boolean indicating if stochastic gradient descent should
 be used in the EM. Only applicable if jash=TRUE.}
 
-\item{weight:}{optional parameter used in estimating overall
+\item{weight}{Optional parameter used in estimating overall
 variance. Only works for Haar basis. Defaults to 0.5. Setting this
 to 1 might improve variance estimation slightly.}
 
-\item{min.var:}{The minimum positive value to be set if the
+\item{min.var}{The minimum positive value to be set if the
 variance estimates are non-positive.}
 
-\item{ashparam:}{a list of parameters to be passed to \code{ash};
+\item{ashparam}{A list of parameters to be passed to \code{ash};
 default values are set by function \code{\link{setAshParam.gaus}}.}
-}
-\value{
-\code{smash.gaus} returns the following by default:
-\item{mu.res}{a list with the mean estimate, its posterior variance if \code{post.var} is TRUE, the logLR if \code{return.loglr} is TRUE, or a vector of mean estimates if neither \code{post.var} nor \code{return.loglr} are TRUE}
-If \code{v.est} is TRUE, then \code{smash.gaus} returns the following:
-\item{var.res}{a list with the variance estimate, its posterior variance if \code{post.var} is TRUE, or a vector of variance estimates if \code{post.var} is FALSE}
-In addition, if \code{joint} is TRUE, then both \code{mu.res} and \code{var.res} are returned.
 }
 \description{
 This function takes a data vector of length a power of
@@ -78,6 +73,7 @@ We assume that the data come from the model \eqn{Y_t =
   posterior variances if desired).
 }
 \examples{
+
 n=2^10
 t=1:n/n
 spike.f=function(x) (0.75*exp(-500*(x-0.23)^2)+1.5*exp(-2000*(x-0.33)^2)+3*exp(-8000*(x-0.47)^2)+2.25*exp(-16000*(x-0.69)^2)+0.5*exp(-32000*(x-0.83)^2))
