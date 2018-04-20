@@ -56,6 +56,23 @@ variance estimates are non-positive.}
 \item{ashparam}{A list of parameters to be passed to \code{ash};
 default values are set by function \code{\link{setAshParam.gaus}}.}
 }
+\value{
+\code{smash.gaus} returns the following by default:
+
+  \item{mu.res}{A list with the mean estimate, its posterior variance
+  if \code{post.var} is TRUE, the logLR if \code{return.loglr} is
+  TRUE, or a vector of mean estimates if neither \code{post.var} nor
+  \code{return.loglr} are TRUE.}
+
+  If \code{v.est} is TRUE, then \code{smash.gaus} returns the
+  following:
+
+  \item{var.res}{A list with the variance estimate, its posterior
+  variance if \code{post.var} is TRUE, or a vector of variance
+  estimates if \code{post.var} is \code{FALSE} In addition, if
+  \code{joint} is TRUE, then both \code{mu.res} and \code{var.res}
+  are returned.}
+}
 \description{
 This function takes a data vector of length a power of
   2 and performs signal denoising using wavelet decomposition and an
@@ -76,12 +93,15 @@ We assume that the data come from the model \eqn{Y_t =
 
 n=2^10
 t=1:n/n
-spike.f=function(x) (0.75*exp(-500*(x-0.23)^2)+1.5*exp(-2000*(x-0.33)^2)+3*exp(-8000*(x-0.47)^2)+2.25*exp(-16000*(x-0.69)^2)+0.5*exp(-32000*(x-0.83)^2))
-mu.s=spike.f(t)
-#Gaussian case
-mu.t=(1+mu.s)/5
+spike.f = function(x) (0.75*exp(-500*(x-0.23)^2) +
+  1.5*exp(-2000*(x-0.33)^2) + 3*exp(-8000*(x-0.47)^2) +
+  2.25*exp(-16000*(x-0.69)^2)+0.5*exp(-32000*(x-0.83)^2))
+mu.s = spike.f(t)
+
+# Gaussian case
+mu.t = (1+mu.s)/5
 plot(mu.t,type='l')
-var.fn=(0.0001+4*(exp(-550*(t-0.2)^2)+exp(-200*(t-0.5)^2)+exp(-950*(t-0.8)^2)))/1.35
+var.fn = (0.0001+4*(exp(-550*(t-0.2)^2)+exp(-200*(t-0.5)^2)+exp(-950*(t-0.8)^2)))/1.35
 plot(var.fn,type='l')
 rsnr=sqrt(5)
 sigma.t=sqrt(var.fn)/mean(sqrt(var.fn))*sd(mu.t)/rsnr^2

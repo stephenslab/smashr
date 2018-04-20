@@ -3,7 +3,7 @@
 \name{smash}
 \alias{smash}
 \title{Estimate the underlying mean or intensity function from
-  Gaussian or Poisson data respectively}
+  Gaussian or Poisson data, respectively.}
 \usage{
 smash(x, model = NULL, ...)
 }
@@ -22,12 +22,12 @@ See \code{smash.gaus} or \code{smash.poiss} for details.
 This is a wrapper function for
   \code{\link{smash.gaus}} or \code{\link{smash.poiss}} as
   appropriate. For details see \code{\link{smash.gaus}} and
-  \code{\link{smash.poiss}}
+  \code{\link{smash.poiss}}.
 }
 \details{
 Performs nonparametric regression on univariate Poisson or
   Gaussian data using wavelets. For the Poisson case, the data are
-  assumed to be i.i.d.  from an underlying inhomogeneous mean
+  assumed to be i.i.d. from an underlying inhomogeneous mean
   function that is "smooth". Similarly for the Gaussian case, the
   data are assumed to be independent with an underlying smooth mean
   function.  In the Gaussian case, the variances are allowed vary,
@@ -35,29 +35,38 @@ Performs nonparametric regression on univariate Poisson or
   function. The functions \code{ashsmooth.gaus} and
   \code{ashsmooth.pois} perform smoothing for Gaussian and Poisson
   data respectively. The only required input is a vector of length
-  2^J for some integer J.  Other options include the possibility of
+  2^J for some integer J. Other options include the possibility of
   returning the posterior variances, specifying a wavelet basis
   (default is Haar, which performs well in general due to the fact
   that we used the translation-invariant version).
 }
 \examples{
-# Create the baseline mean function (The "spikes" function is used as an example here)
+
+# Create the baseline mean function. (The "spikes" function is used
+# as an example here.)
 n = 2^9
 t = 1:n/n
-spike.f = function(x) (0.75 * exp(-500 * (x - 0.23)^2) + 1.5 * exp(-2000 * (x - 0.33)^2) + 3 * exp(-8000 * (x - 0.47)^2) + 
-    2.25 * exp(-16000 * (x - 0.69)^2) + 0.5 * exp(-32000 * (x - 0.83)^2))
+spike.f = function(x) (0.75 * exp(-500 * (x - 0.23)^2) +
+  1.5 * exp(-2000 * (x - 0.33)^2) + 3 * exp(-8000 * (x - 0.47)^2) + 
+  2.25 * exp(-16000 * (x - 0.69)^2) + 0.5 * exp(-32000 * (x - 0.83)^2))
 mu.s = spike.f(t)
 
 # Gaussian case
+# -------------
 # Scale the signal to be between 0.2 and 0.8
 mu.t = (1 + mu.s)/5
 plot(mu.t, type = "l")
-# Create the baseline variance function (The function V2 from Cai & Wang (2008) is used here)
+
+# Create the baseline variance function. (The function V2 from Cai &
+# Wang (2008) is used here.)
+
 var.fn = (1e-04 + 4 * (exp(-550 * (t - 0.2)^2) + exp(-200 * (t - 0.5)^2) + exp(-950 * (t - 0.8)^2)))/1.35
 plot(var.fn, type = "l")
-# Set the signal-to-noise ratio
+
+# Set the signal-to-noise ratio.
 rsnr = sqrt(5)
 sigma.t = sqrt(var.fn)/mean(sqrt(var.fn)) * sd(mu.t)/rsnr^2
+
 # Simulate an example dataset
 X.s = rnorm(n, mu.t, sigma.t)
 # Run smash (Gaussian version is run since observations are not counts)
@@ -67,6 +76,7 @@ plot(mu.t, type = "l")
 lines(mu.est, col = 2)
 
 # Poisson case
+# ------------
 # Scale the signal to be non-zero and to have a low average intensity
 mu.t = 0.01 + mu.s
 # Simulate an example dataset

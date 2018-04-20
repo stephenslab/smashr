@@ -1,14 +1,14 @@
 #' @title Estimate the underlying mean or intensity function from
-#'   Gaussian or Poisson data respectively
+#'   Gaussian or Poisson data, respectively.
 #'
 #' @description This is a wrapper function for
 #'   \code{\link{smash.gaus}} or \code{\link{smash.poiss}} as
 #'   appropriate. For details see \code{\link{smash.gaus}} and
-#'   \code{\link{smash.poiss}}
+#'   \code{\link{smash.poiss}}.
 #'
 #' @details Performs nonparametric regression on univariate Poisson or
 #'   Gaussian data using wavelets. For the Poisson case, the data are
-#'   assumed to be i.i.d.  from an underlying inhomogeneous mean
+#'   assumed to be i.i.d. from an underlying inhomogeneous mean
 #'   function that is "smooth". Similarly for the Gaussian case, the
 #'   data are assumed to be independent with an underlying smooth mean
 #'   function.  In the Gaussian case, the variances are allowed vary,
@@ -16,7 +16,7 @@
 #'   function. The functions \code{ashsmooth.gaus} and
 #'   \code{ashsmooth.pois} perform smoothing for Gaussian and Poisson
 #'   data respectively. The only required input is a vector of length
-#'   2^J for some integer J.  Other options include the possibility of
+#'   2^J for some integer J. Other options include the possibility of
 #'   returning the posterior variances, specifying a wavelet basis
 #'   (default is Haar, which performs well in general due to the fact
 #'   that we used the translation-invariant version).
@@ -31,23 +31,32 @@
 #' @return See \code{smash.gaus} or \code{smash.poiss} for details.
 #' 
 #' @examples
-#' # Create the baseline mean function (The "spikes" function is used as an example here)
+#' 
+#' # Create the baseline mean function. (The "spikes" function is used
+#' # as an example here.)
 #' n = 2^9
 #' t = 1:n/n
-#' spike.f = function(x) (0.75 * exp(-500 * (x - 0.23)^2) + 1.5 * exp(-2000 * (x - 0.33)^2) + 3 * exp(-8000 * (x - 0.47)^2) + 
-#'     2.25 * exp(-16000 * (x - 0.69)^2) + 0.5 * exp(-32000 * (x - 0.83)^2))
+#' spike.f = function(x) (0.75 * exp(-500 * (x - 0.23)^2) +
+#'   1.5 * exp(-2000 * (x - 0.33)^2) + 3 * exp(-8000 * (x - 0.47)^2) + 
+#'   2.25 * exp(-16000 * (x - 0.69)^2) + 0.5 * exp(-32000 * (x - 0.83)^2))
 #' mu.s = spike.f(t)
 #' 
 #' # Gaussian case
+#' # -------------
 #' # Scale the signal to be between 0.2 and 0.8
 #' mu.t = (1 + mu.s)/5
 #' plot(mu.t, type = "l")
-#' # Create the baseline variance function (The function V2 from Cai & Wang (2008) is used here)
+#' 
+#' # Create the baseline variance function. (The function V2 from Cai &
+#' # Wang (2008) is used here.)
+#' 
 #' var.fn = (1e-04 + 4 * (exp(-550 * (t - 0.2)^2) + exp(-200 * (t - 0.5)^2) + exp(-950 * (t - 0.8)^2)))/1.35
 #' plot(var.fn, type = "l")
-#' # Set the signal-to-noise ratio
+#' 
+#' # Set the signal-to-noise ratio.
 #' rsnr = sqrt(5)
 #' sigma.t = sqrt(var.fn)/mean(sqrt(var.fn)) * sd(mu.t)/rsnr^2
+#' 
 #' # Simulate an example dataset
 #' X.s = rnorm(n, mu.t, sigma.t)
 #' # Run smash (Gaussian version is run since observations are not counts)
@@ -57,6 +66,7 @@
 #' lines(mu.est, col = 2)
 #' 
 #' # Poisson case
+#' # ------------
 #' # Scale the signal to be non-zero and to have a low average intensity
 #' mu.t = 0.01 + mu.s
 #' # Simulate an example dataset
@@ -68,26 +78,26 @@
 #' lines(mu.est, col = 2) 
 #' 
 #' @export
-smash = function (x, model = NULL, ...){
+smash = function (x, model = NULL, ...) {
   if(!is.null(model)){
-    if(!(model == "gaus" | model == "poiss")){
+    if (!(model == "gaus" | model == "poiss")) {
       stop("Error: model must be NULL or one of 'gaus' or 'poiss'")
     }
   }
   
-  if(is.null(model)){
-    if(!isTRUE(all.equal(trunc(x),x))){
+  if (is.null(model)){
+    if (!isTRUE(all.equal(trunc(x),x))) {
       model = "gaus"
-    }else{
+    } else {
       model = "poiss"
     }
   }
   
-  if(model == "gaus"){
+  if (model == "gaus") {
     return(smash.gaus(x, ...))
   }
   
-  if(model == "poiss"){
+  if (model == "poiss") {
     return(smash.poiss(x, ...))
   }
 }
@@ -406,26 +416,34 @@ setAshParam.gaus = function (ashparam) {
 #'   default values are set by function \code{\link{setAshParam.gaus}}.
 #' 
 #' @return \code{smash.gaus} returns the following by default:
-#'   \item{mu.res}{a list with the mean estimate, its posterior variance
+#' 
+#'   \item{mu.res}{A list with the mean estimate, its posterior variance
 #'   if \code{post.var} is TRUE, the logLR if \code{return.loglr} is
 #'   TRUE, or a vector of mean estimates if neither \code{post.var} nor
-#'   \code{return.loglr} are TRUE} If \code{v.est} is TRUE, then
-#'   \code{smash.gaus} returns the following: \item{var.res}{a list with
-#'   the variance estimate, its posterior variance if \code{post.var} is
-#'   TRUE, or a vector of variance estimates if \code{post.var} is
-#'   \code{FALSE} In addition, if \code{joint} is TRUE, then both
-#'   \code{mu.res} and \code{var.res} are returned.
+#'   \code{return.loglr} are TRUE.}
+#'
+#'   If \code{v.est} is TRUE, then \code{smash.gaus} returns the
+#'   following:
+#'
+#'   \item{var.res}{A list with the variance estimate, its posterior
+#'   variance if \code{post.var} is TRUE, or a vector of variance
+#'   estimates if \code{post.var} is \code{FALSE} In addition, if
+#'   \code{joint} is TRUE, then both \code{mu.res} and \code{var.res}
+#'   are returned.}
 #' 
 #' @examples
 #' 
 #' n=2^10
 #' t=1:n/n
-#' spike.f=function(x) (0.75*exp(-500*(x-0.23)^2)+1.5*exp(-2000*(x-0.33)^2)+3*exp(-8000*(x-0.47)^2)+2.25*exp(-16000*(x-0.69)^2)+0.5*exp(-32000*(x-0.83)^2))
-#' mu.s=spike.f(t)
-#' #Gaussian case
-#' mu.t=(1+mu.s)/5
+#' spike.f = function(x) (0.75*exp(-500*(x-0.23)^2) +
+#'   1.5*exp(-2000*(x-0.33)^2) + 3*exp(-8000*(x-0.47)^2) +
+#'   2.25*exp(-16000*(x-0.69)^2)+0.5*exp(-32000*(x-0.83)^2))
+#' mu.s = spike.f(t)
+#' 
+#' # Gaussian case
+#' mu.t = (1+mu.s)/5
 #' plot(mu.t,type='l')
-#' var.fn=(0.0001+4*(exp(-550*(t-0.2)^2)+exp(-200*(t-0.5)^2)+exp(-950*(t-0.8)^2)))/1.35
+#' var.fn = (0.0001+4*(exp(-550*(t-0.2)^2)+exp(-200*(t-0.5)^2)+exp(-950*(t-0.8)^2)))/1.35
 #' plot(var.fn,type='l')
 #' rsnr=sqrt(5)
 #' sigma.t=sqrt(var.fn)/mean(sqrt(var.fn))*sd(mu.t)/rsnr^2
@@ -642,24 +660,30 @@ reflect <- function (x) {
     }
 }
 
-
-
-
-
-#' Compute posterior mean and var for log(p), log(q), log(p0/p1) and log(q0/q1)
-#' This function returns posterior means and variances of log(p), log(q), log(p0/p1) and log(q0/q1) as lp, lq, lpratio and lqratio, respectively, where p
-#' is the probability of going left and q=1-p.
-#' @param log: indicates if mean estimation is to be performed on the log scale
-#' @return a list with elements 'lp.mean', 'lp.var', 'lq.mean', 'lq.var' 
+# Compute posterior mean and var for log(p), log(q), log(p0/p1) and
+# log(q0/q1) This function returns posterior means and variances of
+# log(p), log(q), log(p0/p1) and log(q0/q1) as lp, lq, lpratio and
+# lqratio, respectively, where p is the probability of going left and
+# q=1-p.
+#
+# Input log indicates if mean estimation is to be performed on the log
+# scale.
+# 
+# The return value is a list with elements lp.mean, lp.var, lq.mean
+# and lq.var.
 compute.res <- function (alpha, log) {
     if (log == TRUE) {
+
+        # Find mean and variance of log(q).
         lp = ff.moments(alpha$mean, alpha$var)
-        lq = ff.moments(-alpha$mean, alpha$var)  #find mean and variance of log(q)
-        return(list(lp.mean = lp$mean, lp.var = lp$var, lq.mean = lq$mean, lq.var = lq$var))
+        lq = ff.moments(-alpha$mean, alpha$var)  
+        return(list(lp.mean = lp$mean, lp.var = lp$var,
+                    lq.mean = lq$mean, lq.var = lq$var))
     } else {
         lp = ff.moments_exp(alpha$mean, alpha$var)
         lq = ff.moments_exp(-alpha$mean, alpha$var)
-        return(list(lp.mean = lp$mean, lp.var = lp$meansq, lq.mean = lq$mean, lq.var = lq$meansq))
+        return(list(lp.mean = lp$mean, lp.var = lp$meansq,
+                    lq.mean = lq$mean, lq.var = lq$meansq))
     }
 }
 
@@ -667,7 +691,8 @@ compute.res <- function (alpha, log) {
 #
 # @param ls estimated total intensity
 # @param res the matrix of wavelet proportions/probabilities
-# @param log bool, indicating if signal reconstruction should be in log space
+# @param log bool, indicating if signal reconstruction should be in
+#   log space.
 # @param n length of data
 # @param J log2(n)
 # 
@@ -675,16 +700,19 @@ compute.res <- function (alpha, log) {
 recons.mv = function (ls, res, log, n, J) {
     if (log == TRUE) {
 
-        # reconstructs estimate from the 'wavelet' space on the log level
-        est.mean = cxxreverse_pwave(log(ls), matrix(res$lp.mean, J, n, byrow = TRUE), matrix(res$lq.mean, J, n, byrow = TRUE))
-        est.var = cxxreverse_pwave(0, matrix(res$lp.var, J, n, byrow = TRUE), matrix(res$lq.var, J, n, byrow = TRUE))
+        # Reconstructs estimate from the 'wavelet' space on the log level.
+        est.mean = cxxreverse_pwave(log(ls), matrix(res$lp.mean, J, n,
+                     byrow = TRUE), matrix(res$lq.mean, J, n, byrow = TRUE))
+        est.var = cxxreverse_pwave(0, matrix(res$lp.var, J, n, byrow = TRUE),
+                     matrix(res$lq.var, J, n, byrow = TRUE))
     } else {
         
-        # reconstruction on non-log level
-        est.mean = exp(cxxreverse_pwave(log(ls), log(matrix(res$lp.mean, J, n, byrow = TRUE)), log(matrix(res$lq.mean, 
-            J, n, byrow = TRUE))))
-        est.ms = exp(cxxreverse_pwave(2 * log(ls), log(matrix(res$lp.var, J, n, byrow = TRUE)), log(matrix(res$lq.var, 
-            J, n, byrow = TRUE))))
+        # Reconstruction on non-log level.
+        est.mean = exp(cxxreverse_pwave(log(ls), log(matrix(res$lp.mean, J,
+            n, byrow = TRUE)), log(matrix(res$lq.mean, J, n, byrow = TRUE))))
+        est.ms = exp(cxxreverse_pwave(2 * log(ls),
+            log(matrix(res$lp.var, J, n, byrow = TRUE)),
+            log(matrix(res$lq.var, J, n, byrow = TRUE))))
         est.var = pmax(est.ms - est.mean^2, 0)
     }
     return(list(est.mean = est.mean, est.var = est.var))
@@ -803,7 +831,7 @@ smash.poiss = function (x, post.var = FALSE, log = FALSE, reflect = FALSE,
     if (is.matrix(x)) {
         if (nrow(x) == 1) {
             
-            # change matrix x to vector
+            # Change matrix x to vector.
             x = as.vector(x)
         } else {
             stop("x cannot have multiple rows")
@@ -819,17 +847,22 @@ smash.poiss = function (x, post.var = FALSE, log = FALSE, reflect = FALSE,
         stop("Error: invalid parameter 'reflect', 'reflect' must be bool")
     
     J = log2(length(x))
-    if ((J%%1) != 0) 
+
+    # If ncol(x) is not a power of 2, reflect x.
+    if ((J %% 1) != 0) 
         {
             reflect = TRUE
-        }  #if ncol(x) is not a power of 2, reflect x
+        }
+
+    # Reflect signal; this function is pseudo-calling x by reference.
     if (reflect == TRUE) 
-        reflect.indices = reflect(x)  #reflect signal; this function is pseudo calling x by reference
+        reflect.indices = reflect(x)  
     
     n = length(x)
     J = log2(n)
     
-    # create the parent TI table for each signal, and put into rows of matrix y
+    # Create the parent TI table for each signal, and put into rows of
+    # matrix y.
     ls = sum(x)
     
     if (!cxx) {
@@ -838,7 +871,8 @@ smash.poiss = function (x, post.var = FALSE, log = FALSE, reflect = FALSE,
         y = cxxSParentTItable(x)
     }
     
-    zdat = withCallingHandlers(do.call(glm.approx, c(list(x = y, g = NULL), glm.approx.param))) 
+    zdat = withCallingHandlers(do.call(glm.approx, c(list(x = y, g = NULL),
+                                       glm.approx.param))) 
     
     res = list()
     
@@ -869,5 +903,3 @@ smash.poiss = function (x, post.var = FALSE, log = FALSE, reflect = FALSE,
         return(list(est = recons$est.mean, var = recons$est.var))
     }
 }
-
- 

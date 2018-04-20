@@ -1,6 +1,11 @@
-# Disclaimer: The functions defined in this file are adapted from
+# Disclaimer #1: The functions defined in this file are adapted from
 # their counterparts defined in the wavethresh package under the GPL
 # license, developed by Guy Nason.
+
+# Disclaimer #2: Some of the functions defined here interface to C
+# code from the wavethresh package. This is not Best Practice as the C
+# code is not considered stable; it could very easily change in future
+# versions of the package.
 
 # Modified wd() function from package 'wavethresh' to only return the
 # detail coefficients. It returns the detail coefficients of a
@@ -11,8 +16,9 @@ wd.D = function (data, filter.number = 10, family = "DaubLeAsymm",
                  type = "wavelet", bc = "periodic", verbose = FALSE, 
                  min.scale = 0, precond = TRUE) {
   l = wavethresh::wd(data = data, filter.number = filter.number,
-                     family = family, type = type, bc = bc, verbose = verbose, 
-                     min.scale = min.scale, precond = precond)
+                    family = family, type = type, bc = bc,
+                    verbose = verbose, min.scale = min.scale,
+                    precond = precond)
   return(l$D)
 }
 
@@ -86,6 +92,13 @@ threshold.var <- function (x.w, x.w.v, lambda.thresh, levels, type = "hard") {
 
 # This function performs "decomposition" of variances of detail
 # coefficients for a given wavelet basis in wavelet transformation.
+#
+#' @importFrom stats tsp
+#' @importFrom stats tsp<-
+#' @importFrom wavethresh filter.select
+#' @importFrom wavethresh first.last
+#' @importFrom wavethresh wd.int
+#' @importFrom wavethresh IsPowerOfTwo
 wd.var <- function (data, filter.number = 10, family = "DaubLeAsymm",
                     type = "wavelet", bc = "periodic", verbose = FALSE,
                     min.scale = 0, precond = TRUE) {
@@ -95,9 +108,9 @@ wd.var <- function (data, filter.number = 10, family = "DaubLeAsymm",
         stop("Data is not atomic")
     DataLength <- length(data)
     nlevels <- nlevelsWT(data)
-    filter <- filter.select(filter.number, family)
-    filter$H <- filter.select(filter.number,family)$H^2
-    filter$G <- filter.select(filter.number,family)$H^2
+    filter <- wavethresh::filter.select(filter.number, family)
+    filter$H <- wavethresh::filter.select(filter.number,family)$H^2
+    filter$G <- wavethresh::filter.select(filter.number,family)$H^2
     if (is.na(nlevels)) 
         stop("Data length is not power of two")
     if (type != "wavelet" && type != "station") 
@@ -108,23 +121,27 @@ wd.var <- function (data, filter.number = 10, family = "DaubLeAsymm",
         cat("...done\nFilter...")
     if (verbose == TRUE) 
         cat("...selected\nFirst/last database...")
-    fl.dbase <- first.last(LengthH = length(filter$H),
-                           DataLength = DataLength, 
-                           type = type, bc = bc)
+    fl.dbase <- wavethresh::first.last(LengthH = length(filter$H),
+                                       DataLength = DataLength, 
+                                       type = type, bc = bc)
     if (bc == "interval") {
-        ans <- wd.int(data = data, preferred.filter.number = filter.number, 
-            min.scale = min.scale, precond = precond)
-        fl.dbase <- first.last(LengthH = length(filter$H),
-                               DataLength = DataLength, 
+        ans <- wavethresh::wd.int(data = data,
+                                  preferred.filter.number = filter.number, 
+                                  min.scale = min.scale,
+                                  precond = precond)
+        fl.dbase <- wavethresh::first.last(LengthH = length(filter$H),
+                                           DataLength = DataLength, 
             type = type, bc = bc, current.scale = min.scale)
         filter <- list(name = paste("CDV", filter.number, sep = ""), 
             family = "CDV", filter.number = filter.number)
-        l <- list(transformed.vector = ans$transformed.vector, 
-                  current.scale = ans$current.scale,
-                  filters.used = ans$filters.used, 
-                  preconditioned = ans$preconditioned, date = ans$date, 
-                  nlevels = IsPowerOfTwo(length(ans$transformed.vector)), 
-                  fl.dbase = fl.dbase, type = type, bc = bc, filter = filter)
+        l <-
+          list(transformed.vector = ans$transformed.vector, 
+               current.scale = ans$current.scale,
+               filters.used = ans$filters.used, 
+               preconditioned = ans$preconditioned, date = ans$date, 
+               nlevels =
+                 wavehthresh::IsPowerOfTwo(length(ans$transformed.vector)), 
+               fl.dbase = fl.dbase, type = type, bc = bc, filter = filter)
         class(l) <- "wd"
         return(l)
     }
@@ -207,32 +224,41 @@ wd.var <- function (data, filter.number = 10, family = "DaubLeAsymm",
 
 # This function converts variances of detail coefficients for a given
 # wavelet basis from wd objects to wst objects.
+#
+#' @importFrom wavethresh wst
+#' @importFrom wavethresh getarrvec
+#' @importFrom wavethresh accessD
+#' @importFrom wavethresh accessC
+#' @importFrom wavethresh putD
+#' @importFrom wavethresh putC
 convert.var <- function (wd, ...) {
     if (wd$type != "station") 
         stop("Object to convert must be of type \"station\" ")
     n <- 2^nlevelsWT(wd)
     dummy <- rep(0, n)
-    tmpwst <- wst(dummy, filter.number = wd$filter$filter.number, 
-        family = wd$filter$family)
+    tmpwst <- wavethresh::wst(dummy, filter.number = wd$filter$filter.number, 
+                              family = wd$filter$family)
     tmpwst$filter <- wd$filter
     tmpwst$date <- wd$date
-    arrvec <- getarrvec(nlevelsWT(wd), sort = FALSE)
+    arrvec <- wavethresh::getarrvec(nlevelsWT(wd), sort = FALSE)
     for (lev in (nlevelsWT(wd) - 1):1) {
-        ds <- accessD.wd(wd, level = lev)
-        cs <- accessC.wd(wd, level = lev)
+        ds <- wavethresh::accessD.wd(wd, level = lev)
+        cs <- wavethresh::accessC.wd(wd, level = lev)
         ds <- ds[arrvec[, nlevelsWT(wd) - lev]]
         cs <- cs[arrvec[, nlevelsWT(wd) - lev]]
-        tmpwst <- putD(tmpwst, level = lev, v = ds)
-        tmpwst <- putC(tmpwst, level = lev, v = cs)
+        tmpwst <- wavethresh::putD(tmpwst, level = lev, v = ds)
+        tmpwst <- wavethresh::putC(tmpwst, level = lev, v = cs)
     }
-    tmpwst <- putC(tmpwst, level = nlevelsWT(wd), v = accessC(wd, 
-        level = wd$nlevels))
-    tmpwst <- putD(tmpwst, level = nlevelsWT(wd), v = accessC(wd, 
-        level = wd$nlevels))
-    tmpwst <- putC(tmpwst, level = 0, v = accessC(wd, level = 0))
-    arrvec <- sort.list(levarr(1:n, levstodo = nlevelsWT(wd)))
-    tmpwst <- putD(tmpwst, level = 0, v = accessD(wd, level = 0)[arrvec])
-    tmpwst
+    tmpwst <- wavethresh::putC(tmpwst, level = nlevelsWT(wd),
+                               v = accessC(wd, level = wd$nlevels))
+    tmpwst <- wavethresh::putD(tmpwst, level = nlevelsWT(wd),
+                               v = accessC(wd, level = wd$nlevels))
+    tmpwst <- wavethresh::putC(tmpwst, level = 0,
+                               v = wavethresh::accessC(wd, level = 0))
+    arrvec <- sort.list(wavethresh::levarr(1:n, levstodo = nlevelsWT(wd)))
+    tmpwst <- wavethresh::putD(tmpwst, level = 0,
+                               v = wavethresh::accessD(wd, level = 0)[arrvec])
+    return(tmpwst)
 }
 
 # This function reconstructs variance of the mean estimate for a

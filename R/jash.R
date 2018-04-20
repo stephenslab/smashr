@@ -374,29 +374,6 @@ autoselect.precMulti = function(Y) {
     return(precMulti)
 }
 
-# Sample posterior beta & tau from P(beta|Y), P(tau|Y) obs: obs need
-# to be sampled nsamp: num of sampled beta & tau for each obs.
-#
-#' @importFrom stats rgamma
-#' @importFrom stats rnorm
-posterior_sample_jash = function(post, nsamp, obs) {
-    component.tau = as.vector(apply(post$pi[obs, ], 1, sample_component,
-                              nsamp = nsamp))
-    ML = ncol(post$pi)
-    obs.vec = rep(obs, each = nsamp)
-    index.tau = cbind(obs.vec, component.tau)
-    tau = rgamma(length(component.tau),
-                 shape = post$gammaa[index.tau],
-                 rate = post$gammab[index.tau])
-    normsd = 1/sqrt(outer(tau, post$normprec))
-    beta = rnorm(length(tau), mean = post$normmean[index.tau],
-                 sd = normsd[cbind(1:length(tau), component.tau)])
-    res = list(beta = matrix(beta, ncol = nsamp, byrow = TRUE),
-               tau = matrix(tau, ncol = nsamp, byrow = TRUE),
-               obs.vec = obs.vec)
-    return(res)
-}
-
 # Y: data matrix, N by n precShape: vector of a_m precMulti: vector of
 # lambda_k compprecPrior: vector of c_l fac: group factor vec
 jash = function (Y, fac, auto = FALSE, precShape = NULL, precMulti = NULL,
