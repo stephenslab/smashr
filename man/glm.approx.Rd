@@ -2,39 +2,70 @@
 % Please edit documentation in R/glm_approx.R
 \name{glm.approx}
 \alias{glm.approx}
-\title{Fit the model specified in documentation, using either a weighted least squares approach or a generalized linear model approach, with some modifications.}
+\title{Model fitting using weighted least squares or a GLM approach.}
 \usage{
 glm.approx(x, g = NULL, minobs = 1, pseudocounts = 0.5, all = FALSE,
   eps = 1e-08, center = FALSE, repara = FALSE, forcebin = FALSE,
   lm.approx = FALSE, disp = c("add", "mult"), bound = 0.02)
 }
 \arguments{
-\item{x:}{a matrix of N (# of samples) by 2*B (B: # of WCs or, more precisely, of different scales and locations in multi-scale space); Two consecutive columns correspond to a particular scale and location; The first column (the second column) contains # of successes (# of failures) for each sample at the corresponding scale and location.}
+\item{x}{A matrix of N (# of samples) by 2*B (B: # of WCs or, more
+precisely, of different scales and locations in multi-scale space);
+Two consecutive columns correspond to a particular scale and
+location; The first column (the second column) contains # of
+successes (# of failures) for each sample at the corresponding
+scale and location.}
 
-\item{g:}{a vector of covariate values. Can be a factor (2 groups only) or quantitative. For a 2-group categorical covariate, provide \code{g} as a 0-1 factor instead of a 0-1 numeric vector for faster computation.}
+\item{g}{A vector of covariate values. Can be a factor (2 groups
+only) or quantitative. For a 2-group categorical covariate, provide
+\code{g} as a 0-1 factor instead of a 0-1 numeric vector for faster
+computation.}
 
-\item{minobs:}{minimum number of non-zero required for each model to be fitted (otherwise NA is returned for that model).}
+\item{minobs}{Minimum number of non-zero required for each model to
+be fitted (otherwise NA is returned for that model).}
 
-\item{pseudocounts:}{a number to be added to counts when counts are zero (or possibly extremely small).}
+\item{pseudocounts}{A number to be added to counts when counts are
+zero (or possibly extremely small).}
 
-\item{all:}{bool, if TRUE pseudocounts are added to all entries, if FALSE (default) pseudocounts are added only to cases when either number of successes or number of failures (but not both) is 0.}
+\item{all}{Bool, if TRUE pseudocounts are added to all entries, if
+FALSE (default) pseudocounts are added only to cases when either
+number of successes or number of failures (but not both) is 0.}
 
-\item{center:}{bool, indicating whether to center \code{g}. If \code{g} is a 2-group categorical variable and centering is desired, use \code{center=TRUE} instead of treating \code{g} as numeric and centering manually to avoid slower computation.}
+\item{center}{Bool, indicating whether to center \code{g}. If
+\code{g} is a 2-group categorical variable and centering is
+desired, use \code{center=TRUE} instead of treating \code{g} as
+numeric and centering manually to avoid slower computation.}
 
-\item{repara:}{bool, indicating whether to reparameterize \code{alpha} and \code{beta} so that their likelihoods can be factorized.}
+\item{repara}{Bool, indicating whether to reparameterize
+\code{alpha} and \code{beta} so that their likelihoods can be
+factorized.}
 
-\item{forcebin:}{bool, if TRUE don't allow for overdipersion. Defaults to TRUE if \code{nsig=1}, and FALSE otherwise.}
+\item{forcebin}{Bool, if TRUE don't allow for
+overdipersion. Defaults to TRUE if \code{nsig=1}, and FALSE
+otherwise.}
 
-\item{lm.approx:}{bool, indicating whether a WLS alternative should be used. Defaults to FALSE}
+\item{lm.approx}{Bool, indicating whether a WLS alternative should
+be used. Defaults to FALSE.}
 
-\item{disp:}{a string, can be either "add" or "mult", indicating the form of overdispersion assumed when \code{lm.approx=TRUE}.}
+\item{disp}{A string, can be either "add" or "mult", indicating the
+form of overdispersion assumed when \code{lm.approx=TRUE}.}
 
-\item{bound:}{numeric, indicates the threshold of the success vs failure ratio below which pseudocounts will be added.}
+\item{bound}{Numeric, indicates the threshold of the success vs
+failure ratio below which pseudocounts will be added.}
 }
 \value{
-a matrix of 2 (or 5 if g is provided) by T (# of WCs); Each row contains alphahat (1st row), standard error of alphahat (2nd), betahat (3rd), standard error of betahat (4th), covariance between alphahat and betahat (5th) for each WC.
+A matrix of 2 (or 5 if g is provided) by T (# of WCs); Each
+  row contains alphahat (1st row), standard error of alphahat (2nd),
+  betahat (3rd), standard error of betahat (4th), covariance between
+  alphahat and betahat (5th) for each WC.
 }
 \description{
-This function fits many "simple" logistic regressions (ie zero or one covariate) simultaneously, allowing for the possibility of small sample sizes with low or zero counts. In addition, an alternative
-model in the form of a weighted least squares regression can also be fit in place of a logistic regression.
+Fit the model specified in documentation, using either
+  a weighted least squares approach or a generalized linear model
+  approach, with some modifications. This function fits many "simple"
+  logistic regressions (ie zero or one covariate) simultaneously,
+  allowing for the possibility of small sample sizes with low or zero
+  counts. In addition, an alternative model in the form of a weighted
+  least squares regression can also be fit in place of a logistic
+  regression.
 }

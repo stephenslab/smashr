@@ -22,10 +22,10 @@ otherwise periodicity is assumed.}
 
 \item{glm.approx.param}{A list of parameters to be passed to
 \code{glm.approx}; default values are set by function
-\code{\link{setGlmApproxParam}}.}
+\code{setGlmApproxParam}.}
 
 \item{ashparam}{A list of parameters to be passed to \code{ash};
-default values are set by function \code{\link{setAshParam.poiss}}.}
+default values are set by function \code{setAshParam.poiss}.}
 
 \item{cxx}{bool, indicates if C++ code should be used to create TI
 tables.}
@@ -53,9 +53,12 @@ We assume that the data come from the model \eqn{Y_t \sim
   of \eqn{\mu_t} (and its posterior variance if desired).
 }
 \examples{
+
 n=2^10
 t=1:n/n
-spike.f=function(x) (0.75*exp(-500*(x-0.23)^2)+1.5*exp(-2000*(x-0.33)^2)+3*exp(-8000*(x-0.47)^2)+2.25*exp(-16000*(x-0.69)^2)+0.5*exp(-32000*(x-0.83)^2))
+spike.f = function(x) (0.75*exp(-500*(x-0.23)^2) +
+  1.5*exp(-2000*(x-0.33)^2) + 3*exp(-8000*(x-0.47)^2) +
+  2.25*exp(-16000*(x-0.69)^2)+0.5*exp(-32000*(x-0.83)^2))
 mu.s=spike.f(t)
 mu.t=0.01+mu.s
 X.s=rpois(n,mu.t)

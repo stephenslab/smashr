@@ -49,19 +49,22 @@
 #' 
 #' # Create the baseline variance function. (The function V2 from Cai &
 #' # Wang (2008) is used here.)
-#' 
-#' var.fn = (1e-04 + 4 * (exp(-550 * (t - 0.2)^2) + exp(-200 * (t - 0.5)^2) + exp(-950 * (t - 0.8)^2)))/1.35
+#' var.fn = (1e-04 + 4 * (exp(-550 * (t - 0.2)^2) +
+#'                        exp(-200 * (t - 0.5)^2) +
+#'                        exp(-950 * (t - 0.8)^2)))/1.35
 #' plot(var.fn, type = "l")
 #' 
 #' # Set the signal-to-noise ratio.
 #' rsnr = sqrt(5)
 #' sigma.t = sqrt(var.fn)/mean(sqrt(var.fn)) * sd(mu.t)/rsnr^2
 #' 
-#' # Simulate an example dataset
+#' # Simulate an example dataset.
 #' X.s = rnorm(n, mu.t, sigma.t)
-#' # Run smash (Gaussian version is run since observations are not counts)
+#' 
+#' # Run smash (Gaussian version is run since observations are not counts).
 #' mu.est <- smash(X.s)
-#' # Plot the true mean function as well as the estimated one
+#' 
+#' # Plot the true mean function as well as the estimated one.
 #' plot(mu.t, type = "l")
 #' lines(mu.est, col = 2)
 #' 
@@ -413,7 +416,7 @@ setAshParam.gaus = function (ashparam) {
 #'   variance estimates are non-positive.
 #' 
 #' @param ashparam A list of parameters to be passed to \code{ash};
-#'   default values are set by function \code{\link{setAshParam.gaus}}.
+#'   default values are set by function \code{setAshParam.gaus}.
 #' 
 #' @return \code{smash.gaus} returns the following by default:
 #' 
@@ -545,26 +548,49 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
     }
 }
 
-#' This function performs TI thresholding for the case where the errors are heteroskedastic.
+#' @title TI thresholding with heteroskedastic errors.
 #'
-#' @param x: the data. Should be a vector of length a power of 2
-#' @param sigma: the standard deviation function. Can be provided if known or estimated beforehand.
-#' @param method: the method to estimate the variance function. Can be 'rmad' for running MAD as described in Gao (1997), or 'smash'.
-#' @param filter.number, family: the wavelet basis to be used.
-#' @param min.level: the primary resolution level.
+#' @param x The data. Should be a vector of length a power of 2.
+#' 
+#' @param sigma The standard deviation function. Can be provided if
+#'   known or estimated beforehand.
+#' 
+#' @param method The method to estimate the variance function. Can be
+#'   'rmad' for running MAD as described in Gao (1997), or 'smash'.
+#' 
+#' @param filter.number The wavelet basis to be used.
+#'
+#' @param family The wavelet basis to be used.
+#' 
+#' @param min.level The primary resolution level.
+#' 
 #' @return returns a vector of mean estimates
-#' @details The 'rmad' option effectively implements the procedure described in Gao (1997), while the 'smash' option first estimates the variance function using
-#' package \code{smash} and then performs thresholding given this variance function.
-#' @references Gao, Hong-Ye (1997) Wavelet shrinkage estimates for heteroscedastic regression models. MathSoft, Inc.
+#' 
+#' @details The 'rmad' option effectively implements the procedure
+#'   described in Gao (1997), while the 'smash' option first estimates
+#'   the variance function using package \code{smash} and then performs
+#'   thresholding given this variance function.
+#' 
+#' @references Gao, Hong-Ye (1997) Wavelet shrinkage estimates for
+#'   heteroscedastic regression models. MathSoft, Inc.
+#' 
 #' @examples
+#' 
 #' n=2^10
 #' t=1:n/n
-#' spike.f=function(x) (0.75*exp(-500*(x-0.23)^2)+1.5*exp(-2000*(x-0.33)^2)+3*exp(-8000*(x-0.47)^2)+2.25*exp(-16000*(x-0.69)^2)+0.5*exp(-32000*(x-0.83)^2))
+#' spike.f = function(x) (0.75*exp(-500*(x-0.23)^2) +
+#'   1.5*exp(-2000*(x-0.33)^2) +
+#'   3*exp(-8000*(x-0.47)^2) +
+#'   2.25*exp(-16000*(x-0.69)^2) +
+#'   0.5*exp(-32000*(x-0.83)^2))
 #' mu.s=spike.f(t)
-#' #Gaussian case
+#' 
+#' # Gaussian case
+#' # -------------
 #' mu.t=(1+mu.s)/5
 #' plot(mu.t,type='l')
-#' var.fn=(0.0001+4*(exp(-550*(t-0.2)^2)+exp(-200*(t-0.5)^2)+exp(-950*(t-0.8)^2)))/1.35
+#' var.fn = (0.0001+4*(exp(-550*(t-0.2)^2) +
+#'   exp(-200*(t-0.5)^2) + exp(-950*(t-0.8)^2)))/1.35
 #' plot(var.fn,type='l')
 #' rsnr=sqrt(5)
 #' sigma.t=sqrt(var.fn)/mean(sqrt(var.fn))*sd(mu.t)/rsnr^2
@@ -797,10 +823,10 @@ setGlmApproxParam = function (glm.approx.param) {
 #' 
 #' @param glm.approx.param A list of parameters to be passed to
 #'   \code{glm.approx}; default values are set by function
-#'   \code{\link{setGlmApproxParam}}.
+#'   \code{setGlmApproxParam}.
 #' 
 #' @param ashparam A list of parameters to be passed to \code{ash};
-#'   default values are set by function \code{\link{setAshParam.poiss}}.
+#'   default values are set by function \code{setAshParam.poiss}.
 #' 
 #' @param cxx bool, indicates if C++ code should be used to create TI
 #'   tables.
@@ -814,9 +840,12 @@ setGlmApproxParam = function (glm.approx.param) {
 #'   \code{post.var} is TRUE.
 #' 
 #' @examples
+#' 
 #' n=2^10
 #' t=1:n/n
-#' spike.f=function(x) (0.75*exp(-500*(x-0.23)^2)+1.5*exp(-2000*(x-0.33)^2)+3*exp(-8000*(x-0.47)^2)+2.25*exp(-16000*(x-0.69)^2)+0.5*exp(-32000*(x-0.83)^2))
+#' spike.f = function(x) (0.75*exp(-500*(x-0.23)^2) +
+#'   1.5*exp(-2000*(x-0.33)^2) + 3*exp(-8000*(x-0.47)^2) +
+#'   2.25*exp(-16000*(x-0.69)^2)+0.5*exp(-32000*(x-0.83)^2))
 #' mu.s=spike.f(t)
 #' mu.t=0.01+mu.s
 #' X.s=rpois(n,mu.t)
@@ -825,6 +854,7 @@ setGlmApproxParam = function (glm.approx.param) {
 #' lines(mu.est,col=2)
 #'
 #' @export
+#' 
 smash.poiss = function (x, post.var = FALSE, log = FALSE, reflect = FALSE,
                         glm.approx.param = list(), ashparam = list(),
                         cxx = TRUE, lev = 0) {

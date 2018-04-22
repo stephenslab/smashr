@@ -2,41 +2,55 @@
 % Please edit documentation in R/ashsmooth.R
 \name{ti.thresh}
 \alias{ti.thresh}
-\title{This function performs TI thresholding for the case where the errors are heteroskedastic.}
+\title{TI thresholding with heteroskedastic errors.}
 \usage{
 ti.thresh(x, sigma = NULL, method = "smash", filter.number = 1,
   family = "DaubExPhase", min.level = 3, ashparam = list())
 }
 \arguments{
-\item{filter.number, }{family: the wavelet basis to be used.}
+\item{x}{The data. Should be a vector of length a power of 2.}
 
-\item{x:}{the data. Should be a vector of length a power of 2}
+\item{sigma}{The standard deviation function. Can be provided if
+known or estimated beforehand.}
 
-\item{sigma:}{the standard deviation function. Can be provided if known or estimated beforehand.}
+\item{method}{The method to estimate the variance function. Can be
+'rmad' for running MAD as described in Gao (1997), or 'smash'.}
 
-\item{method:}{the method to estimate the variance function. Can be 'rmad' for running MAD as described in Gao (1997), or 'smash'.}
+\item{filter.number}{The wavelet basis to be used.}
 
-\item{min.level:}{the primary resolution level.}
+\item{family}{The wavelet basis to be used.}
+
+\item{min.level}{The primary resolution level.}
 }
 \value{
 returns a vector of mean estimates
 }
 \description{
-This function performs TI thresholding for the case where the errors are heteroskedastic.
+TI thresholding with heteroskedastic errors.
 }
 \details{
-The 'rmad' option effectively implements the procedure described in Gao (1997), while the 'smash' option first estimates the variance function using
-package \code{smash} and then performs thresholding given this variance function.
+The 'rmad' option effectively implements the procedure
+  described in Gao (1997), while the 'smash' option first estimates
+  the variance function using package \code{smash} and then performs
+  thresholding given this variance function.
 }
 \examples{
+
 n=2^10
 t=1:n/n
-spike.f=function(x) (0.75*exp(-500*(x-0.23)^2)+1.5*exp(-2000*(x-0.33)^2)+3*exp(-8000*(x-0.47)^2)+2.25*exp(-16000*(x-0.69)^2)+0.5*exp(-32000*(x-0.83)^2))
+spike.f = function(x) (0.75*exp(-500*(x-0.23)^2) +
+  1.5*exp(-2000*(x-0.33)^2) +
+  3*exp(-8000*(x-0.47)^2) +
+  2.25*exp(-16000*(x-0.69)^2) +
+  0.5*exp(-32000*(x-0.83)^2))
 mu.s=spike.f(t)
-#Gaussian case
+
+# Gaussian case
+# -------------
 mu.t=(1+mu.s)/5
 plot(mu.t,type='l')
-var.fn=(0.0001+4*(exp(-550*(t-0.2)^2)+exp(-200*(t-0.5)^2)+exp(-950*(t-0.8)^2)))/1.35
+var.fn = (0.0001+4*(exp(-550*(t-0.2)^2) +
+  exp(-200*(t-0.5)^2) + exp(-950*(t-0.8)^2)))/1.35
 plot(var.fn,type='l')
 rsnr=sqrt(5)
 sigma.t=sqrt(var.fn)/mean(sqrt(var.fn))*sd(mu.t)/rsnr^2
@@ -49,5 +63,6 @@ lines(mu.est.smash,col=4)
 
 }
 \references{
-Gao, Hong-Ye (1997) Wavelet shrinkage estimates for heteroscedastic regression models. MathSoft, Inc.
+Gao, Hong-Ye (1997) Wavelet shrinkage estimates for
+  heteroscedastic regression models. MathSoft, Inc.
 }

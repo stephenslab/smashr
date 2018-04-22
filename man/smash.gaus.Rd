@@ -54,7 +54,7 @@ to 1 might improve variance estimation slightly.}
 variance estimates are non-positive.}
 
 \item{ashparam}{A list of parameters to be passed to \code{ash};
-default values are set by function \code{\link{setAshParam.gaus}}.}
+default values are set by function \code{setAshParam.gaus}.}
 }
 \value{
 \code{smash.gaus} returns the following by default:

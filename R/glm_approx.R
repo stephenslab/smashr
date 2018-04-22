@@ -118,23 +118,29 @@ bintest = function (x, g, minobs = 1, pseudocounts = 0.5, all = FALSE,
             xmat[ind2, 2] = xmat[ind2, 2] + pseudocounts
             xmat = xmat[!zerosum, , drop = F]
         }
-        # check if there is enough variance in g among informative individuals
+        # Check if there is enough variance in g among informative
+        # individuals.
         g = g[!zerosum]
         ng = sum(!zerosum)
         dm = matrix(c(rep(1, ng), g), ncol = 2)
         if (!is.na(sd(g)) & (sd(g) > 0.1)) {
             dm[, 2] = g
-            return(safe.quasibinomial.glm.fit(dm, xmat, forcebin, repara = repara))
+            return(safe.quasibinomial.glm.fit(dm, xmat, forcebin,
+                                              repara = repara))
         } else {
             if (repara == FALSE) {
-                return(c(safe.quasibinomial.glm.fit(dm, xmat, forcebin, repara = repara)[1:2], NA, NA))
+                return(c(safe.quasibinomial.glm.fit(dm, xmat, forcebin,
+                                                    repara = repara)[1:2],
+                         NA, NA))
             } else {
-                return(c(safe.quasibinomial.glm.fit(dm, xmat, forcebin, repara = repara)[1:2], NA, NA, NA))
+                return(c(safe.quasibinomial.glm.fit(dm, xmat, forcebin,
+                                                    repara = repara)[1:2],
+                         NA, NA, NA))
             }
         }
     } else {
         
-        # not enough observations, so just return NAs
+        # Not enough observations, so just return NAs.
         if (repara == FALSE) {
             return(c(NA, NA, NA, NA))
         } else {
@@ -143,16 +149,14 @@ bintest = function (x, g, minobs = 1, pseudocounts = 0.5, all = FALSE,
     }
 }
 
-#' @title extract.sf
-#' @return a list with elements 'x.s', 'x.f'
-extract.sf = function(x, n) {
-    return(list(x.s = as.vector(t(x[, (1:(2 * n))%%2 == 1])), x.f = as.vector(t(x[, (1:(2 * n))%%2 == 0]))))
-}
+# Returns a list with elements x.s and x.f.
+extract.sf = function (x, n)
+  list(x.s = as.vector(t(x[, (1:(2 * n))%%2 == 1])),
+       x.f = as.vector(t(x[, (1:(2 * n))%%2 == 0])))
 
-#' @title add.counts
-#' @keywords internal
-#' @return a list with elements 'x.s', 'x.f'
-add.counts = function(x.s, x.f, eps, pseudocounts, all, index1, index2, indexn = NULL) {
+# Returns a list with elements x.s and x.f.
+add.counts = function (x.s, x.f, eps, pseudocounts, all, index1, index2,
+                       indexn = NULL) {
     if (pseudocounts == 0) {
         x.s[index1] = x.s[index1] + eps
         x.f[index2] = x.f[index2] + eps
@@ -172,22 +176,31 @@ add.counts = function(x.s, x.f, eps, pseudocounts, all, index1, index2, indexn =
     return(list(x.s = x.s, x.f = x.f))
 }
 
-#' @title compute.approx.z
-#' @keywords internal
-#' Compute a vector of logit(p) given a vector of successes and failures, as well as its variance estimates (MLE with approximation at endpoints for mean; a mix of Berkso's estimator and Tukey's estimator for variance)
-#' @return a list with elements "mu", "var" and optionally "p"
-compute.approx.z = function(x.s, x.f, bound, eps, pseudocounts, all, indexn = NULL, return.p = FALSE) {
-    # compute mu
-    index1 = (x.s/x.f) <= bound  #find indices for which binomial success or failures are too small
+# Compute a vector of logit(p) given a vector of successes and
+# failures, as well as its variance estimates (MLE with approximation
+# at endpoints for mean; a mix of Berkso's estimator and Tukey's
+# estimator for variance). Returns a list with elements "mu", "var"
+# and, optionally, "p".
+compute.approx.z = function (x.s, x.f, bound, eps, pseudocounts, all,
+                             indexn = NULL, return.p = FALSE) {
+    
+    # Compute mu. First, find indices for which binomial success or
+    # failures are too small.
+    index1 = (x.s/x.f) <= bound  
     index2 = (x.f/x.s) <= bound
     index1[is.na(index1)] = FALSE
-    index2[is.na(index2)] = FALSE  #this is the same as above!!!
-    x = add.counts(x.s, x.f, eps, pseudocounts, all, index1, index2, indexn)  #add pseudocounts
+    index2[is.na(index2)] = FALSE  # This is the same as above!!!
+
+    # Add pseudocounts.
+    x = add.counts(x.s, x.f, eps, pseudocounts, all, index1, index2, indexn)  
     s = x$x.s + x$x.f
-    mu = log(x$x.s/x$x.f)  #compute logit(p) to be used as observations
+
+    # Compute logit(p) to be used as observations.
+    mu = log(x$x.s/x$x.f)  
     mu[index1] = mu[index1] - 0.5  #end-point correction
     mu[index2] = mu[index2] + 0.5
-    # compute var compute var(logit(p))
+    
+    # Compute var compute var(logit(p)).
     if (all == FALSE) {
         var = vss(s, x$x.s, x$x.f)
         var[index1] = vss(s[index1] - 2 * pseudocounts, x$x.s[index1] - pseudocounts, x$x.f[index1] - pseudocounts)
@@ -200,12 +213,14 @@ compute.approx.z = function(x.s, x.f, bound, eps, pseudocounts, all, indexn = NU
         return(list(mu = mu, var = var, p = x$x.s/s)) else return(list(mu = mu, var = var))
 }
 
-
-#' Compute estimates and standard errors for mu and beta when fitting WLS, as well as the covariance between mu and beta
-#' @return a list elements "coef", "se", "mbvar"
-#' @keywords internal
-wls.coef = function(z, disp, indexnm, n, ng, forcebin, g = NULL, repara = NULL) {
-    # compute vector of dfs for all n linear models (disregarding obs with missing data)
+# Compute estimates and standard errors for mu and beta when fitting
+# WLS, as well as the covariance between mu and beta. Return a list
+# elements "coef", "se" and "mbvar".
+wls.coef = function (z, disp, indexnm, n, ng, forcebin, g = NULL,
+                     repara = NULL) {
+    
+    # Compute vector of dfs for all n linear models (disregarding obs
+    # with missing data).
     if (is.null(g)) 
         df = pmax(colSums(!indexnm) - 1, 0) else df = pmax(colSums(!indexnm) - 2, 0)
     zm = matrix(z$mu, ncol = n, byrow = T)  #create ng*n matrix of logit(p)
@@ -447,53 +462,102 @@ compute.glm = function(x, g, d, n, na.index, repara) {
             if (lg == 3) {
                 if (length(d) == 1) 
                   covv = x$covv * d  #dispersion
- else covv = x$covv * d[1:n]  #dispersion
-                covv[na.index[1:n]] = NA  #check that this is correct?????
-                return(matrix(rbind(apply(toreturn, 2, rbind), covv), ncol = n))
+                else covv = x$covv * d[1:n]  #dispersion
+
+                # Check that this is correct (?).
+                covv[na.index[1:n]] = NA  
+                return(matrix(rbind(apply(toreturn,2,rbind),covv),ncol = n))
             } else if (lg == 2) {
                 if (repara == FALSE) 
                   return(apply(toreturn, 2, rbind)) else {
                   mbvar = x$mbvar
                   mbvar[na.index[1:n]] = NA
-                  return(matrix(rbind(apply(toreturn, 2, rbind), mbvar), ncol = n))
+                  return(matrix(rbind(apply(toreturn, 2, rbind), mbvar),
+                                ncol = n))
                 }
             }
         }
     }
 }
 
-
-
-#' Fit the model specified in documentation, using either a weighted least squares approach or a generalized linear model approach, with some modifications.
+#' @title Model fitting using weighted least squares or a GLM approach.
+#' 
+#' @description Fit the model specified in documentation, using either
+#'   a weighted least squares approach or a generalized linear model
+#'   approach, with some modifications. This function fits many "simple"
+#'   logistic regressions (ie zero or one covariate) simultaneously,
+#'   allowing for the possibility of small sample sizes with low or zero
+#'   counts. In addition, an alternative model in the form of a weighted
+#'   least squares regression can also be fit in place of a logistic
+#'   regression.
+#' 
+#' @param x A matrix of N (# of samples) by 2*B (B: # of WCs or, more
+#'   precisely, of different scales and locations in multi-scale space);
+#'   Two consecutive columns correspond to a particular scale and
+#'   location; The first column (the second column) contains # of
+#'   successes (# of failures) for each sample at the corresponding
+#'   scale and location.
+#' 
+#' @param g A vector of covariate values. Can be a factor (2 groups
+#'   only) or quantitative. For a 2-group categorical covariate, provide
+#'   \code{g} as a 0-1 factor instead of a 0-1 numeric vector for faster
+#'   computation.
+#' 
+#' @param minobs Minimum number of non-zero required for each model to
+#'   be fitted (otherwise NA is returned for that model).
+#' 
+#' @param pseudocounts A number to be added to counts when counts are
+#'   zero (or possibly extremely small).
+#' 
+#' @param all Bool, if TRUE pseudocounts are added to all entries, if
+#'   FALSE (default) pseudocounts are added only to cases when either
+#'   number of successes or number of failures (but not both) is 0.
+#' 
+#' @param center Bool, indicating whether to center \code{g}. If
+#'   \code{g} is a 2-group categorical variable and centering is
+#'   desired, use \code{center=TRUE} instead of treating \code{g} as
+#'   numeric and centering manually to avoid slower computation.
+#' 
+#' @param repara Bool, indicating whether to reparameterize
+#'   \code{alpha} and \code{beta} so that their likelihoods can be
+#'   factorized.
+#' 
+#' @param forcebin Bool, if TRUE don't allow for
+#'   overdipersion. Defaults to TRUE if \code{nsig=1}, and FALSE
+#'   otherwise.
+#' 
+#' @param lm.approx Bool, indicating whether a WLS alternative should
+#'   be used. Defaults to FALSE.
+#' 
+#' @param disp A string, can be either "add" or "mult", indicating the
+#'   form of overdispersion assumed when \code{lm.approx=TRUE}.
+#' 
+#' @param bound Numeric, indicates the threshold of the success vs
+#' failure ratio below which pseudocounts will be added.
 #'
-#' This function fits many "simple" logistic regressions (ie zero or one covariate) simultaneously, allowing for the possibility of small sample sizes with low or zero counts. In addition, an alternative
-#' model in the form of a weighted least squares regression can also be fit in place of a logistic regression.
-#' @param x: a matrix of N (# of samples) by 2*B (B: # of WCs or, more precisely, of different scales and locations in multi-scale space); Two consecutive columns correspond to a particular scale and location; The first column (the second column) contains # of successes (# of failures) for each sample at the corresponding scale and location.
-#' @param g: a vector of covariate values. Can be a factor (2 groups only) or quantitative. For a 2-group categorical covariate, provide \code{g} as a 0-1 factor instead of a 0-1 numeric vector for faster computation.
-#' @param minobs: minimum number of non-zero required for each model to be fitted (otherwise NA is returned for that model).
-#' @param pseudocounts: a number to be added to counts when counts are zero (or possibly extremely small).
-#' @param all: bool, if TRUE pseudocounts are added to all entries, if FALSE (default) pseudocounts are added only to cases when either number of successes or number of failures (but not both) is 0.
-#' @param center: bool, indicating whether to center \code{g}. If \code{g} is a 2-group categorical variable and centering is desired, use \code{center=TRUE} instead of treating \code{g} as numeric and centering manually to avoid slower computation.
-#' @param repara: bool, indicating whether to reparameterize \code{alpha} and \code{beta} so that their likelihoods can be factorized.
-#' @param forcebin: bool, if TRUE don't allow for overdipersion. Defaults to TRUE if \code{nsig=1}, and FALSE otherwise.
-#' @param lm.approx: bool, indicating whether a WLS alternative should be used. Defaults to FALSE
-#' @param disp: a string, can be either "add" or "mult", indicating the form of overdispersion assumed when \code{lm.approx=TRUE}.
-#' @param bound: numeric, indicates the threshold of the success vs failure ratio below which pseudocounts will be added.
-#'
+#' @return A matrix of 2 (or 5 if g is provided) by T (# of WCs); Each
+#'   row contains alphahat (1st row), standard error of alphahat (2nd),
+#'   betahat (3rd), standard error of betahat (4th), covariance between
+#'   alphahat and betahat (5th) for each WC.
+#' 
 #' @export
-#' @return a matrix of 2 (or 5 if g is provided) by T (# of WCs); Each row contains alphahat (1st row), standard error of alphahat (2nd), betahat (3rd), standard error of betahat (4th), covariance between alphahat and betahat (5th) for each WC.
-glm.approx = function(x, g = NULL, minobs = 1, pseudocounts = 0.5, all = FALSE, eps = 1e-08, center = FALSE, repara = FALSE, 
-    forcebin = FALSE, lm.approx = FALSE, disp = c("add", "mult"), bound = 0.02) {
+#' 
+glm.approx = function(x, g = NULL, minobs = 1, pseudocounts = 0.5,
+                      all = FALSE, eps = 1e-08, center = FALSE,
+                      repara = FALSE, forcebin = FALSE, lm.approx = FALSE,
+                      disp = c("add", "mult"), bound = 0.02) {
     disp = match.arg(disp)
-    if (is.vector(x)) 
-        {
-            dim(x) <- c(1, length(x))
-        }  #if x is a vector convert to matrix 
+
+    # If x is a vector convert to matrix.
+    if (is.vector(x)) {
+      dim(x) <- c(1, length(x))
+    }  
     n = ncol(x)/2
     ng = nrow(x)
-    
+
+    # If x has 1 row don't use the lm approximation.
     if (ng == 1) {
-        lm.approx = FALSE  #if x has 1 row don't use the lm approximation
+        lm.approx = FALSE  
         forcebin = TRUE
     } else {
         x.sf = extract.sf(x, n)  #extract success and failure counts separately
@@ -501,8 +565,10 @@ glm.approx = function(x, g = NULL, minobs = 1, pseudocounts = 0.5, all = FALSE, 
         indexnm = matrix(indexn, nrow = ng, byrow = T)
     }
     if (lm.approx == TRUE) {
-        # use WLS approximation
-        na.index = colSums(matrix((x.sf$x.s + x.sf$x.f) != 0, ncol = n, byrow = T)) < minobs  #find indices for which there is insufficient data
+        
+        # Use WLS approximation.
+        na.index = colSums(matrix((x.sf$x.s + x.sf$x.f) != 0, ncol = n,
+                           byrow = T)) < minobs  #find indices for which there is insufficient data
         z = compute.approx.z(x.sf$x.s, x.sf$x.f, bound, eps, pseudocounts, all, indexn)  #obtain estimates for logit(p) and var(logit(p))
         if (is.null(g)) {
             # smoothing multiple signals without covariate
@@ -557,13 +623,17 @@ glm.approx = function(x, g = NULL, minobs = 1, pseudocounts = 0.5, all = FALSE, 
                 d = compute.dispersion(z$p, n, ng, indexnm, forcebin, ind, ord, lg, x)  #computes dispersion
                 return(compute.glm(res, g, d, n, na.index, repara))
             } else {
-                # now consider the case when g is quantitative
+                
+                # Now consider the case when g is quantitative.
                 x = matrix(x, ncol = n)
                 if (center == TRUE) 
                   g = g - mean(g)
-                # use the bintest function to fit a GLM separately to each case for quantitative covariate
-                return(apply(x, 2, bintest, g = g, minobs = minobs, pseudocounts = pseudocounts, all = all, forcebin = forcebin, 
-                  repara = repara))
+                
+                # Use the bintest function to fit a GLM separately to
+                # each case for quantitative covariate.
+                return(apply(x, 2, bintest, g = g, minobs = minobs,
+                             pseudocounts = pseudocounts, all = all,
+                             forcebin = forcebin, repara = repara))
             }
         }
     }

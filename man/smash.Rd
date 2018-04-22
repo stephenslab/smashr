@@ -59,19 +59,22 @@ plot(mu.t, type = "l")
 
 # Create the baseline variance function. (The function V2 from Cai &
 # Wang (2008) is used here.)
-
-var.fn = (1e-04 + 4 * (exp(-550 * (t - 0.2)^2) + exp(-200 * (t - 0.5)^2) + exp(-950 * (t - 0.8)^2)))/1.35
+var.fn = (1e-04 + 4 * (exp(-550 * (t - 0.2)^2) +
+                       exp(-200 * (t - 0.5)^2) +
+                       exp(-950 * (t - 0.8)^2)))/1.35
 plot(var.fn, type = "l")
 
 # Set the signal-to-noise ratio.
 rsnr = sqrt(5)
 sigma.t = sqrt(var.fn)/mean(sqrt(var.fn)) * sd(mu.t)/rsnr^2
 
-# Simulate an example dataset
+# Simulate an example dataset.
 X.s = rnorm(n, mu.t, sigma.t)
-# Run smash (Gaussian version is run since observations are not counts)
+
+# Run smash (Gaussian version is run since observations are not counts).
 mu.est <- smash(X.s)
-# Plot the true mean function as well as the estimated one
+
+# Plot the true mean function as well as the estimated one.
 plot(mu.t, type = "l")
 lines(mu.est, col = 2)
 
