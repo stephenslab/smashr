@@ -3,16 +3,17 @@
 #' @title smashr: Smoothing using Adaptive SHrinkage in R
 #' 
 #' @description This package performs nonparametric regression on
-#'   univariate Poisson or Gaussian data using multi-scale methods.  For
-#'   the Poisson case, the data $x$ is a vector, with $x_j \sim
-#'   Poi(\mu_j)$ where the mean vector $\mu$ is to be estimated.  For
-#'   the Gaussian case, the data $x$ are a vector with $x_j \sim
-#'   N(\mu_j, \sigma^2_j)$. Where the mean vector $\mu$ and variance
-#'   vector $\sigma^2$ are to be estimated.  The primary assumption is
-#'   that $\mu$ is spatially structured, so $\mu_j - \mu_{j+1}$ will
-#'   often be small (that is, roughly, $\mu$ is smooth). Also $\sigma$
-#'   is spatially structured in the Gaussian case (or, optionally,
-#'   $\sigma$ is constant, not depending on $j$).
+#'   univariate Poisson or Gaussian data using multi-scale methods. For
+#'   the Poisson case, the data \eqn{x} is a vector, with \eqn{x_j \sim
+#'   Poi(\mu_j)} where the mean vector \eqn{\mu} is to be estimated.
+#'   For the Gaussian case, the data \eqn{x} are a vector with \eqn{x_j
+#'   \sim N(\mu_j, \sigma^2_j)}. Where the mean vector \eqn{\mu} and
+#'   variance vector \eqn{\sigma^2} are to be estimated. The primary
+#'   assumption is that \eqn{\mu} is spatially structured, so \eqn{\mu_j
+#'   - \mu_{j+1}} will often be small (that is, roughly, \eqn{\mu} is
+#'   smooth). Also \eqn{\sigma} is spatially structured in the Gaussian
+#'   case (or, optionally, \eqn{\sigma} is constant, not depending on
+#'   \eqn{j}).
 #' 
 #' @details The function \code{\link{smash}} provides a minimal
 #'   interface to perform simple smoothing.  It is actually a wrapper to

@@ -4,5 +4,5 @@
 
   R CMD build --no-build-vignettes smashr
   R CMD check --as-cran --no-tests --ignore-vignettes --no-examples \
-    smashr_1.1-0.tar.gz
+    smashr_1.1-1.tar.gz
 
