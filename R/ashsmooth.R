@@ -716,6 +716,7 @@ compute.res <- function (alpha, log) {
 # For each resolution, performs shrinkage and returns the posterior
 # means and variances in matrix form.
 #
+#' @importFrom data.table rbindlist
 #' @importFrom ashr ash
 #' @importFrom ashr get_pm
 #' @importFrom ashr get_psd
@@ -729,13 +730,13 @@ getlist.res = function (res, j, n, zdat, log, shrink, ashparam) {
 
     # Find mean and variance of alpha.
     alpha.mv = list(mean = get_pm(zdat.ash),
-      var = ashr::get_psd(zdat.ash)^2)  
+      var = get_psd(zdat.ash)^2)  
     } else {
       alpha.mv = list(mean = fill.nas(zdat[1, ind]),
           var = fill.nas(zdat[2, ind])^2)  
   }
   res.j = compute.res(alpha.mv, log)
-  res = data.table::rbindlist(list(res, res.j))
+  res = rbindlist(list(res, res.j))
   return(res)
 }
 
