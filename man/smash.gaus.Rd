@@ -7,7 +7,8 @@
 smash.gaus(x, sigma = NULL, v.est = FALSE, joint = FALSE,
   v.basis = FALSE, post.var = FALSE, filter.number = 1,
   family = "DaubExPhase", return.loglr = FALSE, jash = FALSE,
-  SGD = TRUE, weight = 0.5, min.var = 1e-08, ashparam = list())
+  SGD = TRUE, weight = 0.5, min.var = 1e-08, ashparam = list(),
+  homoskedastic = FALSE)
 }
 \arguments{
 \item{x}{A vector of observations. Length of \code{x} must be a
@@ -55,6 +56,8 @@ variance estimates are non-positive.}
 
 \item{ashparam}{A list of parameters to be passed to \code{ash};
 default values are set by function \code{setAshParam.gaus}.}
+
+\item{homoskedastic}{indicates whether to assume constant variance (if v.est is true)}
 }
 \value{
 \code{smash.gaus} returns the following by default:

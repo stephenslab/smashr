@@ -47,7 +47,7 @@ Performs nonparametric regression on univariate Poisson or
 n = 2^9
 t = 1:n/n
 spike.f = function(x) (0.75 * exp(-500 * (x - 0.23)^2) +
-  1.5 * exp(-2000 * (x - 0.33)^2) + 3 * exp(-8000 * (x - 0.47)^2) + 
+  1.5 * exp(-2000 * (x - 0.33)^2) + 3 * exp(-8000 * (x - 0.47)^2) +
   2.25 * exp(-16000 * (x - 0.69)^2) + 0.5 * exp(-32000 * (x - 0.83)^2))
 mu.s = spike.f(t)
 
@@ -88,6 +88,6 @@ X.s = rpois(n, mu.t)
 mu.est = smash(X.s)
 # Plot the true mean function as well as the estimated one
 plot(mu.t, type = "l")
-lines(mu.est, col = 2) 
+lines(mu.est, col = 2)
 
 }

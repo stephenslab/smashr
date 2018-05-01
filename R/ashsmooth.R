@@ -20,54 +20,54 @@
 #'   returning the posterior variances, specifying a wavelet basis
 #'   (default is Haar, which performs well in general due to the fact
 #'   that we used the translation-invariant version).
-#' 
+#'
 #' @param x A vector of observations.
-#' 
+#'
 #' @param model Specifies the model (Gaussian or Poisson). Can be
 #'   NULL, in which case the Poisson model is assumed if x consists of
 #'   integers, and the Gaussian model is assumed otherwise. One of
 #'   'gaus' or 'poiss' can also be specified to fit a specific model.
-#' 
+#'
 #' @return See \code{smash.gaus} or \code{smash.poiss} for details.
-#' 
+#'
 #' @examples
-#' 
+#'
 #' # Create the baseline mean function. (The "spikes" function is used
 #' # as an example here.)
 #' n = 2^9
 #' t = 1:n/n
 #' spike.f = function(x) (0.75 * exp(-500 * (x - 0.23)^2) +
-#'   1.5 * exp(-2000 * (x - 0.33)^2) + 3 * exp(-8000 * (x - 0.47)^2) + 
+#'   1.5 * exp(-2000 * (x - 0.33)^2) + 3 * exp(-8000 * (x - 0.47)^2) +
 #'   2.25 * exp(-16000 * (x - 0.69)^2) + 0.5 * exp(-32000 * (x - 0.83)^2))
 #' mu.s = spike.f(t)
-#' 
+#'
 #' # Gaussian case
 #' # -------------
 #' # Scale the signal to be between 0.2 and 0.8
 #' mu.t = (1 + mu.s)/5
 #' plot(mu.t, type = "l")
-#' 
+#'
 #' # Create the baseline variance function. (The function V2 from Cai &
 #' # Wang (2008) is used here.)
 #' var.fn = (1e-04 + 4 * (exp(-550 * (t - 0.2)^2) +
 #'                        exp(-200 * (t - 0.5)^2) +
 #'                        exp(-950 * (t - 0.8)^2)))/1.35
 #' plot(var.fn, type = "l")
-#' 
+#'
 #' # Set the signal-to-noise ratio.
 #' rsnr = sqrt(5)
 #' sigma.t = sqrt(var.fn)/mean(sqrt(var.fn)) * sd(mu.t)/rsnr^2
-#' 
+#'
 #' # Simulate an example dataset.
 #' X.s = rnorm(n, mu.t, sigma.t)
-#' 
+#'
 #' # Run smash (Gaussian version is run since observations are not counts).
 #' mu.est <- smash(X.s)
-#' 
+#'
 #' # Plot the true mean function as well as the estimated one.
 #' plot(mu.t, type = "l")
 #' lines(mu.est, col = 2)
-#' 
+#'
 #' # Poisson case
 #' # ------------
 #' # Scale the signal to be non-zero and to have a low average intensity
@@ -78,8 +78,8 @@
 #' mu.est = smash(X.s)
 #' # Plot the true mean function as well as the estimated one
 #' plot(mu.t, type = "l")
-#' lines(mu.est, col = 2) 
-#' 
+#' lines(mu.est, col = 2)
+#'
 #' @export
 smash = function (x, model = NULL, ...) {
   if(!is.null(model)){
@@ -87,7 +87,7 @@ smash = function (x, model = NULL, ...) {
       stop("Error: model must be NULL or one of 'gaus' or 'poiss'")
     }
   }
-  
+
   if (is.null(model)){
     if (!isTRUE(all.equal(trunc(x),x))) {
       model = "gaus"
@@ -95,11 +95,11 @@ smash = function (x, model = NULL, ...) {
       model = "poiss"
     }
   }
-  
+
   if (model == "gaus") {
     return(smash.gaus(x, ...))
   }
-  
+
   if (model == "poiss") {
     return(smash.poiss(x, ...))
   }
@@ -146,7 +146,7 @@ shrink.wc = function (wc, wc.var.sqrt, ashparam, jash, df, SGD) {
 #' @importFrom ashr set_data
 #' @importFrom ashr get_pm
 #' @importFrom ashr get_psd
-#' 
+#'
 mu.smooth = function (wc, data.var, basis, tsum, Wl, return.loglr,
                       post.var, ashparam, J, n) {
     wmean = matrix(0, J, n)
@@ -158,16 +158,16 @@ mu.smooth = function (wc, data.var, basis, tsum, Wl, return.loglr,
         for (j in 0:(J - 1)) {
             ind.nnull = (vtable[j + 2, ] != 0)
             zdat.ash = shrink.wc(y[j + 2, ind.nnull], sqrt(vtable[j + 2,
-                                 ind.nnull]), ashparam, jash = FALSE, 
+                                 ind.nnull]), ashparam, jash = FALSE,
                 df = NULL, SGD = FALSE)
             wmean[j + 1, ind.nnull] = get_pm(zdat.ash)/2
             wmean[j + 1, !ind.nnull] = 0
             if (return.loglr == TRUE) {
                 spins = 2^(j + 1)
                 logLR.temp =
-                  calc_loglik(get_fitted_g(zdat.ash), 
+                  calc_loglik(get_fitted_g(zdat.ash),
                     set_data(y[j + 2, ind.nnull],
-                      sqrt(vtable[j + 2, ind.nnull]),NULL,0)) -  
+                      sqrt(vtable[j + 2, ind.nnull]),NULL,0)) -
                       sum(dnorm(y[j + 2, ind.nnull], 0,
                                 sqrt(vtable[j + 2, ind.nnull]), log = TRUE))
                 logLR.scale[j + 1] = logLR.temp/spins
@@ -180,7 +180,7 @@ mu.smooth = function (wc, data.var, basis, tsum, Wl, return.loglr,
         wwmean = -wmean
         mu.est = cxxreverse_gwave(tsum, wmean, wwmean)
         if (return.loglr == TRUE) {
-            logLR = sum(logLR.scale) 
+            logLR = sum(logLR.scale)
         }
         if (post.var == TRUE) {
             wwvar = wvar
@@ -190,7 +190,7 @@ mu.smooth = function (wc, data.var, basis, tsum, Wl, return.loglr,
         x.w = wc
 
         # Diagonal of W*V*W'.
-        x.w.v = apply((rep(1, n * J) %o% data.var) * Wl$W2, 1, sum)  
+        x.w.v = apply((rep(1, n * J) %o% data.var) * Wl$W2, 1, sum)
         x.pm = rep(0, n)
         x.w.v.s = rep(0, n * J)
         logLR.scale = 0
@@ -200,7 +200,7 @@ mu.smooth = function (wc, data.var, basis, tsum, Wl, return.loglr,
             x.w.v.j = x.w.v[index]
             ind.nnull = (x.w.v.j != 0)
             zdat.ash = shrink.wc(x.w.j[ind.nnull],
-              sqrt(x.w.v.j[ind.nnull]), ashparam, jash = FALSE, 
+              sqrt(x.w.v.j[ind.nnull]), ashparam, jash = FALSE,
               df = NULL, SGD = FALSE)
             x.pm[ind.nnull] = get_pm(zdat.ash)
             x.pm[!ind.nnull] = 0
@@ -209,7 +209,7 @@ mu.smooth = function (wc, data.var, basis, tsum, Wl, return.loglr,
                 spins = 2^(J - j)
                 logLR.temp = calc_loglik(get_fitted_g(zdat.ash),
                   set_data(x.w.j[ind.nnull],
-                           sqrt(x.w.v.j[ind.nnull]), NULL, 0)) -  
+                           sqrt(x.w.v.j[ind.nnull]), NULL, 0)) -
                     sum(dnorm(x.w.j[ind.nnull], 0, sqrt(x.w.v.j[ind.nnull]),
                               log = TRUE))
                 logLR.scale[j + 1] = logLR.temp/spins
@@ -221,7 +221,7 @@ mu.smooth = function (wc, data.var, basis, tsum, Wl, return.loglr,
         }
         mu.est = wavethresh::AvBasis(wavethresh::convert(x.w))
         if (return.loglr == TRUE) {
-            logLR = sum(logLR.scale) 
+            logLR = sum(logLR.scale)
         }
         if (post.var == TRUE) {
             mv.wd = wd.var(rep(0, n), filter.number = basis$filter.number,
@@ -235,7 +235,7 @@ mu.smooth = function (wc, data.var, basis, tsum, Wl, return.loglr,
     } else if(return.loglr == TRUE & post.var == FALSE) {
         return(list(mu.est = mu.est, logLR = logLR))
     } else if(return.loglr == FALSE & post.var == TRUE) {
-        return(list(mu.est = mu.est, mu.est.var = mu.est.var))      
+        return(list(mu.est = mu.est, mu.est.var = mu.est.var))
     } else {
         return(mu.est)
     }
@@ -257,12 +257,12 @@ var.smooth = function (data, data.var, x.var.ini, basis, v.basis, Wl,
         vdtable = cxxtitable(data)$difftable
         for (j in 0:(J - 1)) {
             ind.nnull = (vtable[j + 2, ] != 0)
-            zdat.ash = shrink.wc(vdtable[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), ashparam, jash = jash, df = min(50, 2^(j + 
+            zdat.ash = shrink.wc(vdtable[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), ashparam, jash = jash, df = min(50, 2^(j +
                   1)), SGD = SGD)
             wmean[j + 1, ind.nnull] = get_pm(zdat.ash)/2
             wmean[j + 1, !ind.nnull] = 0
             if ((sum(is.na(wmean[j + 1, ])) > 0) & (SGD == TRUE)) {
-                zdat.ash = shrink.wc(vdtable[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), ashparam, jash = jash, 
+                zdat.ash = shrink.wc(vdtable[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), ashparam, jash = jash,
                   df = min(50, 2^(j + 1)), SGD = FALSE)
                 wmean[j + 1, ind.nnull] = get_pm(zdat.ash)/2
                 wmean[j + 1, !ind.nnull] = 0
@@ -282,9 +282,9 @@ var.smooth = function (data, data.var, x.var.ini, basis, v.basis, Wl,
     } else {
         x.w = wavethresh::wd(data, filter.number = filter.number,
                              family = family, type = "station")
-        
+
         # Diagonal of W*V*W'.
-        x.w.v = apply((rep(1, n * J) %o% data.var) * Wl$W2, 1, sum)  
+        x.w.v = apply((rep(1, n * J) %o% data.var) * Wl$W2, 1, sum)
         x.pm = rep(0, n)
         x.w.v.s = rep(0, n * J)
         for (j in 0:(J - 1)) {
@@ -293,14 +293,14 @@ var.smooth = function (data, data.var, x.var.ini, basis, v.basis, Wl,
             x.w.v.j = x.w.v[index]
             ind.nnull = (x.w.v.j != 0)
             zdat.ash = shrink.wc(x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]),
-                                 ashparam, jash = jash, 
+                                 ashparam, jash = jash,
                                   df = min(50, 2^(j + 1)), SGD = SGD)
             x.pm[ind.nnull] = get_pm(zdat.ash)
             x.pm[!ind.nnull] = 0
             if ((sum(is.na(x.pm)) > 0) & (SGD == TRUE)) {
                 zdat.ash =
                    shrink.wc(x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]),
-                             ashparam, jash = jash, 
+                             ashparam, jash = jash,
                   df = min(50, 2^(j + 1)), SGD = FALSE)
                 x.pm[ind.nnull] = get_pm(zdat.ash)
                 x.pm[!ind.nnull] = 0
@@ -331,26 +331,26 @@ var.smooth = function (data, data.var, x.var.ini, basis, v.basis, Wl,
 #
 #' @importFrom utils modifyList
 setAshParam.gaus = function (ashparam) {
-    
-  if (!is.list(ashparam)) 
+
+  if (!is.list(ashparam))
     stop("Error: invalid parameter 'ashparam'")
   ashparam.default = list(pointmass = TRUE, prior = "nullbiased",
                           gridmult = 2, mixcompdist = "normal",
                           nullweight = 10, outputlevel = 2, fixg = FALSE)
   ashparam = modifyList(ashparam.default, ashparam)
-  if (!is.null(ashparam[["g"]])) 
+  if (!is.null(ashparam[["g"]]))
     stop(paste("Error: ash parameter 'g' can only be NULL; if you want",
                "to specify ash parameter 'g' use multiseq arguments",
                "'fitted.g' and/or 'fitted.g.intercept'"))
-  
+
   if (!((is.null(ashparam[["mixsd"]])) |
         (is.numeric(ashparam[["mixsd"]]) &
-         (length(ashparam[["mixsd"]]) < 2)))) 
+         (length(ashparam[["mixsd"]]) < 2))))
     stop(paste("Error: invalid parameter 'mixsd', 'mixsd' must be",
                "null or a numeric vector of length >=2"))
   if (!((ashparam[["prior"]] == "nullbiased") |
         (ashparam[["prior"]] == "uniform") |
-        is.numeric(ashparam[["prior"]]))) 
+        is.numeric(ashparam[["prior"]])))
     stop(paste("Error: invalid parameter 'prior', 'prior' can be",
                "a number or 'nullbiased' or 'uniform'"))
   return(ashparam)
@@ -363,7 +363,7 @@ setAshParam.gaus = function (ashparam) {
 #'   adaptive shrinkage prior on the wavelet parameters. The data are
 #'   assumed to be (mostly) independent and Gaussian, but not
 #'   necessarily identically distributed.
-#' 
+#'
 #' @details We assume that the data come from the model \eqn{Y_t =
 #'   \mu_t + \epsilon_t} for \eqn{t=1,...,T}, where \eqn{\mu_t} is an
 #'   underlying mean, assumed to be spatially structured (or treated as
@@ -371,55 +371,57 @@ setAshParam.gaus = function (ashparam) {
 #'   \eqn{\epsilon_t \sim N(0, \sigma_t)}, and are independent. Smash
 #'   provides estimates of \eqn{\mu_t} and \eqn{\sigma_t^2} (and their
 #'   posterior variances if desired).
-#' 
+#'
 #' @param x A vector of observations. Length of \code{x} must be a
 #'   power of 2.
-#' 
+#'
 #' @param sigma A vector of standard deviations. Can be provided if
 #'   known or estimated beforehand.
-#' 
+#'
 #' @param v.est Boolean indicating if variance estimation should be
 #'   performed instead.
-#' 
+#'
 #' @param joint Boolean indicating if results of mean and variance
 #'   estimation should be returned together.
-#' 
+#'
 #' @param v.basis Boolean indicating if the same wavelet basis should
 #'   be used for variance estimation as mean estimation. If false,
 #'   defaults to Haar basis for variance estimation (this is much faster
 #'   than other bases).
-#' 
+#'
 #' @param post.var Boolean indicating if the posterior variance should
 #'   be returned for the mean and/or variance estiamtes.
-#' 
+#'
 #' @param family Choice of wavelet basis to be used, as in
 #'   \code{wavethresh}.
-#' 
+#'
 #' @param filter.number Choice of wavelet basis to be used, as in
 #'   \code{wavethresh}.
-#' 
+#'
 #' @param return.loglr Boolean indicating if a logLR should be returned.
-#' 
+#'
 #' @param jash Indicates if the prior from method JASH should be
 #'   used. This will often provide slightly better variance estimates
 #'   (especially for nonsmooth variance functions), at the cost of
 #'   computational efficiency. Defaults to FALSE.
-#' 
+#'
 #' @param SGD Boolean indicating if stochastic gradient descent should
 #'   be used in the EM. Only applicable if jash=TRUE.
-#' 
+#'
 #' @param weight Optional parameter used in estimating overall
 #'   variance. Only works for Haar basis. Defaults to 0.5. Setting this
 #'   to 1 might improve variance estimation slightly.
-#' 
+#'
 #' @param min.var The minimum positive value to be set if the
 #'   variance estimates are non-positive.
-#' 
+#'
 #' @param ashparam A list of parameters to be passed to \code{ash};
 #'   default values are set by function \code{setAshParam.gaus}.
-#' 
+#'
+#' @param homoskedastic indicates whether to assume constant variance (if v.est is true)
+#'
 #' @return \code{smash.gaus} returns the following by default:
-#' 
+#'
 #'   \item{mu.res}{A list with the mean estimate, its posterior variance
 #'   if \code{post.var} is TRUE, the logLR if \code{return.loglr} is
 #'   TRUE, or a vector of mean estimates if neither \code{post.var} nor
@@ -433,16 +435,16 @@ setAshParam.gaus = function (ashparam) {
 #'   estimates if \code{post.var} is \code{FALSE} In addition, if
 #'   \code{joint} is TRUE, then both \code{mu.res} and \code{var.res}
 #'   are returned.}
-#' 
+#'
 #' @examples
-#' 
+#'
 #' n=2^10
 #' t=1:n/n
 #' spike.f = function(x) (0.75*exp(-500*(x-0.23)^2) +
 #'   1.5*exp(-2000*(x-0.33)^2) + 3*exp(-8000*(x-0.47)^2) +
 #'   2.25*exp(-16000*(x-0.69)^2)+0.5*exp(-32000*(x-0.83)^2))
 #' mu.s = spike.f(t)
-#' 
+#'
 #' # Gaussian case
 #' mu.t = (1+mu.s)/5
 #' plot(mu.t,type='l')
@@ -456,29 +458,39 @@ setAshParam.gaus = function (ashparam) {
 #' lines(mu.est,col=2)
 #'
 #' @importFrom wavethresh wd
-#' 
+#'
 #' @export
-#' 
+#'
 smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
-                       v.basis = FALSE, post.var = FALSE, filter.number = 1, 
+                       v.basis = FALSE, post.var = FALSE, filter.number = 1,
                        family = "DaubExPhase", return.loglr = FALSE,
                        jash = FALSE, SGD = TRUE, weight = 0.5,
-                       min.var = 1e-08, ashparam = list()) {
+                       min.var = 1e-08, ashparam = list(), homoskedastic = FALSE) {
     n = length(x)
     J = log2(n)
     if (!isTRUE(all.equal(J, trunc(J)))) {
         stop("Error: number of columns of x must be power of 2")
     }
+    if(v.est == FALSE & homoskedastic == TRUE){
+        stop("Error: can't set homoskedastic TRUE if not estimating variance")
+    }
+    if(v.est == TRUE & homoskedastic== TRUE){
+      sigma = sd_estimate_gasser_etal(x)
+      v.est = FALSE;
+    }
+
     if (length(sigma) == 1) {
         sigma = rep(sigma, n)
     }
     ashparam = setAshParam.gaus(ashparam)
+
+
     if (v.est == TRUE) {
         weight = 1
     } else {
         weight = 0.5
     }
-    
+
     if (filter.number == 1 & family == "DaubExPhase") {
         basis = "haar"
     } else {
@@ -491,8 +503,8 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
     if (joint == TRUE) {
         v.est = TRUE
     }
-    
-    
+
+
     tsum = sum(x)
     x.w.d = cxxtitable(x)$difftable
     Wl = NULL
@@ -501,7 +513,7 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
                                family = family, type = "station")
         Wl = ndwt.mat(n, filter.number = filter.number, family = family)
     }
-    
+
     if (is.null(sigma)) {
         var.est1.ini = (x - lshift(x))^2/2
         var.est2.ini = (rshift(x) - x)^2/2
@@ -516,12 +528,12 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
         var.est[var.est <= 0] = 1e-08
         sigma = sqrt(var.est)
     }
-    
+
     ashparam.mean = ashparam
     ashparam.mean$gridmult = 64
     mu.res = mu.smooth(x.w.d, sigma^2, basis, tsum, Wl, return.loglr,
                        post.var, ashparam.mean, J, n)
-    
+
     if (v.est == FALSE) {
         return(mu.res)
     } else {
@@ -533,7 +545,7 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
         var.est = (x - mu.est)^2
         var.var.est = 2/3 * var.est^2
         var.res = var.smooth(var.est, var.var.est, 0, basis, v.basis, Wl,
-                             filter.number, family, post.var, ashparam, 
+                             filter.number, family, post.var, ashparam,
                              jash, 1, J, n, SGD = SGD)
         if (post.var == FALSE) {
             var.res[var.res <= 0] = min.var
@@ -548,34 +560,48 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
     }
 }
 
+#' @title Estimate homoskedastic standard deviation from nonparamatric regression
+#'
+#' @param x The data.
+#'
+#' @return An estimate of the standard deviation
+#'
+#' @details Uses formula (3) from Brown and Levine (2007), Annals of Statistics, who attribute it to Gasser et al.
+#' @export
+sd_estimate_gasser_etal = function(x){
+  n = length(x)
+  sqrt(2/(3 * (n - 2)) * sum((1/2 * x[1:(n - 2)] - x[2:(n - 1)] + 1/2 * x[3:n])^2))
+}
+
+
 #' @title TI thresholding with heteroskedastic errors.
 #'
 #' @param x The data. Should be a vector of length a power of 2.
-#' 
+#'
 #' @param sigma The standard deviation function. Can be provided if
 #'   known or estimated beforehand.
-#' 
+#'
 #' @param method The method to estimate the variance function. Can be
 #'   'rmad' for running MAD as described in Gao (1997), or 'smash'.
-#' 
+#'
 #' @param filter.number The wavelet basis to be used.
 #'
 #' @param family The wavelet basis to be used.
-#' 
+#'
 #' @param min.level The primary resolution level.
-#' 
+#'
 #' @return returns a vector of mean estimates
-#' 
+#'
 #' @details The 'rmad' option effectively implements the procedure
 #'   described in Gao (1997), while the 'smash' option first estimates
 #'   the variance function using package \code{smash} and then performs
 #'   thresholding given this variance function.
-#' 
+#'
 #' @references Gao, Hong-Ye (1997) Wavelet shrinkage estimates for
 #'   heteroscedastic regression models. MathSoft, Inc.
-#' 
+#'
 #' @examples
-#' 
+#'
 #' n=2^10
 #' t=1:n/n
 #' spike.f = function(x) (0.75*exp(-500*(x-0.23)^2) +
@@ -584,7 +610,7 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
 #'   2.25*exp(-16000*(x-0.69)^2) +
 #'   0.5*exp(-32000*(x-0.83)^2))
 #' mu.s=spike.f(t)
-#' 
+#'
 #' # Gaussian case
 #' # -------------
 #' mu.t=(1+mu.s)/5
@@ -603,26 +629,26 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
 #'
 #' @importFrom wavethresh wd
 #' @importFrom caTools runmad
-#' 
+#'
 #' @export
-#' 
+#'
 ti.thresh = function (x, sigma = NULL, method = "smash", filter.number = 1,
                       family = "DaubExPhase", min.level = 3,
                       ashparam = list()) {
     n = length(x)
     J = log2(n)
-    if (length(sigma) == 1) 
+    if (length(sigma) == 1)
         sigma = rep(sigma, n)
-    
+
     if (is.null(sigma) & method == "rmad") {
         lambda.thresh = 1
     } else {
         lambda.thresh = 2
     }
-    
+
     if (is.null(sigma)) {
         if (method == "smash") {
-            sigma = sqrt(smash.gaus(x, v.est = TRUE, v.basis = TRUE, filter.number = filter.number, family = family, 
+            sigma = sqrt(smash.gaus(x, v.est = TRUE, v.basis = TRUE, filter.number = filter.number, family = family,
                 ashparam = ashparam, weight = 1))
         } else if (method == "rmad") {
             x.w = wavethresh::wd(x, filter.number = filter.number,
@@ -636,7 +662,7 @@ ti.thresh = function (x, sigma = NULL, method = "smash", filter.number = 1,
             stop("Error: Method not recognized")
         }
     }
-    
+
     if (filter.number == 1 & family == "DaubExPhase") {
         tsum = sum(x)
         vdtable = cxxtitable(x)$difftable
@@ -657,7 +683,7 @@ ti.thresh = function (x, sigma = NULL, method = "smash", filter.number = 1,
 
 #' reflects a vector if it has length a power of 2; otherwise extends the vector to have length a power of 2 and then reflects it
 #' @param x an n-vector
-#' @return an n-vector containing the indices of the original signal x 
+#' @return an n-vector containing the indices of the original signal x
 reflect <- function (x) {
     n = length(x)
     J = log2(n)
@@ -694,7 +720,7 @@ reflect <- function (x) {
 #
 # Input log indicates if mean estimation is to be performed on the log
 # scale.
-# 
+#
 # The return value is a list with elements lp.mean, lp.var, lq.mean
 # and lq.var.
 compute.res <- function (alpha, log) {
@@ -702,7 +728,7 @@ compute.res <- function (alpha, log) {
 
         # Find mean and variance of log(q).
         lp = ff.moments(alpha$mean, alpha$var)
-        lq = ff.moments(-alpha$mean, alpha$var)  
+        lq = ff.moments(-alpha$mean, alpha$var)
         return(list(lp.mean = lp$mean, lp.var = lp$var,
                     lq.mean = lq$mean, lq.var = lq$var))
     } else {
@@ -723,17 +749,17 @@ compute.res <- function (alpha, log) {
 getlist.res = function (res, j, n, zdat, log, shrink, ashparam) {
   ind = ((j - 1) * n + 1):(j * n)
   if (shrink == TRUE) {
-      
+
     # Apply ash to vector of intercept estimates and SEs.
     zdat.ash = withCallingHandlers(do.call(ash,
         c(list(betahat = zdat[1, ind], sebetahat = zdat[2, ind]), ashparam)))
 
     # Find mean and variance of alpha.
     alpha.mv = list(mean = get_pm(zdat.ash),
-      var = get_psd(zdat.ash)^2)  
+      var = get_psd(zdat.ash)^2)
     } else {
       alpha.mv = list(mean = fill.nas(zdat[1, ind]),
-          var = fill.nas(zdat[2, ind])^2)  
+          var = fill.nas(zdat[2, ind])^2)
   }
   res.j = compute.res(alpha.mv, log)
   res = rbindlist(list(res, res.j))
@@ -748,7 +774,7 @@ getlist.res = function (res, j, n, zdat, log, shrink, ashparam) {
 #   log space.
 # @param n length of data
 # @param J log2(n)
-# 
+#
 # Return reconstructed signal in original data space.
 recons.mv = function (ls, res, log, n, J) {
     if (log == TRUE) {
@@ -759,7 +785,7 @@ recons.mv = function (ls, res, log, n, J) {
         est.var = cxxreverse_pwave(0, matrix(res$lp.var, J, n, byrow = TRUE),
                      matrix(res$lq.var, J, n, byrow = TRUE))
     } else {
-        
+
         # Reconstruction on non-log level.
         est.mean = exp(cxxreverse_pwave(log(ls), log(matrix(res$lp.mean, J,
             n, byrow = TRUE)), log(matrix(res$lq.mean, J, n, byrow = TRUE))))
@@ -786,7 +812,7 @@ setAshParam.poiss = function (ashparam) {
       stop(paste("Error: ash parameter 'g' can only be NULL; if you want",
                  "to specify ash parameter 'g' use multiseq arguments",
                  "'fitted.g' and/or 'fitted.g.intercept'"))
-    
+
     if(!((is.null(ashparam[["mixsd"]])) |
          (is.numeric(ashparam[["mixsd"]])
           & (length(ashparam[["mixsd"]]) < 2))))
@@ -810,16 +836,16 @@ setGlmApproxParam = function (glm.approx.param) {
     list(minobs = 1, pseudocounts = 0.5, all = FALSE, center = FALSE,
          forcebin = TRUE, repara = TRUE, lm.approx = FALSE, disp = "add")
   glm.approx.param = modifyList(glm.approx.param.default, glm.approx.param)
-  
+
   if(glm.approx.param[["minobs"]]%%1 != 0|glm.approx.param[["minobs"]] <1 )
     stop("Error: minobs must be an integer larger than or equal to 1")
   if(!(glm.approx.param[["disp"]] %in% c("add", "mult")))
     stop("Error: parameter disp must be 'add' or 'mult'")
   if(!(is.numeric(glm.approx.param[["pseudocounts"]]) &
-       glm.approx.param[["pseudocounts"]] > 0)) 
+       glm.approx.param[["pseudocounts"]] > 0))
     stop(paste("Error: invalid parameter 'pseudocounts',",
                "'pseudocounts' must be a positive number"))
-  
+
   return(glm.approx.param)
 }
 
@@ -828,46 +854,46 @@ setGlmApproxParam = function (glm.approx.param) {
 #' @description Main smoothing procedure for Poisson data. Takes a
 #'   univariate inhomogeneous Poisson process and estimates its mean
 #'   intensity.
-#' 
+#'
 #' @details We assume that the data come from the model \eqn{Y_t \sim
 #'   Pois(\mu_t)} for \eqn{t=1,...,T}, where \eqn{\mu_t} is the
 #'   underlying intensity, assumed to be spatially structured (or
 #'   treated as points sampled from a smooth continous function). The
 #'   \eqn{Y_t} are assumed to be independent. Smash provides estimates
 #'   of \eqn{\mu_t} (and its posterior variance if desired).
-#' 
+#'
 #' @param x A vector of Poisson counts (reflection is done
 #'   automatically if length of \code{x} is not a power of 2).
-#' 
+#'
 #' @param post.var Boolean, indicates if the posterior variance should
 #'   be returned.
-#' 
+#'
 #' @param log bool, determines if smoothed signal is returned on log
 #'   scale or not
-#' 
+#'
 #' @param reflect bool, indicates if the signals should be reflected;
 #'   otherwise periodicity is assumed.
-#' 
+#'
 #' @param glm.approx.param A list of parameters to be passed to
 #'   \code{glm.approx}; default values are set by function
 #'   \code{setGlmApproxParam}.
-#' 
+#'
 #' @param ashparam A list of parameters to be passed to \code{ash};
 #'   default values are set by function \code{setAshParam.poiss}.
-#' 
+#'
 #' @param cxx bool, indicates if C++ code should be used to create TI
 #'   tables.
-#' 
+#'
 #' @param lev integer from 0 to J-1, indicating primary level of
 #'   resolution. Should NOT be used (ie shrinkage is performed at all
 #'   resolutions) unless there is good reason to do so.
-#' 
+#'
 #' @return \code{smash.poiss} returns the mean estimate by default,
 #'   with the posterior variance as an additional component if
 #'   \code{post.var} is TRUE.
-#' 
+#'
 #' @examples
-#' 
+#'
 #' n=2^10
 #' t=1:n/n
 #' spike.f = function(x) (0.75*exp(-500*(x-0.23)^2) +
@@ -881,63 +907,63 @@ setGlmApproxParam = function (glm.approx.param) {
 #' lines(mu.est,col=2)
 #'
 #' @export
-#' 
+#'
 smash.poiss = function (x, post.var = FALSE, log = FALSE, reflect = FALSE,
                         glm.approx.param = list(), ashparam = list(),
                         cxx = TRUE, lev = 0) {
     if (is.matrix(x)) {
         if (nrow(x) == 1) {
-            
+
             # Change matrix x to vector.
             x = as.vector(x)
         } else {
             stop("x cannot have multiple rows")
         }
     }
-    
+
     ashparam = setAshParam.poiss(ashparam)
     glm.approx.param = setGlmApproxParam(glm.approx.param)
-    
-    if (!is.numeric(x)) 
+
+    if (!is.numeric(x))
         stop("Error: invalid parameter 'x': 'x' must be numeric")
-    if (!is.logical(reflect)) 
+    if (!is.logical(reflect))
         stop("Error: invalid parameter 'reflect', 'reflect' must be bool")
-    
+
     J = log2(length(x))
 
     # If ncol(x) is not a power of 2, reflect x.
-    if ((J %% 1) != 0) 
+    if ((J %% 1) != 0)
         {
             reflect = TRUE
         }
 
     # Reflect signal; this function is pseudo-calling x by reference.
-    if (reflect == TRUE) 
-        reflect.indices = reflect(x)  
-    
+    if (reflect == TRUE)
+        reflect.indices = reflect(x)
+
     n = length(x)
     J = log2(n)
-    
+
     # Create the parent TI table for each signal, and put into rows of
     # matrix y.
     ls = sum(x)
-    
+
     if (!cxx) {
         y = as.vector(t(ParentTItable(x)$parent))
     } else {
         y = cxxSParentTItable(x)
     }
-    
+
     zdat = withCallingHandlers(do.call(glm.approx, c(list(x = y, g = NULL),
-                                       glm.approx.param))) 
-    
+                                       glm.approx.param)))
+
     res = list()
-    
+
     # Loop through resolutions, smoothing each resolution separately
     for (j in 1:(J - lev)) {
         res = getlist.res(res, j, n, zdat, log, TRUE, ashparam)
     }
-    
+
     # Do not smooth for coarser levels, with everything the same as
     # above but using the estimate and its variance as the posterior
     # mean and variance ie flat prior.
@@ -952,7 +978,7 @@ smash.poiss = function (x, post.var = FALSE, log = FALSE, reflect = FALSE,
         recons$est.var = recons$est.var[reflect.indices]
     }
     if (post.var == FALSE) {
-        
+
         # If post.var = TRUE then only estimate (and not variance) is
         # returned.
         return(est = recons$est.mean)
