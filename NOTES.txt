@@ -1,5 +1,5 @@
 * Commands I am currently using to test the package:
 
-    R CMD build --no-build-vignettes smashr
-    R CMD check --as-cran --ignore-vignettes smashr_1.1-2.tar.gz
+    R CMD build smashr
+    R CMD check --as-cran smashr_1.1-2.tar.gz
 
