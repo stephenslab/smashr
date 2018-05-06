@@ -386,7 +386,7 @@ jash = function (Y, fac, auto = FALSE, precShape = NULL, precMulti = NULL,
         mu = rep(0, N)
     }
     if (auto == TRUE) {
-        precMulti = autoselect.precPrior(Y)
+        precMulti = autoselect.precMulti(Y)
     }
     if (is.null(precShape)) {
         precShape = c(0.01, 0.1, 1, 10, 100)
@@ -473,7 +473,7 @@ jasha = function (betahat, betahatsd, df, auto = FALSE, precShape = NULL,
         mu = rep(0, N)
     }
     if (auto == TRUE) {
-        precMulti = autoselect.precPrior(Y)
+        precMulti = autoselect.precMulti(betahat)
     }
     if (is.null(precShape)) {
         precShape = c(0.01, 0.1, 1, 10, 100)

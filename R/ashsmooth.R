@@ -986,3 +986,9 @@ smash.poiss = function (x, post.var = FALSE, log = FALSE, reflect = FALSE,
         return(list(est = recons$est.mean, var = recons$est.var))
     }
 }
+
+# Fill NAs with zeros (or other value).
+fill.nas <- function (x, t = 0) {
+  x[is.na(x)] <- t
+  return(x)
+}
