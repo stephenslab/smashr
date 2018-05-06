@@ -1,8 +1,5 @@
-* Packages I removed from Imports: Matrix.
-
 * Commands I am currently using to test the package:
 
-  R CMD build --no-build-vignettes smashr
-  R CMD check --as-cran --no-tests --ignore-vignettes \
-    smashr_1.1-2.tar.gz
+    R CMD build --no-build-vignettes smashr
+    R CMD check --as-cran --ignore-vignettes smashr_1.1-2.tar.gz
 
