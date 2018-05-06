@@ -62,7 +62,7 @@ sigma.t = sqrt(var.fn)/mean(sqrt(var.fn)) * sd(mu.t)/rsnr^2
 X.s = rnorm(n, mu.t, sigma.t)
 
 # Run smash.
-mu.est <- smash(X.s, "gaus")
+mu.est = smash(X.s, "gaus")
 
 # Plot the true mean function as well as the estimated one.
 plot(mu.t, type = "l")

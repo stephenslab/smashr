@@ -61,7 +61,8 @@
 #' # Simulate an example dataset.
 #' X.s = rnorm(n, mu.t, sigma.t)
 #'
-#' # Run smash (Gaussian version is run since observations are not counts).
+#' # Run smash (Gaussian version is run since observations are not
+#' # counts).
 #' mu.est <- smash(X.s)
 #'
 #' # Plot the true mean function as well as the estimated one.
@@ -70,17 +71,21 @@
 #'
 #' # Poisson case
 #' # ------------
-#' # Scale the signal to be non-zero and to have a low average intensity
+#' # Scale the signal to be non-zero and to have a low average intensity.
 #' mu.t = 0.01 + mu.s
+#' 
 #' # Simulate an example dataset
 #' X.s = rpois(n, mu.t)
-#' # Run smash (Poisson version is run since observations are counts)
+#' 
+#' # Run smash (Poisson version is run since observations are counts).
 #' mu.est = smash(X.s)
-#' # Plot the true mean function as well as the estimated one
+#' 
+#' # Plot the true mean function as well as the estimated one.
 #' plot(mu.t, type = "l")
 #' lines(mu.est, col = 2)
 #'
 #' @export
+#' 
 smash = function (x, model = NULL, ...) {
   if(!is.null(model)){
     if (!(model == "gaus" | model == "poiss")) {
@@ -448,12 +453,13 @@ setAshParam.gaus = function (ashparam) {
 #' # Gaussian case
 #' mu.t = (1+mu.s)/5
 #' plot(mu.t,type='l')
-#' var.fn = (0.0001+4*(exp(-550*(t-0.2)^2)+exp(-200*(t-0.5)^2)+exp(-950*(t-0.8)^2)))/1.35
+#' var.fn = (0.0001 + 4*(exp(-550*(t-0.2)^2) + exp(-200*(t-0.5)^2) +
+#'   exp(-950*(t-0.8)^2)))/1.35
 #' plot(var.fn,type='l')
 #' rsnr=sqrt(5)
 #' sigma.t=sqrt(var.fn)/mean(sqrt(var.fn))*sd(mu.t)/rsnr^2
 #' X.s=rnorm(n,mu.t,sigma.t)
-#' mu.est<-smash.gaus(X.s)
+#' mu.est=smash.gaus(X.s)
 #' plot(mu.t,type='l')
 #' lines(mu.est,col=2)
 #'
@@ -465,7 +471,8 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
                        v.basis = FALSE, post.var = FALSE, filter.number = 1,
                        family = "DaubExPhase", return.loglr = FALSE,
                        jash = FALSE, SGD = TRUE, weight = 0.5,
-                       min.var = 1e-08, ashparam = list(), homoskedastic = FALSE) {
+                       min.var = 1e-08, ashparam = list(),
+                       homoskedastic = FALSE) {
     n = length(x)
     J = log2(n)
     if (!isTRUE(all.equal(J, trunc(J)))) {

@@ -59,7 +59,7 @@
 #' X.s = rnorm(n, mu.t, sigma.t)
 #' 
 #' # Run smash.
-#' mu.est <- smash(X.s, "gaus")
+#' mu.est = smash(X.s, "gaus")
 #' 
 #' # Plot the true mean function as well as the estimated one.
 #' plot(mu.t, type = "l")

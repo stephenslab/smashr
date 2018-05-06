@@ -22,8 +22,8 @@ vs = function (n, s, f) {
 # @param s number of successes
 # @param f number of failures
 vss = function (n, s, f) {
-    vv = v3(n, s, f)
-    return(vs(n, s, f) - 1/2 * vv^2 * (vv - 4/n))
+  vv = v3(n, s, f)
+  return(vs(n, s, f) - 1/2 * vv^2 * (vv - 4/n))
 }
 
 # @description Modified glm function to return relevant outputs, not
@@ -203,14 +203,19 @@ compute.approx.z = function (x.s, x.f, bound, eps, pseudocounts, all,
     # Compute var compute var(logit(p)).
     if (all == FALSE) {
         var = vss(s, x$x.s, x$x.f)
-        var[index1] = vss(s[index1] - 2 * pseudocounts, x$x.s[index1] - pseudocounts, x$x.f[index1] - pseudocounts)
-        var[index2] = vss(s[index2] - 2 * pseudocounts, x$x.s[index2] - pseudocounts, x$x.f[index2] - pseudocounts)
+        var[index1] = vss(s[index1] - 2 * pseudocounts, x$x.s[index1] -
+               pseudocounts, x$x.f[index1] - pseudocounts)
+        var[index2] = vss(s[index2] - 2 * pseudocounts, x$x.s[index2] -
+               pseudocounts, x$x.f[index2] - pseudocounts)
     } else {
-        var = vss(s - 2 * pseudocounts, x$x.s - pseudocounts, x$x.f - pseudocounts)
+        var = vss(s - 2 * pseudocounts, x$x.s - pseudocounts,
+                  x$x.f - pseudocounts)
     }
     var[var == Inf] = 1e+20
     if (return.p == TRUE) 
-        return(list(mu = mu, var = var, p = x$x.s/s)) else return(list(mu = mu, var = var))
+      return(list(mu = mu, var = var, p = x$x.s/s))
+    else
+      return(list(mu = mu, var = var))
 }
 
 # Compute estimates and standard errors for mu and beta when fitting

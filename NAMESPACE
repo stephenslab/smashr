@@ -2,6 +2,7 @@
 
 export(glm.approx)
 export(reverse.pwave)
+export(sd_estimate_gasser_etal)
 export(smash)
 export(smash.gaus)
 export(smash.poiss)

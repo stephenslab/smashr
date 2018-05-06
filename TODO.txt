@@ -1,5 +1,12 @@
 to do
 =====
 
-* Determine which functions should be exported, and which don't need
-  to be exported.
+* Fix up some of the code and comments in glm_approx.R.
+
+* Fix up some of the code and comments in jash.R.
+
+* Fix up some of the code and comments in ashsmooth.R.
+
+* Fix up and test vignette.
+
+

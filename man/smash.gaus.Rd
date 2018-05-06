@@ -104,12 +104,13 @@ mu.s = spike.f(t)
 # Gaussian case
 mu.t = (1+mu.s)/5
 plot(mu.t,type='l')
-var.fn = (0.0001+4*(exp(-550*(t-0.2)^2)+exp(-200*(t-0.5)^2)+exp(-950*(t-0.8)^2)))/1.35
+var.fn = (0.0001 + 4*(exp(-550*(t-0.2)^2) + exp(-200*(t-0.5)^2) +
+  exp(-950*(t-0.8)^2)))/1.35
 plot(var.fn,type='l')
 rsnr=sqrt(5)
 sigma.t=sqrt(var.fn)/mean(sqrt(var.fn))*sd(mu.t)/rsnr^2
 X.s=rnorm(n,mu.t,sigma.t)
-mu.est<-smash.gaus(X.s)
+mu.est=smash.gaus(X.s)
 plot(mu.t,type='l')
 lines(mu.est,col=2)
 
