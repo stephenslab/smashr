@@ -1,7 +1,7 @@
 to do
 =====
 
-
+* Fix up some of the code and comments in jash.R.
 
 * Fix up some of the code and comments in ashsmooth.R.
 
