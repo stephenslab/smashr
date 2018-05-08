@@ -1,15 +1,37 @@
-ASH based wavelet shrinkage for heteroskedastic models
-========================================================
+---
+title: "ASH-based wavelet shrinkage for heteroskedastic models"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{smashr demo}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
 
-We assume a simple parametric model of the form
-$y_i=\mu_i+\epsilon_i$
-where $\epsilon_i\sim N(0,\sigma_i^2)$, and both $\mu$ and $\sigma$ are unknown. We use the procedure described in the documentation to estimate both the mean and the variances. Here we present a brief demonstration of the method.
+```{r, echo = FALSE, message = FALSE}
+knitr::opts_chunk$set(collapse = TRUE,comment = "#",fig.width = 6.9,
+                      fig.height = 5.5,fig.align = "center",
+                      fig.cap = "&nbsp;",dpi = 120,eval = FALSE)
+```
 
+In this vignette, we assume a simple parametric model of the form
 
-We first look at mean estimation, which is our primary focus. A sample mean function is presented, as well as a couple of different variance functions. Our method is compared against a few other simple methods.
+$$
+y_i = \mu_i + \epsilon_i,
+$$
+
+where $\epsilon_i \sim N(0,\sigma_i^2)$, and both $\mu$ and $\sigma$
+are unknowns. We use the procedure described in the documentation to
+estimate both the mean and the variances. Here we present a brief
+demonstration of the method.
+
+We first look at mean estimation, which is our primary focus. A sample
+mean function is presented, as well as a couple of different variance
+functions. Our method is compared against a few other simple methods.
+
+## Create mean function
 
 ```{r}
-# create mean function
 spike.f = function(x) (0.75 * exp(-500 * (x - 0.23)^2) + 1.5 * exp(-2000 * (x - 0.33)^2) + 3 * exp(-8000 * (x - 0.47)^2) + 2.25 * exp(-16000 * 
     (x - 0.69)^2) + 0.5 * exp(-32000 * (x - 0.83)^2))
 n = 1024
