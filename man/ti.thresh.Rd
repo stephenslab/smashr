@@ -43,7 +43,7 @@ spike.f = function(x) (0.75*exp(-500*(x-0.23)^2) +
   3*exp(-8000*(x-0.47)^2) +
   2.25*exp(-16000*(x-0.69)^2) +
   0.5*exp(-32000*(x-0.83)^2))
-mu.s=spike.f(t)
+mu.s = spike.f(t)
 
 # Gaussian case
 # -------------

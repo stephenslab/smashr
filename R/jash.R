@@ -20,7 +20,7 @@ qval.from.localfdr = function (localfdr) {
 }
 
 # post_pi computes the posterior probability P(beta_j,tau_j belongs to
-# the i'th component | Y)
+# the i'th component | Y).
 post_pi = function (N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN, SSE, pi) {
   post.gammab = 0.5 * (outer(SSE, rep(1, M * L * K)) +
         outer((MEAN - mu)^2, n * d.vec) + outer(rep(1, N), 2 * b.vec))
@@ -222,7 +222,8 @@ EMest_pi = function (params, N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN,
             m.rowsum = rowSums(m)
             loglik[i] = sum(log(m.rowsum))
             classprob = m/m.rowsum
-            if (abs(loglik[i] - loglik[i - 1]) < ltol || loglik[i] < loglik[i - 1]) 
+            if (abs(loglik[i] - loglik[i - 1]) < ltol ||
+                loglik[i] < loglik[i - 1]) 
                 break
         }
     } else {
@@ -232,43 +233,60 @@ EMest_pi = function (params, N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN,
             pi.c = c(L, rep(1, L - 1))/sum(c(L, rep(1, L - 1)))
         }
         loglik = rep(NA, maxiter)
-        pi.c = indep_post_pi(N, n, M, K, L, a.vec, b.vec, c.vec, mu, MEAN, SSE, pi.a, pi.lambda, pi.c, prior, group.c)$indep.pi
-        pi.lambda = indep_post_pi(N, n, M, K, L, a.vec, b.vec, c.vec, mu, MEAN, SSE, pi.a, pi.lambda, pi.c, prior, 
-            group.lambda)$indep.pi
-        m = indep_post_pi(N, n, M, K, L, a.vec, b.vec, c.vec, mu, MEAN, SSE, pi.a, pi.lambda, pi.c, prior, group.a)
+        pi.c = indep_post_pi(N, n, M, K, L, a.vec, b.vec, c.vec, mu,
+                             MEAN, SSE, pi.a, pi.lambda, pi.c, prior,
+                             group.c)$indep.pi
+        pi.lambda = indep_post_pi(N, n, M, K, L, a.vec, b.vec, c.vec, mu,
+                                  MEAN, SSE, pi.a, pi.lambda, pi.c, prior, 
+                                  group.lambda)$indep.pi
+        m = indep_post_pi(N, n, M, K, L, a.vec, b.vec, c.vec, mu, MEAN, SSE,
+                          pi.a, pi.lambda, pi.c, prior, group.a)
         classprob = m$normpi.mat
         pi.a = m$indep.pi
         loglik[1] = sum(log(rowSums(m$pi.mat)))
-        pi = rep(pi.a, L * K) * rep(rep(pi.lambda, each = M), L) * rep(pi.c, each = M * K)
+        pi = rep(pi.a, L * K) * rep(rep(pi.lambda, each = M), L) *
+             rep(pi.c, each = M * K)
         
         for (i in 2:maxiter) {
             if (a.lambda.c.est == TRUE) {
                 if (SGD == TRUE && i > 5) {
-                  params = params - 1e-04/sqrt(i) * gradloglike(params, N, n, M, K, L, mu, MEAN, SSE, pi, groupind)
+                  params = params - 1e-04/sqrt(i) *
+                    gradloglike(params,N,n,M,K,L,mu,MEAN,SSE,pi,groupind)
                   params = pmax(params, rep(1e-10, M + K + L - 1))
                   params = pmin(params, c(rep(1e+05, M + K), rep(0.95, L - 1)))
                   a.vec = rep(params[1:M], L * K)
                   b.vec = rep(rep(params[(M + 1):(M + K)], each = M), L)
-                  d.vec = rep(c(params[(M + K + 1):(M + K + L - 1)], 1), each = M * K)
+                  d.vec = rep(c(params[(M + K + 1):(M + K + L - 1)], 1),
+                              each = M * K)
                 } else {
-                  est = nlminb(params, loglike, gradloglike, lower = rep(1e-10, M + K + L), upper = c(rep(1e+05, M + 
-                    K), rep(0.95, L)), N = N, n = n, M = M, K = K, L = L, mu = mu, MEAN = MEAN, SSE = SSE, pi = pi, 
-                    groupind = groupind)
+                  est = nlminb(params, loglike, gradloglike,
+                               lower = rep(1e-10, M + K + L),
+                               upper = c(rep(1e+05, M + K), rep(0.95, L)),
+                               N = N, n = n, M = M, K = K, L = L, mu = mu,
+                               MEAN = MEAN, SSE = SSE, pi = pi, 
+                               groupind = groupind)
                   a.vec = rep(est$par[1:M], L * K)
                   b.vec = rep(rep(est$par[(M + 1):(M + K)], each = M), L)
-                  d.vec = rep(c(est$par[(M + K + 1):(M + K + L - 1)], 1), each = M * K)
+                  d.vec = rep(c(est$par[(M + K + 1):(M + K + L - 1)], 1),
+                              each = M * K)
                   params = est$par
                 }
             }
-            pi.c = indep_post_pi(N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN, SSE, pi.a, pi.lambda, pi.c, prior, group.c)$indep.pi
-            pi.lambda = indep_post_pi(N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN, SSE, pi.a, pi.lambda, pi.c, prior, 
-                group.lambda)$indep.pi
-            m = indep_post_pi(N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN, SSE, pi.a, pi.lambda, pi.c, prior, group.a)
+            pi.c = indep_post_pi(N, n, M, K, L, a.vec, b.vec, d.vec, mu,
+                                 MEAN, SSE, pi.a, pi.lambda, pi.c, prior,
+                                 group.c)$indep.pi
+            pi.lambda = indep_post_pi(N, n, M, K, L, a.vec, b.vec, d.vec,
+                                      mu, MEAN, SSE, pi.a, pi.lambda, pi.c,
+                                      prior,group.lambda)$indep.pi
+            m = indep_post_pi(N, n, M, K, L, a.vec, b.vec, d.vec, mu,
+                              MEAN, SSE, pi.a, pi.lambda, pi.c, prior, group.a)
             classprob = m$normpi.mat
             pi.a = m$indep.pi
             loglik[i] = sum(log(rowSums(m$pi.mat)))
-            pi = rep(pi.a, L * K) * rep(rep(pi.lambda, each = M), L) * rep(pi.c, each = M * K)
-            if (abs(loglik[i] - loglik[i - 1]) < ltol || loglik[i] < loglik[i - 1]) 
+            pi = rep(pi.a, L * K) * rep(rep(pi.lambda, each = M), L) *
+                 rep(pi.c, each = M * K)
+            if (abs(loglik[i] - loglik[i - 1]) < ltol ||
+                loglik[i] < loglik[i - 1]) 
                 break
         }
     }
@@ -280,8 +298,10 @@ EMest_pi = function (params, N, n, M, K, L, a.vec, b.vec, d.vec, mu, MEAN,
     }
     converged = (i < maxiter)
     niter = min(c(i, maxiter))
-    return(list(pi = pi, pi.a = pi.a, pi.lambda = pi.lambda, pi.c = pi.c, classprob = classprob, loglik.final = loglik, 
-        converged = converged, niter = niter, a.vec = a.vec, lambda.vec = lambda.vec, b.vec = b.vec, d.vec = d.vec, 
+    return(list(pi = pi, pi.a = pi.a, pi.lambda = pi.lambda, pi.c = pi.c,
+                classprob = classprob, loglik.final = loglik, 
+                converged = converged, niter = niter, a.vec = a.vec,
+                lambda.vec = lambda.vec, b.vec = b.vec, d.vec = d.vec, 
         c.vec = c.vec))
 }
 
@@ -295,10 +315,14 @@ CondPostprob = function (pi, tau, gammaa, gammab, gammadens, normmean,
     ZeroProb = rowSums(pi[, c.vec == Inf, drop = FALSE])
     Cond.pi = pi * gammadens/rowSums(pi * gammadens)
     normsd = 1/sqrt(outer(tau, normprec))
-    PositiveProb = rowSums(Cond.pi[, c.vec == Inf, drop = FALSE] * pnorm(0, mean = normmean[, c.vec == Inf, drop = FALSE], 
-        sd = normsd[, c.vec == Inf, drop = FALSE], lower.tail = TRUE))
+    PositiveProb = rowSums(Cond.pi[, c.vec == Inf, drop = FALSE] *
+                   pnorm(0, mean = normmean[, c.vec == Inf, drop = FALSE], 
+                         sd = normsd[, c.vec == Inf, drop = FALSE],
+                         lower.tail = TRUE))
     NegativeProb = 1 - PositiveProb - ZeroProb
-    return(list(ZeroProb = ZeroProb, PositiveProb = PositiveProb, NegativeProb = NegativeProb, condpi = Cond.pi, normsd = normsd, 
+    return(list(ZeroProb = ZeroProb, PositiveProb = PositiveProb,
+                NegativeProb = NegativeProb, condpi = Cond.pi,
+                normsd = normsd, 
         normmean = normmean))
 }
 
@@ -328,7 +352,9 @@ computefdr = function (ZeroProb, PositiveProb, NegativeProb) {
     if (sum(ZeroProb) > 0) {
         localfdr = ZeroProb
     } else {
-        localfdr = ifelse(PositiveProb < NegativeProb, 2 * PositiveProb + ZeroProb, 2 * NegativeProb + ZeroProb)
+        localfdr = ifelse(PositiveProb < NegativeProb,
+                          2 * PositiveProb + ZeroProb,
+                          2 * NegativeProb + ZeroProb)
     }
     return(list(localfsr = localfsr, localfdr = localfdr))
 }
@@ -353,10 +379,10 @@ lmreg = function (Y, fac, nA, nB) {
 
 lmreg1 = function(Y, fac, nA, nB) {
     betahat = apply(Y[, fac == 2], 1, mean) - apply(Y[, fac == 1], 1, mean)
-    Yfit = cbind(outer(apply(Y[, fac == 1], 1, mean), rep(1, nA)), outer(apply(Y[, fac == 2], 1, mean), rep(1, nA)))
+    Yfit = cbind(outer(apply(Y[, fac == 1], 1, mean), rep(1, nA)),
+                 outer(apply(Y[, fac == 2], 1, mean), rep(1, nA)))
     design = model.matrix(~fac)
     XXinv = solve(t(design) %*% design)[2, 2]
-    # SSE=sigmahat2*(nA+nB-2)/XXinv
     SSE = apply((Y - Yfit)^2, 1, sum)
     MEAN = betahat/sqrt(XXinv * (nA + nB - 1))
     return(list(MEAN = MEAN, SSE = SSE, scale = sqrt(XXinv * (nA + nB - 1))))

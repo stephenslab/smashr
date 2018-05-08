@@ -57,7 +57,8 @@ variance estimates are non-positive.}
 \item{ashparam}{A list of parameters to be passed to \code{ash};
 default values are set by function \code{setAshParam.gaus}.}
 
-\item{homoskedastic}{indicates whether to assume constant variance (if v.est is true)}
+\item{homoskedastic}{indicates whether to assume constant variance
+(if v.est is true)}
 }
 \value{
 \code{smash.gaus} returns the following by default:

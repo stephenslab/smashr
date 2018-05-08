@@ -2,7 +2,8 @@
 % Please edit documentation in R/ashsmooth.R
 \name{sd_estimate_gasser_etal}
 \alias{sd_estimate_gasser_etal}
-\title{Estimate homoskedastic standard deviation from nonparamatric regression}
+\title{Estimate homoskedastic standard deviation from nonparamatric
+   regression.}
 \usage{
 sd_estimate_gasser_etal(x)
 }
@@ -13,8 +14,10 @@ sd_estimate_gasser_etal(x)
 An estimate of the standard deviation
 }
 \description{
-Estimate homoskedastic standard deviation from nonparamatric regression
+Estimate homoskedastic standard deviation from nonparamatric
+   regression.
 }
 \details{
-Uses formula (3) from Brown and Levine (2007), Annals of Statistics, who attribute it to Gasser et al.
+Uses formula (3) from Brown and Levine (2007), Annals of
+  Statistics, who attribute it to Gasser et al.
 }

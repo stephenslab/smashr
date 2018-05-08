@@ -262,12 +262,16 @@ var.smooth = function (data, data.var, x.var.ini, basis, v.basis, Wl,
         vdtable = cxxtitable(data)$difftable
         for (j in 0:(J - 1)) {
             ind.nnull = (vtable[j + 2, ] != 0)
-            zdat.ash = shrink.wc(vdtable[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), ashparam, jash = jash, df = min(50, 2^(j +
-                  1)), SGD = SGD)
+            zdat.ash = shrink.wc(vdtable[j + 2, ind.nnull],
+                                 sqrt(vtable[j + 2, ind.nnull]),
+                                ashparam, jash = jash,
+                                 df = min(50, 2^(j + 1)), SGD = SGD)
             wmean[j + 1, ind.nnull] = get_pm(zdat.ash)/2
             wmean[j + 1, !ind.nnull] = 0
             if ((sum(is.na(wmean[j + 1, ])) > 0) & (SGD == TRUE)) {
-                zdat.ash = shrink.wc(vdtable[j + 2, ind.nnull], sqrt(vtable[j + 2, ind.nnull]), ashparam, jash = jash,
+                zdat.ash = shrink.wc(vdtable[j + 2, ind.nnull],
+                                     sqrt(vtable[j + 2, ind.nnull]),
+                                     ashparam, jash = jash,
                   df = min(50, 2^(j + 1)), SGD = FALSE)
                 wmean[j + 1, ind.nnull] = get_pm(zdat.ash)/2
                 wmean[j + 1, !ind.nnull] = 0
@@ -423,7 +427,8 @@ setAshParam.gaus = function (ashparam) {
 #' @param ashparam A list of parameters to be passed to \code{ash};
 #'   default values are set by function \code{setAshParam.gaus}.
 #'
-#' @param homoskedastic indicates whether to assume constant variance (if v.est is true)
+#' @param homoskedastic indicates whether to assume constant variance
+#'   (if v.est is true)
 #'
 #' @return \code{smash.gaus} returns the following by default:
 #'
@@ -511,7 +516,6 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
         v.est = TRUE
     }
 
-
     tsum = sum(x)
     x.w.d = cxxtitable(x)$difftable
     Wl = NULL
@@ -567,19 +571,23 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
     }
 }
 
-#' @title Estimate homoskedastic standard deviation from nonparamatric regression
+#' @title Estimate homoskedastic standard deviation from nonparamatric
+#'    regression.
 #'
 #' @param x The data.
 #'
 #' @return An estimate of the standard deviation
 #'
-#' @details Uses formula (3) from Brown and Levine (2007), Annals of Statistics, who attribute it to Gasser et al.
+#' @details Uses formula (3) from Brown and Levine (2007), Annals of
+#'   Statistics, who attribute it to Gasser et al.
+#' 
 #' @export
+#' 
 sd_estimate_gasser_etal = function(x){
   n = length(x)
-  sqrt(2/(3 * (n - 2)) * sum((1/2 * x[1:(n - 2)] - x[2:(n - 1)] + 1/2 * x[3:n])^2))
+  sqrt(2/(3 * (n - 2)) * sum((1/2 * x[1:(n - 2)] - x[2:(n - 1)] +
+                              1/2 * x[3:n])^2))
 }
-
 
 #' @title TI thresholding with heteroskedastic errors.
 #'
@@ -616,7 +624,7 @@ sd_estimate_gasser_etal = function(x){
 #'   3*exp(-8000*(x-0.47)^2) +
 #'   2.25*exp(-16000*(x-0.69)^2) +
 #'   0.5*exp(-32000*(x-0.83)^2))
-#' mu.s=spike.f(t)
+#' mu.s = spike.f(t)
 #'
 #' # Gaussian case
 #' # -------------
@@ -655,8 +663,10 @@ ti.thresh = function (x, sigma = NULL, method = "smash", filter.number = 1,
 
     if (is.null(sigma)) {
         if (method == "smash") {
-            sigma = sqrt(smash.gaus(x, v.est = TRUE, v.basis = TRUE, filter.number = filter.number, family = family,
-                ashparam = ashparam, weight = 1))
+            sigma = sqrt(smash.gaus(x, v.est = TRUE, v.basis = TRUE,
+                                    filter.number = filter.number,
+                                    family = family, ashparam = ashparam,
+                                    weight = 1))
         } else if (method == "rmad") {
             x.w = wavethresh::wd(x, filter.number = filter.number,
                                  family = family, type = "station")
@@ -681,21 +691,30 @@ ti.thresh = function (x, sigma = NULL, method = "smash", filter.number = 1,
         x.w = wavethresh::wd(x, filter.number = filter.number,
                              family = family, type = "station")
         Wl = ndwt.mat(n, filter.number = filter.number, family = family)
-        x.w.v = apply((rep(1, n * J) %o% (sigma^2)) * Wl$W2, 1, sum)  #diagonal of W*V*W'
-        x.w.t = threshold.var(x.w, x.w.v, lambda.thresh, levels = (min.level):(J - 1), type = "hard")
+
+        # Diagonal of W*V*W'.
+        x.w.v = apply((rep(1, n * J) %o% (sigma^2)) * Wl$W2, 1, sum)  
+        x.w.t = threshold.var(x.w, x.w.v, lambda.thresh,
+                              levels = (min.level):(J - 1),
+                              type = "hard")
         mu.est = AvBasis(convert(x.w.t))
     }
     return(mu.est)
 }
 
-#' reflects a vector if it has length a power of 2; otherwise extends the vector to have length a power of 2 and then reflects it
-#' @param x an n-vector
-#' @return an n-vector containing the indices of the original signal x
+# @description Reflects a vector if it has length a power of 2;
+# otherwise extends the vector to have length a power of 2 and then
+# reflects it.
+# 
+# @param x An n-vector.
+# 
+# @return An n-vector containing the indices of the original signal x.
 reflect <- function (x) {
     n = length(x)
     J = log2(n)
     if ((J%%1) == 0) {
-        # if J is an integer, i.e. n is a power of 2
+        
+        # if J is an integer, i.e. n is a power of 2.
         eval.parent(substitute(x <- c(x, x[n:1])))
         return(1:n)
     } else {
@@ -753,6 +772,7 @@ compute.res <- function (alpha, log) {
 #' @importFrom ashr ash
 #' @importFrom ashr get_pm
 #' @importFrom ashr get_psd
+#' 
 getlist.res = function (res, j, n, zdat, log, shrink, ashparam) {
   ind = ((j - 1) * n + 1):(j * n)
   if (shrink == TRUE) {
