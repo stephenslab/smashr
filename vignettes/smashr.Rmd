@@ -11,7 +11,7 @@ vignette: >
 ```{r, echo = FALSE, message = FALSE}
 knitr::opts_chunk$set(collapse = TRUE,comment = "#",fig.width = 6.9,
                       fig.height = 5.5,fig.align = "center",
-                      fig.cap = "&nbsp;",dpi = 120,eval = FALSE)
+                      fig.cap = "&nbsp;",dpi = 120, eval = FALSE)
 ```
 
 In this vignette, we assume a simple parametric model of the form
@@ -29,7 +29,18 @@ We first look at mean estimation, which is our primary focus. A sample
 mean function is presented, as well as a couple of different variance
 functions. Our method is compared against a few other simple methods.
 
+# Set up environment
+
+We begin by loading the smashr package.
+
+```{r load-pkgs, message=FALSE}
+library(smashr)
+library(EbayesThresh)
+```
+
 ## Create mean function
+
+First, we define the mean function used to simulate the data.
 
 ```{r}
 spike.f = function(x) (0.75 * exp(-500 * (x - 0.23)^2) + 1.5 * exp(-2000 * (x - 0.33)^2) + 3 * exp(-8000 * (x - 0.47)^2) + 2.25 * exp(-16000 * 
@@ -37,10 +48,6 @@ spike.f = function(x) (0.75 * exp(-500 * (x - 0.23)^2) + 1.5 * exp(-2000 * (x - 
 n = 1024
 t = 1:n/n
 mu.s = spike.f(t)
-
-# load packages
-library(EbayesThresh)
-library(smashr)
 
 # define functions to be used later
 mse = function(x, y) mean((x - y)^2)
