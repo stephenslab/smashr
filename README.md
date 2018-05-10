@@ -1,4 +1,25 @@
-This repository contains an R package for performing Gaussian denoising (also known as nonparametric regression) with heteroskedastic errors, as well as Poisson denoising.
+# smashr: Smoothing using Adaptive Shrinkage in R
+
+This R package implements fast, wavelet-based Empirical Bayes
+shrinkage methods for signal denoising. This includes smoothing
+Poisson-distributed data and Gaussian-distributed data, with possibly
+heteroskedastic error. The algorithms implement the methods described
+in [Xing & Stephens (2016)][smash-arxiv].
+
+If you find a bug, please post an
+[issue](https://github.com/stephenslab/smashr/issues).
+
+## License
+
+Copyright (c) 2016-2018, Zhengrong Xing, Peter Carbonetto and Matthew
+Stephens.
+
+## Citing this work
+
+
+## Quick Start
+
+1. 
 
 To install the package run the following lines
 ```
@@ -66,5 +87,4 @@ plot(mu.t, type = "l")
 lines(mu.est, col = 2) 
 ```
 
-
-
+[smash-arxiv]: http://arxiv.org/abs/1605.07787
