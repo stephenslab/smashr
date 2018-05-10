@@ -42,7 +42,12 @@ Follow these steps to quickly get started using smashr.
    install_github("stephenslab/smashr")
    ```
 
-2. Load the smashr package, and run the smashr demo.
+   The `install_github` call should also install any missing packages
+   that are required for smashr to work.
+
+2. Load the smashr package, and run the smashr demo illustrating the
+   "smash" function for Gaussian and Poisson denoising in a toy data
+   set:
 
    ```R
    library(smashr)
@@ -52,8 +57,9 @@ Follow these steps to quickly get started using smashr.
 3. To learn more, see the smashr package help:
 
    ```R
-   help(package = smashr)
+   help(package = "smashr")
    ```
+   
 ## Credits
 
 This R package was developed by
