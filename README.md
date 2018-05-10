@@ -6,45 +6,49 @@ Poisson-distributed data and Gaussian-distributed data, with possibly
 heteroskedastic error. The algorithms implement the methods described
 in [Xing & Stephens (2016)][smash-arxiv].
 
-If you find a bug, please post an
-[issue](https://github.com/stephenslab/smashr/issues).
+If you find a bug, please post an [issue][issues].
 
 ## License
 
 Copyright (c) 2016-2018, Zhengrong Xing, Peter Carbonetto and Matthew
 Stephens.
 
+All source code and software in this repository is free software; you
+can redistribute it and/or modify it under the terms of the
+[GNU General Public License](https://www.gnu.org/licenses/gpl.html) as
+published by the [Free Software Foundation](https://www.fsf.org);
+either version 3 of the License, or (at your option) any later
+version. See the [LICENSE](LICENSE) file for the full text of the
+license.
+
 ## Citing this work
 
+If you find this package useful for your work, please cite our paper:
+
+> Zhengrong Xing and Matthew Stephens (2016). *Smoothing via Adaptive
+> Shrinkage (smash): denoising Poisson and heteroskedastic Gaussian
+> signals.* [arXiv:1605.07787](https://arxiv.org/abs/1605.07787).
 
 ## Quick Start
 
-1. 
+Follow these steps to quickly get started using smashr.
 
-To install the package run the following lines
-```
-install.packages("devtools")
-library(devtools)
-install_github("zrxing/smashr")
-```
+1. In R, Install the latest version of smashr using
+   [devtools](https://github.com/r-lib/devtools):
 
-To use the package run 
-```
-library(smashr)
-```
-and for help using the package run
-```
-?smashr or ?smash
-```
+   ```R
+   install.packages("devtools")
+   devtools::install_github("stephenslab/smashr")
+   ```
 
-# Background
-Nonparametric regression is often used when one does not wish to assume any particular relationship (eg. linear) between a predictor and a response. Commonly seen examples come from astronomy, finance and biology. 
+2. Run the demo.
 
-For the Gaussian case, the statistical problem is of the form Y_i=\mu_i+\epsilon_i, i=1,...,n, where \mu is the underlying mean function and assumed to be "spatially structured", and \epsilon_i's are independent Gaussian noise with mean 0 and variance \sigma_i^2. The goal is to recover \mu as accurately as possible given Y.
 
-For the Poisson case, the model is similar, given by Y_i\sim Pois(\mu_i), i=1,...,n, where \mu is the underlying intensity for the Poisson process, and also assumed to be "spatially structured". The goal is to recover \mu as accurately as possible given Y.
+3. To learn more, see the smashr package help:
 
-The key idea behind the method is via wavelet transform (eg. Donoho & Johnstone (1994)) for the Gaussian case, and an extremely similar multiscale decomposition (Kolaczyk (1999)) for the Poisson case. Instead of traditional ways to perform shrinkage/thresholding however, both versions of smash make use of the Adaptive Shrinkage procedure introduced by Stephens (2015). Other details can be found in the companion paper Xing and Stephens (in preparation).
+   ```R
+   help(package = smashr)
+   ```
 
 # Demonstration
 The method can be used straight out of the box using the default settings, and should work for most reasonable scenarios (eg the noise does not completely overwhelm the signal). An example is shown below:
@@ -87,4 +91,14 @@ plot(mu.t, type = "l")
 lines(mu.est, col = 2) 
 ```
 
+## Credits
+
+This R package was developed by
+[Zhengrong Xing](https://github.com/zrxing) and
+[Matthew Stephens](http://stephenslab.uchicago.edu) at the University
+of Chicago, with contributions from
+[Peter Carbonetto](http://pcarbo.github.io).
+
 [smash-arxiv]: http://arxiv.org/abs/1605.07787
+[issues]: https://github.com/stephenslab/smashr/issues
+[gpl]: http://www.gnu.org/licenses/gpl.htmlow to
