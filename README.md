@@ -1,4 +1,4 @@
-# smashr: Smoothing using Adaptive Shrinkage in R
+# smashr: smoothing using Adaptive Shrinkage in R
 
 This R package implements fast, wavelet-based Empirical Bayes
 shrinkage methods for signal denoising. This includes smoothing
@@ -15,15 +15,15 @@ Stephens.
 
 All source code and software in this repository is free software; you
 can redistribute it and/or modify it under the terms of the
-[GNU General Public License](https://www.gnu.org/licenses/gpl.html) as
-published by the [Free Software Foundation](https://www.fsf.org);
-either version 3 of the License, or (at your option) any later
-version. See the [LICENSE](LICENSE) file for the full text of the
-license.
+[GNU General Public License][gpl] as published by the
+[Free Software Foundation][fsf]; either version 3 of the License, or
+(at your option) any later version. See the [LICENSE](LICENSE) file
+for the full text of the license.
 
 ## Citing this work
 
-If you find this package useful for your work, please cite our paper:
+If you find that this R package useful for your work, please cite our
+paper:
 
 > Zhengrong Xing and Matthew Stephens (2016). *Smoothing via Adaptive
 > Shrinkage (smash): denoising Poisson and heteroskedastic Gaussian
@@ -33,15 +33,16 @@ If you find this package useful for your work, please cite our paper:
 
 Follow these steps to quickly get started using smashr.
 
-1. In R, Install the latest version of smashr using
+1. In R, install the latest version of smashr using
    [devtools](https://github.com/r-lib/devtools):
 
    ```R
    install.packages("devtools")
-   devtools::install_github("stephenslab/smashr")
+   library(devtools)
+   install_github("stephenslab/smashr")
    ```
 
-2. Run the demo.
+2. Run the smashr demo.
 
 
 3. To learn more, see the smashr package help:
@@ -49,10 +50,7 @@ Follow these steps to quickly get started using smashr.
    ```R
    help(package = smashr)
    ```
-
-# Demonstration
-The method can be used straight out of the box using the default settings, and should work for most reasonable scenarios (eg the noise does not completely overwhelm the signal). An example is shown below:
-
+   
 ```
 # Create the baseline mean function (The "spikes" function is used as an example here)
 n = 2^9
@@ -101,4 +99,5 @@ of Chicago, with contributions from
 
 [smash-arxiv]: http://arxiv.org/abs/1605.07787
 [issues]: https://github.com/stephenslab/smashr/issues
-[gpl]: http://www.gnu.org/licenses/gpl.htmlow to
+[gpl]: http://www.gnu.org/licenses/gpl.html
+[fsf]: https://www.fsf.org
