@@ -1,5 +1,0 @@
-* Commands I am currently using to test the package:
-
-    R CMD build smashr
-    R CMD check --as-cran smashr_1.1-3.tar.gz
-

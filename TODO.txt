@@ -1,4 +1,0 @@
-to do
-=====
-
-* Fix up and test vignette.
