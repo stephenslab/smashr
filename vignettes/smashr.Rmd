@@ -278,7 +278,7 @@ mse(var.est.4, sigma.t.4^2)
 These plots show the ground-truth variance (black) against the
 variance functions estimated by SMASH (red).
 
-```{r plots-3, fig.width=5, fig.height=4}
+```{r plots-3, fig.width=5.5, fig.height=5}
 par(mfrow = c(2, 2))
 plot(sigma.t.1^2, xlab = "", ylab = "", type = "l", main = "V1")
 lines(var.est.1, col = 2)
@@ -383,13 +383,15 @@ mise(mu.est.ti.ebayes.inter, mu.t.inter, 10)
 Plot the estimated mean functions against the ground-truth function
 (in black).
 
-```{r plots-4, fig.width=12, fig.height=12, eval=FALSE}
+```{r plots-4, fig.width=5, fig.height=4}
 par(mfrow = c(1, 1))
 plot(t, mu.t, type = "l")
 lines(t, mu.est[, 1], col = 2)
 lines(t, mu.est.tivar.mad[, 1], col = 3)
 lines(t, mu.est.ti[1, ], col = 4)
 lines(t, mu.est.ti.ebayes[1, ], col = 6)
+legend("topright", legend = c("smash", "ti_rmad", "ti_homo", "ebayes_homo"),
+       fill = c(2, 3, 4, 6))
 ```
 
 ### Unevenly spaced data with non-constant variance
