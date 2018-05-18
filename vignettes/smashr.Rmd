@@ -9,9 +9,8 @@ vignette: >
 ---
 
 ```{r, echo = FALSE, message = FALSE}
-knitr::opts_chunk$set(collapse = TRUE,comment = "#",fig.width = 6.9,
-                      fig.height = 5.5,fig.align = "center",
-                      fig.cap = "&nbsp;",dpi = 120)
+knitr::opts_chunk$set(collapse = TRUE,comment = "#",fig.align = "center",
+                      fig.cap = "&nbsp;",dpi = 120,results = "hold")
 ```
 
 In this vignette, we assume a simple parametric model of the form
@@ -21,15 +20,15 @@ y_i = \mu_i + \epsilon_i,
 $$
 
 where $\epsilon_i \sim N(0,\sigma_i^2)$, and both $\mu$ and $\sigma$
-are unknowns. We use the procedure described in the documentation to
-estimate both the mean and the variances. Here we present a brief
-demonstration of the method.
+are unknowns. We use the "smash" procedure (SMoothing via Adaptive
+SHrinkage) to estimate both the mean and the variances. Here we
+present a brief demonstration of the method.
 
 We first look at mean estimation, which is our primary focus. A sample
 mean function is presented, as well as a couple of different variance
 functions. Our method is compared against a few other simple methods.
 
-# Set up environment
+## Set up environment
 
 We begin by loading the smashr, EbayesThresh and wavethresh packages.
 
@@ -39,7 +38,7 @@ library(EbayesThresh)
 library(wavethresh)
 ```
 
-# Preparations
+## Preparations
 
 First, we define the mean function used to simulate the data.
 
@@ -131,47 +130,45 @@ for (i in 1:10) {
 }
 ```
 
-*Add text here.*
+Assess the accuracy of the results.
 
-```{r mise}
-## MISEs
-## SMASH
-mise(t(mu.est), mu.t, 10)
-## TI thresholding with variance estimated from smash
-mise(t(mu.est.tivar.ash), mu.t, 10)
-## TI thresholding with variance estimated from running MAD
-mise(t(mu.est.tivar.mad), mu.t, 10)
-## TI thresholding with constant variance (estimated)
-mise(mu.est.ti, mu.t, 10)
-## EBayes with constant variance (estimated)
-mise(mu.est.ti.ebayes, mu.t, 10) 
+```{r calc-mise}
+cat("SMASH:",mise(t(mu.est), mu.t, 10),"\n")
+cat("TI thresholding with variance estimated from smash:",
+    mise(t(mu.est.tivar.ash), mu.t, 10),"\n")
+cat("TI thresholding with variance estimated from running MAD:",
+    mise(t(mu.est.tivar.mad), mu.t, 10),"\n")
+cat("TI thresholding with constant variance (estimated):",
+	mise(mu.est.ti, mu.t, 10),"\n")
+cat("EBayes with constant variance (estimated):",
+	mise(mu.est.ti.ebayes, mu.t, 10) ,"\n")
 ```
 
-*Add text here.*
+Plot the estimated mean functions against the ground-truth function
+(in black).
 
-```{r fig.width=12, fig.height=12}
-
+```{r plots-1, fig.width=5, fig.height=4}
 plot(mu.t, xlab = "", ylab = "", type = "l")
 lines(mu.est[, 1], col = 2)
 lines(mu.est.tivar.mad[, 1], col = 3)
 lines(mu.est.ti[1, ], col = 4)
 lines(mu.est.ti.ebayes[1, ], col = 6)
-legend("topright", legend = c("smash", "ti_rmad", "ti_homo", "ebayes_homo"), col = c(2, 3, 4, 6)) 
+legend("topright", legend = c("smash", "ti_rmad", "ti_homo", "ebayes_homo"),
+       fill = c(2, 3, 4, 6))
 ```
 
-We then look at the case of non-constant variance
-```{r}
-c## non-constant variance
+## Non-constant variance example
+
+Generate the data for this example.
+
+```{r non-constant-variance-example}
 sigma.ini = sqrt(var2)
 sigma.t = sigma.ini/mean(sigma.ini) * sd(mu.t)/rsnr^2
-
 set.seed(327)
 X.s = matrix(rnorm(10 * n, mu.t, sigma.t), nrow = 10, byrow = TRUE)
-
 mu.est = apply(X.s, 1, smash.gaus)
-mu.est.tivar.ash = apply(X.s, 1, ti.thresh, method = "smash", ashparam = list(nullcheck = FALSE))
+mu.est.tivar.ash = apply(X.s, 1, ti.thresh, method = "smash")
 mu.est.tivar.mad = apply(X.s, 1, ti.thresh, method = "rmad")
-
 mu.est.ti = matrix(0, 10, n)
 mu.est.ti.ebayes = matrix(0, 10, n)
 for (i in 1:10) {
@@ -179,40 +176,50 @@ for (i in 1:10) {
     mu.est.ti[i, ] = waveti.u(X.s[i, ], noise.level = sig.est)
     mu.est.ti.ebayes[i, ] = waveti.ebayes(X.s[i, ], noise.level = sig.est)
 }
+```
 
-## MISEs
+Assess the accuracy of the results.
 
-## smash
-mise(t(mu.est), mu.t, 10)
-## TI thresholding with variance estimated from smash
-mise(t(mu.est.tivar.ash), mu.t, 10)
-## TI thresholding with variance estimated from running MAD
-mise(t(mu.est.tivar.mad), mu.t, 10)
-## TI thresholding with constant variance (estimated)
-mise(mu.est.ti, mu.t, 10)
-## EBayes with constant variance (estimated)
-mise(mu.est.ti.ebayes, mu.t, 10) 
+```{r calc-mise-2}
+cat("SMASH:",mise(t(mu.est), mu.t, 10),"\n")
+cat("TI thresholding with variance estimated from smash:",
+    mise(t(mu.est.tivar.ash), mu.t, 10),"\n")
+cat("TI thresholding with variance estimated from running MAD:",
+    mise(t(mu.est.tivar.mad), mu.t, 10),"\n")
+cat("TI thresholding with constant variance (estimated):",
+	mise(mu.est.ti, mu.t, 10),"\n")
+cat("EBayes with constant variance (estimated):",
+	mise(mu.est.ti.ebayes, mu.t, 10) ,"\n")
+```
 
-````
+Plot the estimated mean functions against the ground-truth function
+(in black).
 
-```{r fig.width=12, fig.height=12}
+```{r plots-2, fig.width=5, fig.height=4}
 plot(mu.t, xlab = "", ylab = "", type = "l")
 lines(mu.est[, 1], col = 2)
 lines(mu.est.tivar.mad[, 1], col = 3)
 lines(mu.est.ti[1, ], col = 4)
 lines(mu.est.ti.ebayes[1, ], col = 6)
-legend("topright", legend = c("smash", "ti_rmad", "ti_homo", "ebayes_homo"), col = c(2, 3, 4, 6))
-
+legend("topright", legend = c("smash", "ti_rmad", "ti_homo", "ebayes_homo"),
+       fill = c(2, 3, 4, 6))
 ```
 
-Next we look at variance estimation. Because variance estimation is much harder, we use a larger sample size. Here $n=4096$. 
+## Estimating the variance function
 
-```{r}
+Next we look at variance estimation. Because variance estimation is
+much harder, we use a larger sample size. In this example, we set $n =
+4096$.
+
+```{r estimated-variance-example}
 n = 2^12
 t = 1:n/n
 mu.s = spike.f(t)
+```
 
-# define test functions
+Define the test functions and generate the data.
+
+```{r est-var-functions}
 pos = c(0.1, 0.13, 0.15, 0.23, 0.25, 0.4, 0.44, 0.65, 0.76, 0.78, 0.81)
 hgt = c(4, 5, 3, 4, 5, 4.2, 2.1, 4.3, 3.1, 5.1, 4.2)
 wth = c(0.005, 0.005, 0.006, 0.01, 0.01, 0.03, 0.01, 0.01, 0.005, 0.008, 0.005)
@@ -223,10 +230,14 @@ for (j in 1:length(pos)) {
 dop.f = function(x) sqrt(x * (1 - x)) * sin((2 * pi * 1.05)/(x + 0.05))
 mu.dop = dop.f(t)
 
-var1.ini = ((3 - 20 * t) * (t >= 0 & t < 0.1) + (20 * t - 1) * (t >= 0.1 & t < 0.25) + (4 + (1 - 4 * t) * 18/19) * (t >= 0.25 & t < 0.725) + 
-    (2.2 + 10 * (t - 0.725)) * (t >= 0.725 & t < 0.89) + (3.85 - 85 * (t - 0.89)/11) * (t >= 0.89 & t <= 1))
+var1.ini = ((3 - 20 * t) * (t >= 0 & t < 0.1) +
+  (20 * t - 1) * (t >= 0.1 & t < 0.25) +
+  (4 + (1 - 4 * t) * 18/19) * (t >= 0.25 & t < 0.725) + 
+  (2.2 + 10 * (t - 0.725)) * (t >= 0.725 & t < 0.89) +
+  (3.85 - 85 * (t - 0.89)/11) * (t >= 0.89 & t <= 1))
 var1 = var1.ini/sqrt(var(var1.ini))
-var2.ini = (1 + 4 * (exp(-550 * (t - 0.2)^2) + exp(-200 * (t - 0.5)^2) + exp(-950 * (t - 0.8)^2)))
+var2.ini = (1 + 4 * (exp(-550 * (t - 0.2)^2) +
+  exp(-200 * (t - 0.5)^2) + exp(-950 * (t - 0.8)^2)))
 var2 = var2.ini/sqrt(var(var2.ini))
 var3 = mu.b/sqrt(var(mu.b))
 var4 = (mu.dop + 2)/sqrt(var(mu.dop))
@@ -236,7 +247,6 @@ sigma.t.2 = sqrt(var2)
 sigma.t.3 = sqrt(var3)
 sigma.t.4 = sqrt(var4)
 
-
 set.seed(327)
 X.s.1 = rnorm(n, 0, sigma.t.1)
 set.seed(327)
@@ -245,19 +255,30 @@ set.seed(327)
 X.s.3 = rnorm(n, 0, sigma.t.3)
 set.seed(327)
 X.s.4 = rnorm(n, 0, sigma.t.4)
+```
 
+Fit the SMASH model to these data.
+
+```{r est-var-smash}
 var.est.1 = smash.gaus(X.s.1, v.est = TRUE)
 var.est.2 = smash.gaus(X.s.2, v.est = TRUE)
 var.est.3 = smash.gaus(X.s.3, v.est = TRUE)
 var.est.4 = smash.gaus(X.s.4, v.est = TRUE)
+```
 
+Evaluate the fit of these models.
+
+```{r est-var-mse}
 mse(var.est.1, sigma.t.1^2)
 mse(var.est.2, sigma.t.2^2)
 mse(var.est.3, sigma.t.3^2)
 mse(var.est.4, sigma.t.4^2)
 ```
 
-```{r fig.width=12, fig.height=12}
+These plots show the ground-truth variance (black) against the
+variance functions estimated by SMASH (red).
+
+```{r plots-3, fig.width=5, fig.height=4}
 par(mfrow = c(2, 2))
 plot(sigma.t.1^2, xlab = "", ylab = "", type = "l", main = "V1")
 lines(var.est.1, col = 2)
@@ -267,45 +288,50 @@ plot(sigma.t.3^2, xlab = "", ylab = "", type = "l", main = "V3")
 lines(var.est.3, col = 2)
 plot(sigma.t.4^2, xlab = "", ylab = "", type = "l", main = "V4")
 lines(var.est.4, col = 2) 
-
 ```
 
-Now we take a look at how this wavelet-based approach handles unevenly spaced data. Wavelet methods are not optimized for unevenly spaced, but still works. We first look at the case when the data are normally spaced.
+## Unevenly spaced data
 
-```{r}
+In this section, we examine how this wavelet-based approach handles
+unevenly spaced data. Wavelet methods are not optimized for unevenly
+spaced data, but still works. We first look at the case when the data are
+normally spaced.
+
+```{r unevenly-spaced}
 n = 1024
 t = sort(rnorm(1024, 0, 1))
 t = (t - min(t))/(max(t) - min(t))
-
 mu.s = spike.f(t)
+```
 
-## mean function
+Define mean function, signal-to-noise ratio, and the variance functions.
+
+```{r unevenly-spaced-functions}
 mu.t = (1 + mu.s)/5
-
-## signal to noise ratio
 rsnr = sqrt(1)
-
-## variance functions
 var1 = rep(1, n)
-var2 = (1e-04 + 4 * (exp(-550 * (t - 0.2)^2) + exp(-200 * (t - 0.5)^2) + exp(-950 * (t - 0.8)^2)))/1.35
+var2 = (1e-04 + 4 * (exp(-550 * (t - 0.2)^2) + exp(-200 * (t - 0.5)^2) +
+  exp(-950 * (t - 0.8)^2)))/1.35
 ```
 
+### Unevenly spaced data with constant variance
 
-```
+First, we look at the case of constant variance.
 
-We first look at the case of constant variance
-```{r}
-## constant variance
+```{r unevenly-spaced-const-var}
 sigma.ini = sqrt(var1)
 sigma.t = sigma.ini/mean(sigma.ini) * sd(mu.t)/rsnr^2
 
 set.seed(327)
 X.s = matrix(rnorm(10 * n, mu.t, sigma.t), nrow = 10, byrow = TRUE)
+```
 
+Apply the methods on the data.
+
+```{r unevenly-spaced-fit-models}
 mu.est = apply(X.s, 1, smash.gaus)
 mu.est.tivar.ash = apply(X.s, 1, ti.thresh, method = "smash")
 mu.est.tivar.mad = apply(X.s, 1, ti.thresh, method = "rmad")
-
 mu.est.ti = matrix(0, 10, n)
 mu.est.ti.ebayes = matrix(0, 10, n)
 for (i in 1:10) {
@@ -313,21 +339,25 @@ for (i in 1:10) {
     mu.est.ti[i, ] = waveti.u(X.s[i, ], noise.level = sig.est)
     mu.est.ti.ebayes[i, ] = waveti.ebayes(X.s[i, ], noise.level = sig.est)
 }
+```
 
-## MISEs for the sample points
+Assess the accuracy of the estimates.
 
-## smash
-mise(t(mu.est), mu.t, 10)
-## TI thresholding with variance estimated from smash
-mise(t(mu.est.tivar.ash), mu.t, 10)
-## TI thresholding with variance estimated from running MAD
-mise(t(mu.est.tivar.mad), mu.t, 10)
-## TI thresholding with constant variance (estimated)
-mise(mu.est.ti, mu.t, 10)
-## EBayes with constant variance (estimated)
-mise(mu.est.ti.ebayes, mu.t, 10)
+```{r calc-mise-3}
+cat("SMASH:",mise(t(mu.est), mu.t, 10),"\n")
+cat("TI thresholding with variance estimated from smash:",
+    mise(t(mu.est.tivar.ash), mu.t, 10),"\n")
+cat("TI thresholding with variance estimated from running MAD:",
+    mise(t(mu.est.tivar.mad), mu.t, 10),"\n")
+cat("TI thresholding with constant variance (estimated):",
+	mise(mu.est.ti, mu.t, 10),"\n")
+cat("EBayes with constant variance (estimated):",
+	mise(mu.est.ti.ebayes, mu.t, 10),"\n")
+```
 
-## MISEs for the grid
+Assess the accuracy over a grid.
+
+```{r calc-mise-grid}
 xgrid = 1:n/n
 mu.est.inter = matrix(0, 10, n)
 mu.est.tivar.ash.inter = matrix(0, 10, n)
@@ -343,38 +373,40 @@ for (i in 1:10) {
     
 }
 mu.t.inter = (spike.f(xgrid) + 1)/5
-
 mise(mu.est.inter, mu.t.inter, 10)
 mise(mu.est.tivar.ash.inter, mu.t.inter, 10)
 mise(mu.est.tivar.mad.inter, mu.t.inter, 10)
 mise(mu.est.ti.inter, mu.t.inter, 10)
 mise(mu.est.ti.ebayes.inter, mu.t.inter, 10) 
-
 ```
 
-```{r fig.width=12, fig.height=12}
+Plot the estimated mean functions against the ground-truth function
+(in black).
+
+```{r plots-4, fig.width=12, fig.height=12, eval=FALSE}
 par(mfrow = c(1, 1))
 plot(t, mu.t, type = "l")
 lines(t, mu.est[, 1], col = 2)
 lines(t, mu.est.tivar.mad[, 1], col = 3)
 lines(t, mu.est.ti[1, ], col = 4)
 lines(t, mu.est.ti.ebayes[1, ], col = 6)
-
 ```
 
-We then look at the case of non-constant variance
-```{r}
-## non-constant variance
+### Unevenly spaced data with non-constant variance
+
+We then look at the case of non-constant variance:
+
+```{r unevenly-spaced-nonconstant-var}
 sigma.ini = sqrt(var2)
 sigma.t = sigma.ini/mean(sigma.ini) * sd(mu.t)/rsnr^2
-
 set.seed(327)
 X.s = matrix(rnorm(10 * n, mu.t, sigma.t), nrow = 10, byrow = TRUE)
+```
 
+```{r unevenly-spaced-nonconstant-var-fit-models}
 mu.est = apply(X.s, 1, smash.gaus)
 mu.est.tivar.ash = apply(X.s, 1, ti.thresh, method = "smash")
 mu.est.tivar.mad = apply(X.s, 1, ti.thresh, method = "rmad")
-
 mu.est.ti = matrix(0, 10, n)
 mu.est.ti.ebayes = matrix(0, 10, n)
 for (i in 1:10) {
@@ -382,21 +414,25 @@ for (i in 1:10) {
     mu.est.ti[i, ] = waveti.u(X.s[i, ], noise.level = sig.est)
     mu.est.ti.ebayes[i, ] = waveti.ebayes(X.s[i, ], noise.level = sig.est)
 }
+```
 
-## MISEs
+Assess the accuracy of the estimates.
 
-## smash
-mise(t(mu.est), mu.t, 10)
-## TI thresholding with variance estimated from smash
-mise(t(mu.est.tivar.ash), mu.t, 10)
-## TI thresholding with variance estimated from running MAD
-mise(t(mu.est.tivar.mad), mu.t, 10)
-## TI thresholding with constant variance (estimated)
-mise(mu.est.ti, mu.t, 10)
-## EBayes with constant variance (estimated)
-mise(mu.est.ti.ebayes, mu.t, 10)
-
-## MISEs for the grid
+```{r calc-mise-4}
+cat("SMASH:",mise(t(mu.est), mu.t, 10),"\n")
+cat("TI thresholding with variance estimated from smash:",
+    mise(t(mu.est.tivar.ash), mu.t, 10),"\n")
+cat("TI thresholding with variance estimated from running MAD:",
+    mise(t(mu.est.tivar.mad), mu.t, 10),"\n")
+cat("TI thresholding with constant variance (estimated):",
+	mise(mu.est.ti, mu.t, 10),"\n")
+cat("EBayes with constant variance (estimated):",
+	mise(mu.est.ti.ebayes, mu.t, 10),"\n")
+```
+	
+Assess the accuracy over a grid.
+	
+```{r calc-mise-grid-2}
 xgrid = 1:n/n
 mu.est.inter = matrix(0, 10, n)
 mu.est.tivar.ash.inter = matrix(0, 10, n)
@@ -409,10 +445,8 @@ for (i in 1:10) {
     mu.est.tivar.mad.inter[i, ] = approx(t, mu.est.tivar.mad[, i], xgrid)$y
     mu.est.ti.inter[i, ] = approx(t, mu.est.ti[i, ], xgrid)$y
     mu.est.ti.ebayes.inter[i, ] = approx(t, mu.est.ti.ebayes[i, ], xgrid)$y
-    
 }
 mu.t.inter = (spike.f(xgrid) + 1)/5
-
 mise(mu.est.inter, mu.t.inter, 10)
 mise(mu.est.tivar.ash.inter, mu.t.inter, 10)
 mise(mu.est.tivar.mad.inter, mu.t.inter, 10)
@@ -420,20 +454,26 @@ mise(mu.est.ti.inter, mu.t.inter, 10)
 mise(mu.est.ti.ebayes.inter, mu.t.inter, 10) 
 ```
 
-```{r fig.width=12, fig.height=12}
+Plot the estimated mean functions against the ground-truth function
+(in black).
+
+```{r plots-5, fig.width=5, fig.height=4}
 par(mfrow = c(1, 1))
 plot(t, mu.t, xlab = "", ylab = "", type = "l")
 lines(t, mu.est[, 1], col = 2)
 lines(t, mu.est.tivar.mad[, 1], col = 3)
 lines(t, mu.est.ti[1, ], col = 4)
 lines(t, mu.est.ti.ebayes[1, ], col = 6)
-legend("topright", legend = c("smash", "ti_rmad", "ti_homo", "ebayes_homo"), col = c(2, 3, 4, 6)) 
-
+legend("topright", legend = c("smash", "ti_rmad", "ti_homo", "ebayes_homo"),
+       fill = c(2, 3, 4, 6)) 
 ```
 
-Now for the case when the data are distributed according to a Poisson Process.
+## Poisson-distributed data example
 
-```{r}
+Now for the case when the data are distributed according to a Poisson
+Process.
+
+```{r, eval=FALSE}
 n = 1024
 t = c(0, rexp(n - 1, 1))
 t = cumsum(t)
@@ -452,11 +492,9 @@ var1 = rep(1, n)
 var2 = (1e-04 + 4 * (exp(-550 * (t - 0.2)^2) + exp(-200 * (t - 0.5)^2) + exp(-950 * (t - 0.8)^2)))/1.35 
 ```
 
-
-```
-
 We first look at the case of constant variance
-```{r}
+
+```{r, eval=FALSE}
 ## constant variance
 sigma.ini = sqrt(var1)
 sigma.t = sigma.ini/mean(sigma.ini) * sd(mu.t)/rsnr^2
@@ -511,10 +549,9 @@ mise(mu.est.tivar.ash.inter, mu.t.inter, 10)
 mise(mu.est.tivar.mad.inter, mu.t.inter, 10)
 mise(mu.est.ti.inter, mu.t.inter, 10)
 mise(mu.est.ti.ebayes.inter, mu.t.inter, 10)
-
 ```
 
-```{r fig.width=12, fig.height=12}
+```{r fig.width=12, fig.height=12, eval=FALSE}
 par(mfrow = c(1, 1))
 plot(t, mu.t, xlab = "", ylab = "", type = "l")
 lines(t, mu.est[, 1], col = 2)
@@ -522,11 +559,10 @@ lines(t, mu.est.tivar.mad[, 1], col = 3)
 lines(t, mu.est.ti[1, ], col = 4)
 lines(t, mu.est.ti.ebayes[1, ], col = 6)
 legend("topright", legend = c("smash", "ti_rmad", "ti_homo", "ebayes_homo"), col = c(2, 3, 4, 6))
-
 ```
 
 We then look at the case of non-constant variance
-```{r}
+```{r, eval=FALSE}
 ## non-constant variance
 sigma.ini = sqrt(var2)
 sigma.t = sigma.ini/mean(sigma.ini) * sd(mu.t)/rsnr^2
@@ -583,7 +619,7 @@ mise(mu.est.ti.inter, mu.t.inter, 10)
 mise(mu.est.ti.ebayes.inter, mu.t.inter, 10)
 ```
 
-```{r fig.width=12, fig.height=12}
+```{r fig.width=12, fig.height=12, eval=FALSE}
 par(mfrow = c(1, 1))
 plot(t, mu.t, xlab = "", ylab = "", type = "l")
 lines(t, mu.est[, 1], col = 2)
@@ -591,15 +627,19 @@ lines(t, mu.est.tivar.mad[, 1], col = 3)
 lines(t, mu.est.ti[1, ], col = 4)
 lines(t, mu.est.ti.ebayes[1, ], col = 6)
 legend("topright", legend = c("smash", "ti_rmad", "ti_homo", "ebayes_homo"), col = c(2, 3, 4, 6)) 
-
 ```
 
-Now we look at some of the simulations in a couple of papers, as well as the datasets used in them. The first one is from Fan and Yao (1998). The simulation is as described in Example 2. To deal with the fact that the sample size is not a sample size of 2, we first reflect the right portion of the data about the right endpoint so that it is a power of 2. To make the data periodic, we then reflect the new data about the right endpoint again. Our results are shown below.
+Now we look at some of the simulations in a couple of papers, as well
+as the datasets used in them. The first one is from Fan and Yao
+(1998). The simulation is as described in Example 2. To deal with the
+fact that the sample size is not a sample size of 2, we first reflect
+the right portion of the data about the right endpoint so that it is a
+power of 2. To make the data periodic, we then reflect the new data
+about the right endpoint again. Our results are shown below.
 
-```{r}
+```{r, eval=FALSE}
 mu.mad = 0
 var.mad = 0
-
 
 for (i in 1:400) {
     x = sort(runif(200, -2, 2))
@@ -625,7 +665,7 @@ for (i in 1:400) {
     
     mu.mad[i] = 1/101 * sum(abs(mu.est.inter - mu.t.inter))
     var.mad[i] = 1/101 * sum(abs(var.est.inter - var.t.inter))
-    
+   
 }
 
 boxplot(var.mad)
@@ -637,9 +677,11 @@ plot(x, sigma.t^2, xlab = "", ylab = "", type = "l", main = "var function")
 lines(x, var.est[1:200], col = 2) 
 ```
 
-We also look at the dataset in Example 1 of Fan and Yao (1998). To take into account replicates, we take the median of the response at the same point The results are shown below.
+We also look at the dataset in Example 1 of Fan and Yao (1998). To
+take into account replicates, we take the median of the response at
+the same point The results are shown below.
 
-```{r}
+```{r, eval=FALSE}
 data = read.csv("treas_bill.csv", header = FALSE)
 data = as.numeric(data[, 1])
 
@@ -668,8 +710,7 @@ y.est.var = smash.gaus(y.final, v.est = TRUE)
 
 ```
 
-
-```{r fig.width=12, fig.height=12}
+```{r fig.width=12, fig.height=12, eval=FALSE}
 par(mfrow = c(2, 2))
 plot(data, xlab = "year", ylab = "interest rate", type = "l")
 
@@ -681,10 +722,12 @@ plot(x.mod, y.est[1:(length(y.mod))], xlab = "X", ylab = "Y", type = "l", ylim =
 plot(x.mod, sqrt(y.est.var[1:(length(y.mod))]), xlab = "X", ylab = "volatility", type = "l")
 ````
 
-We now look at the paper by Delouille et al. (2004). Specifically, we compare with the heavisine function used in section 6, as the actual function is readily available. The results for $n=200$ for both the homoskedastic and teh heteroskedastic cases are given.
+We now look at the paper by Delouille et al. (2004). Specifically, we
+compare with the heavisine function used in section 6, as the actual
+function is readily available. The results for $n=200$ for both the
+homoskedastic and teh heteroskedastic cases are given.
 
-```{r}
-
+```{r, eval=FALSE}
 n = 200
 mse.hsm.c = 0
 mse.hsm.n = 0
@@ -727,10 +770,10 @@ sqrt(quantile(mse.hsm.c, seq(0.25, 0.75, 0.25)))
 sqrt(quantile(mse.hsm.n, seq(0.25, 0.75, 0.25))) 
 ```
 
+We also look at the motorcycle in the same paper. We plot the data
+points and fit, as well as the estimated variances.
 
-We also look at the motorcycle in the same paper. We plot the data points and fit, as well as the estimated variances.
-
-```{r}
+```{r, eval=FALSE}
 library(MASS)
 
 x.ini = sort(mcycle$times)
@@ -742,7 +785,6 @@ for (i in 1:length(x)) {
     y[i] = median(y.ini[x.ini == x[i]])
 }
 
-
 y.exp = c(y, y[length(y):(2 * length(y) - 128 + 1)])
 y.final = c(y.exp, y.exp[length(y.exp):1])
 
@@ -750,5 +792,4 @@ y.est = smash.gaus(y.final)
 y.est = y.est[1:length(y)]
 y.var.est = smash.gaus(y.final, v.est = TRUE)
 y.var.est = y.var.est[1:length(y)] 
-
 ```
