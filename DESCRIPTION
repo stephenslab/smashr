@@ -27,6 +27,7 @@ Imports:
     ashr
 Suggests:
     knitr,
+    EbayesThresh,
     testthat
 LinkingTo: Rcpp
 NeedsCompilation: yes

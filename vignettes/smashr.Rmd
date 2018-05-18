@@ -11,7 +11,7 @@ vignette: >
 ```{r, echo = FALSE, message = FALSE}
 knitr::opts_chunk$set(collapse = TRUE,comment = "#",fig.width = 6.9,
                       fig.height = 5.5,fig.align = "center",
-                      fig.cap = "&nbsp;",dpi = 120, eval = FALSE)
+                      fig.cap = "&nbsp;",dpi = 120)
 ```
 
 In this vignette, we assume a simple parametric model of the form
@@ -31,43 +31,62 @@ functions. Our method is compared against a few other simple methods.
 
 # Set up environment
 
-We begin by loading the smashr package.
+We begin by loading the smashr, EbayesThresh and wavethresh packages.
 
 ```{r load-pkgs, message=FALSE}
 library(smashr)
 library(EbayesThresh)
+library(wavethresh)
 ```
 
-## Create mean function
+# Preparations
 
 First, we define the mean function used to simulate the data.
 
-```{r}
-spike.f = function(x) (0.75 * exp(-500 * (x - 0.23)^2) + 1.5 * exp(-2000 * (x - 0.33)^2) + 3 * exp(-8000 * (x - 0.47)^2) + 2.25 * exp(-16000 * 
-    (x - 0.69)^2) + 0.5 * exp(-32000 * (x - 0.83)^2))
-n = 1024
-t = 1:n/n
-mu.s = spike.f(t)
+```{r define-spike-function}
+spike.f <- function(x) (0.75 * exp(-500 * (x - 0.23)^2) +
+  1.5  * exp(-2000  * (x - 0.33)^2) +
+  3    * exp(-8000  * (x - 0.47)^2) +
+  2.25 * exp(-16000 * (x - 0.69)^2) +
+  0.5  * exp(-32000 * (x - 0.83)^2))
+n    <- 1024
+t    <- 1:n/n
+mu.s <- spike.f(t)
+```
 
-# define functions to be used later
-mse = function(x, y) mean((x - y)^2)
-l2norm = function(x) sum(x^2)
-mise = function(x, y, r) 10000 * mean(apply(x - rep(1, r) %o% y, 1, l2norm)/l2norm(y))
-sig.est.func = function(x, n) sqrt(2/(3 * (n - 2)) * sum((1/2 * x[1:(n - 2)] - x[2:(n - 1)] + 1/2 * x[3:n])^2))
+Define a few other functions which will be used in the code chunks
+below.
 
-## Default R wavelet thresholding method, written into a single function
-waveti.u = function(x, filter.number = 10, family = "DaubLeAsymm", min.level = 3, noise.level) {
+```{r define-functions}
+mse    <- function(x, y) mean((x - y)^2)
+l2norm <- function(x) sum(x^2)
+mise   <- function(x, y, r)
+  10000 * mean(apply(x - rep(1, r) %o% y, 1, l2norm)/l2norm(y))
+sig.est.func <- function(x, n)
+  sqrt(2/(3 * (n - 2)) * sum((1/2 * x[1:(n - 2)] - x[2:(n - 1)] +
+  1/2 * x[3:n])^2))
+```
+
+Define a function for the default wavelet thresholding method.
+
+```{r define-wavelet-default}
+waveti.u <- function(x, filter.number = 10, family = "DaubLeAsymm",
+                     min.level = 3, noise.level) {
     TT = length(x)
     thresh = noise.level * sqrt(2 * log(TT))
-    x.w = wd(x, filter.number, family, type = "station")
-    x.w.t = threshold(x.w, levels = (min.level):(x.w$nlevels - 1), policy = "manual", value = thresh, type = "hard")
+    x.w = wavethresh::wd(x, filter.number, family, type = "station")
+    x.w.t = threshold(x.w, levels = (min.level):(x.w$nlevels - 1),
+	                  policy = "manual", value = thresh, type = "hard")
     x.w.t.r = AvBasis(convert(x.w.t))
     return(x.w.t.r)
 }
+```
 
+Define another function for the default EbayesThresh method.
 
-## Similarly for Ebayesthresh
-waveti.ebayes = function(x, filter.number = 10, family = "DaubLeAsymm", min.level = 3, noise.level) {
+```{r define-ebayesthresh-default}
+waveti.ebayes <- function(x, filter.number = 10, family = "DaubLeAsymm",
+                          min.level = 3, noise.level) {
     n = length(x)
     J = log2(n)
     x.w = wd(x, filter.number, family, type = "station")
@@ -78,41 +97,44 @@ waveti.ebayes = function(x, filter.number = 10, family = "DaubLeAsymm", min.leve
     mu.est = AvBasis(convert(x.w))
     return(mu.est)
 }
-
-## mean function
-mu.t = (1 + mu.s)/5
-
-## signal to noise ratio
-rsnr = sqrt(1)
-
-## variance functions
-var1 = rep(1, n)
-var2 = (1e-04 + 4 * (exp(-550 * (t - 0.2)^2) + exp(-200 * (t - 0.5)^2) + exp(-950 * (t - 0.8)^2)))/1.35 
 ```
 
-We first look at the case of constant variance
-```{r}
-## constant variance
-sigma.ini = sqrt(var1)
-sigma.t = sigma.ini/mean(sigma.ini) * sd(mu.t)/rsnr^2
+For the first demonstration, define the mean and variance functions,
+and set the signal to noise ratio.
 
+```{r mean-and-variance-functions}
+mu.t <- (1 + mu.s)/5
+rsnr <- sqrt(1)
+var1 <- rep(1, n)
+var2 <- (1e-04 + 4 * (exp(-550 * (t - 0.2)^2) + exp(-200 * (t - 0.5)^2) +
+          exp(-950 * (t - 0.8)^2)))/1.35 
+```
+
+## Constant variance example
+
+We first look at the case of constant variance.
+
+```{r constant-variance-example}
 set.seed(327)
-X.s = matrix(rnorm(10 * n, mu.t, sigma.t), nrow = 10, byrow = TRUE)
-
-mu.est = apply(X.s, 1, smash.gaus)
-mu.est.tivar.ash = apply(X.s, 1, ti.thresh, method = "smash")
-mu.est.tivar.mad = apply(X.s, 1, ti.thresh, method = "rmad")
-
-mu.est.ti = matrix(0, 10, n)
-mu.est.ti.ebayes = matrix(0, 10, n)
+sigma.ini <- sqrt(var1)
+sigma.t   <- sigma.ini/mean(sigma.ini) * sd(mu.t)/rsnr^2
+X.s       <- matrix(rnorm(10 * n, mu.t, sigma.t), nrow = 10, byrow = TRUE)
+mu.est    <- apply(X.s, 1, smash.gaus)
+mu.est.tivar.ash <- apply(X.s, 1, ti.thresh, method = "smash")
+mu.est.tivar.mad <- apply(X.s, 1, ti.thresh, method = "rmad")
+mu.est.ti        <- matrix(0, 10, n)
+mu.est.ti.ebayes <- matrix(0, 10, n)
 for (i in 1:10) {
-    sig.est = sig.est.func(X.s[i, ], n)
-    mu.est.ti[i, ] = waveti.u(X.s[i, ], noise.level = sig.est)
-    mu.est.ti.ebayes[i, ] = waveti.ebayes(X.s[i, ], noise.level = sig.est)
+  sig.est = sig.est.func(X.s[i, ], n)
+  mu.est.ti[i, ] = waveti.u(X.s[i, ], noise.level = sig.est)
+  mu.est.ti.ebayes[i, ] = waveti.ebayes(X.s[i, ], noise.level = sig.est)
 }
+```
 
+*Add text here.*
+
+```{r mise}
 ## MISEs
-
 ## SMASH
 mise(t(mu.est), mu.t, 10)
 ## TI thresholding with variance estimated from smash
@@ -124,6 +146,8 @@ mise(mu.est.ti, mu.t, 10)
 ## EBayes with constant variance (estimated)
 mise(mu.est.ti.ebayes, mu.t, 10) 
 ```
+
+*Add text here.*
 
 ```{r fig.width=12, fig.height=12}
 
