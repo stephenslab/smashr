@@ -635,21 +635,24 @@ legend("topright", legend = c("smash", "ti_rmad", "ti_homo", "ebayes_homo"),
        fill = c(2, 3, 4, 6)) 
 ```
 
-### Example from Fan & Yao (1998)
+## Simulation example from Fan & Yao (1998)
 
 Now we look at some of the simulations in a couple of papers, as well
-as the datasets used in them. The first one is from Fan and Yao
-(1998). The simulation is as described in Example 2. To deal with the
-fact that the sample size is not a sample size of 2, we first reflect
-the right portion of the data about the right endpoint so that it is a
+as the datasets used in them. The first one is from
+[Fan & Yao (1998)](https://doi.org/10.1093/biomet/85.3.645).
+The simulation is as described in Example 2. To deal with the fact
+that the sample size is not a sample size of 2, we first reflect the
+right portion of the data about the right endpoint so that it is a
 power of 2. To make the data periodic, we then reflect the new data
 about the right endpoint again. Our results are shown below.
 
-```{r, eval=FALSE}
+```{r fan-yao}
 mu.mad = 0
 var.mad = 0
 
+cat("Running 400 simulations.\n")
 for (i in 1:400) {
+    cat(i,"")
     x = sort(runif(200, -2, 2))
     err = rnorm(200)
     sigma.t = 0.4 * exp(-2 * x^2) + 0.2
@@ -673,9 +676,13 @@ for (i in 1:400) {
     
     mu.mad[i] = 1/101 * sum(abs(mu.est.inter - mu.t.inter))
     var.mad[i] = 1/101 * sum(abs(var.est.inter - var.t.inter))
-   
 }
+cat("\n")	
+```
 
+*Add text here.*
+
+```{r}
 boxplot(var.mad)
 
 plot(x, mu.t, xlab = "", ylab = "", type = "l", main = "mean function")
@@ -685,12 +692,14 @@ plot(x, sigma.t^2, xlab = "", ylab = "", type = "l", main = "var function")
 lines(x, var.est[1:200], col = 2) 
 ```
 
-We also look at the dataset in Example 1 of Fan and Yao (1998). To
-take into account replicates, we take the median of the response at
-the same point The results are shown below.
+## Treasury Bill example from Fan & Yao (1998)
+
+We also apply SMASH to the dataset in Example 1 of the Fan & Yao
+(1998) paper. To take into account replicates, we take the median of
+the response at the same point The results are shown below.
 
 ```{r, eval=FALSE}
-data = read.csv("treas_bill.csv", header = FALSE)
+treas = read.csv("treas_bill.csv", header = FALSE)
 data = as.numeric(data[, 1])
 
 library(tseries)
