@@ -699,8 +699,7 @@ We also apply SMASH to the dataset in Example 1 of the Fan & Yao
 the response at the same point The results are shown below.
 
 ```{r, eval=FALSE}
-treas = read.csv("treas_bill.csv", header = FALSE)
-data = as.numeric(data[, 1])
+data(treas)
 
 library(tseries)
 
