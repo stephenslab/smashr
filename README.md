@@ -39,11 +39,20 @@ Follow these steps to quickly get started using smashr.
    ```R
    install.packages("devtools")
    library(devtools)
-   install_github("stephenslab/smashr",build_vignettes = TRUE)
+   install_github("stephenslab/smashr")
    ```
 
-   The `install_github` call should also install any missing packages
-   that are required for smashr to work.
+   This will build the smashr package *without* the vignettes. To
+   build with the vignettes, do this instead:
+
+   ```R
+   install_github("stephenslab/smashr",build_vignettes = TRUE)
+   ```
+   
+   We caution that some of the simulation examples may take a long
+   time to run (5--10 minutes, or possibly longer). Also note that the
+   `install_github` call should also install any missing packages that
+   are required for smashr to work.
 
 2. Load the smashr package, and run the smashr demo:
 
