@@ -30,9 +30,11 @@ functions. Our method is compared against a few other simple methods.
 
 ## Set up environment
 
-We begin by loading the smashr, EbayesThresh and wavethresh packages.
+We begin by loading the MASS, smashr, EbayesThresh and wavethresh
+packages.
 
 ```{r load-pkgs, message=FALSE}
+library(MASS)
 library(smashr)
 library(EbayesThresh)
 library(wavethresh)
@@ -696,54 +698,57 @@ lines(x, var.est[1:200], col = 2)
 
 We also apply SMASH to the dataset in Example 1 of the Fan & Yao
 (1998) paper. To take into account replicates, we take the median of
-the response at the same point The results are shown below.
+the response at the same point. The results are shown below.
 
-```{r, eval=FALSE}
+```{r load-treas-data}
 data(treas)
-
-library(tseries)
-
-y = ar(data, FALSE, 5)$res
+y = ar(treas,FALSE,5)$res
 y = y[!is.na(y)]
-x = sort(data[5:(length(data) - 1)])
-y = y[order(data[5:(length(data) - 1)])]
+x = sort(treas[5:(length(treas) - 1)])
+y = y[order(treas[5:(length(treas) - 1)])]
+```
 
+Plot the Treasury bill data.
+
+```{r plot-treas-data, fig.width=5, fig.height=4}
 plot(x, y)
+```
 
-## average replicate data
+## Average replicate data
 
+```{r average-treas-data}
 x.mod = unique(x)
 y.mod = 0
 for (i in 1:length(x.mod)) {
     y.mod[i] = median(y[x == x.mod[i]])
 }
-
 y.exp = c(y.mod, y.mod[length(y.mod):(2 * length(y.mod) - 2^10 + 1)])
 y.final = c(y.exp, y.exp[length(y.exp):1])
-
 y.est = smash.gaus(y.final)
 y.est.var = smash.gaus(y.final, v.est = TRUE) 
-
 ```
 
-```{r fig.width=12, fig.height=12, eval=FALSE}
-par(mfrow = c(2, 2))
-plot(data, xlab = "year", ylab = "interest rate", type = "l")
+More plots of the data.
 
+```{r plot-treas-results, fig.width=5.5, fig.height=5}
+par(mfrow = c(2, 2))
+plot(treas, xlab = "year", ylab = "interest rate", type = "l")
 plot(x, y)
 lines(x.mod, y.est[1:(length(y.mod))], xlab = "X", ylab = "Y", col = 2)
-
-plot(x.mod, y.est[1:(length(y.mod))], xlab = "X", ylab = "Y", type = "l", ylim = c(-0.3, 0.3))
-
-plot(x.mod, sqrt(y.est.var[1:(length(y.mod))]), xlab = "X", ylab = "volatility", type = "l")
+plot(x.mod, y.est[1:(length(y.mod))], xlab = "X", ylab = "Y", type = "l",
+     ylim = c(-0.3, 0.3))
+plot(x.mod, sqrt(y.est.var[1:(length(y.mod))]), xlab = "X",
+     ylab = "volatility", type = "l")
 ````
 
-We now look at the paper by Delouille et al. (2004). Specifically, we
+## Heavisine example from Delouille *et al* (2004)
+
+We now examine the example from Delouille et al. (2004). Specifically, we
 compare with the heavisine function used in section 6, as the actual
 function is readily available. The results for $n=200$ for both the
-homoskedastic and teh heteroskedastic cases are given.
+homoskedastic and the heteroskedastic cases are given.
 
-```{r, eval=FALSE}
+```{r heavisine}
 n = 200
 mse.hsm.c = 0
 mse.hsm.n = 0
@@ -786,12 +791,13 @@ sqrt(quantile(mse.hsm.c, seq(0.25, 0.75, 0.25)))
 sqrt(quantile(mse.hsm.n, seq(0.25, 0.75, 0.25))) 
 ```
 
+## Motorcycle example from Delouille *et al* (2004)
+
 We also look at the motorcycle in the same paper. We plot the data
 points and fit, as well as the estimated variances.
 
 ```{r, eval=FALSE}
-library(MASS)
-
+data(mcycle)
 x.ini = sort(mcycle$times)
 y.ini = mcycle$accel[order(mcycle$times)]
 

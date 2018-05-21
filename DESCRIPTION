@@ -27,6 +27,7 @@ Imports:
     ashr
 Suggests:
     knitr,
+    MASS,
     EbayesThresh,
     testthat
 LinkingTo: Rcpp
