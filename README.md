@@ -50,7 +50,7 @@ Follow these steps to quickly get started using smashr.
    ```
    
    We caution that some of the simulation examples may take a long
-   time to run (5--10 minutes, or possibly longer). Also note that the
+   time to run (20--30 minutes, or possibly longer). Also note that the
    `install_github` call should also install any missing packages that
    are required for smashr to work.
 
@@ -61,7 +61,8 @@ Follow these steps to quickly get started using smashr.
    demo("smashr")
    ```
    
-3. To learn more, see the smashr package help and the smashr vignette:
+3. To learn more, see the smashr package help and the smashr vignette
+   (which you can also view [here]()):
 
    ```R
    help(package = "smashr")

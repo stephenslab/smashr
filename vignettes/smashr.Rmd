@@ -784,7 +784,6 @@ for (i in 1:500) {
     mu.est <- smash.gaus(y.final)
     mu.est = mu.est[1:n]
     mse.hsm.n[i] = mse(mu.est, mu.t)
-    
 }
 
 sqrt(quantile(mse.hsm.c, seq(0.25, 0.75, 0.25)))
