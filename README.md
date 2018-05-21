@@ -81,3 +81,4 @@ of Chicago, with contributions from
 [issues]: https://github.com/stephenslab/smashr/issues
 [gpl]: http://www.gnu.org/licenses/gpl.html
 [fsf]: https://www.fsf.org
+[smashr-web]: https://stephenslab.github.io/smashr

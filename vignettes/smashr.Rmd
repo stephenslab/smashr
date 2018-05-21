@@ -682,14 +682,12 @@ for (i in 1:400) {
 cat("\n")	
 ```
 
-*Add text here.*
+Show the model fitting results.
 
-```{r}
+```{r fig.width=5, fig.height=4}
 boxplot(var.mad)
-
 plot(x, mu.t, xlab = "", ylab = "", type = "l", main = "mean function")
 lines(x, mu.est[1:200], col = 2)
-
 plot(x, sigma.t^2, xlab = "", ylab = "", type = "l", main = "var function")
 lines(x, var.est[1:200], col = 2) 
 ```
@@ -813,4 +811,13 @@ y.est = smash.gaus(y.final)
 y.est = y.est[1:length(y)]
 y.var.est = smash.gaus(y.final, v.est = TRUE)
 y.var.est = y.var.est[1:length(y)] 
+```
+
+## Session info
+
+This is the version of R and the packages that were used to generate
+the results shown above.
+
+```{r session-info}
+sessionInfo()
 ```
