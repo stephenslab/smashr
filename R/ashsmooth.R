@@ -164,7 +164,7 @@ mu.smooth = function (wc, data.var, basis, tsum, Wl, return.loglr,
             ind.nnull = (vtable[j + 2, ] != 0)
             zdat.ash = shrink.wc(y[j + 2, ind.nnull], sqrt(vtable[j + 2,
                                  ind.nnull]), ashparam, jash = FALSE,
-                df = NULL, SGD = FALSE)
+                                 df = NULL, SGD = FALSE)
             wmean[j + 1, ind.nnull] = get_pm(zdat.ash)/2
             wmean[j + 1, !ind.nnull] = 0
             if (return.loglr == TRUE) {
@@ -193,7 +193,6 @@ mu.smooth = function (wc, data.var, basis, tsum, Wl, return.loglr,
         }
     } else {
         x.w = wc
-
         # Diagonal of W*V*W'.
         x.w.v = apply((rep(1, n * J) %o% data.var) * Wl$W2, 1, sum)
         x.pm = rep(0, n)
@@ -206,7 +205,7 @@ mu.smooth = function (wc, data.var, basis, tsum, Wl, return.loglr,
             ind.nnull = (x.w.v.j != 0)
             zdat.ash = shrink.wc(x.w.j[ind.nnull],
               sqrt(x.w.v.j[ind.nnull]), ashparam, jash = FALSE,
-              df = NULL, SGD = FALSE)
+                df = NULL, SGD = FALSE)
             x.pm[ind.nnull] = get_pm(zdat.ash)
             x.pm[!ind.nnull] = 0
             x.w = wavethresh::putD(x.w, j, x.pm)
@@ -220,8 +219,8 @@ mu.smooth = function (wc, data.var, basis, tsum, Wl, return.loglr,
                 logLR.scale[j + 1] = logLR.temp/spins
             }
             if (post.var == TRUE) {
-                x.w.v.s[index[ind.nnull]] = get_psd(zdat.ash)^2
-                x.w.v.s[index[!ind.nnull]] = 0
+              x.w.v.s[index[ind.nnull]] = get_psd(zdat.ash)^2
+              x.w.v.s[index[!ind.nnull]] = 0
             }
         }
         mu.est = wavethresh::AvBasis(wavethresh::convert(x.w))
@@ -303,7 +302,7 @@ var.smooth = function (data, data.var, x.var.ini, basis, v.basis, Wl,
             ind.nnull = (x.w.v.j != 0)
             zdat.ash = shrink.wc(x.w.j[ind.nnull], sqrt(x.w.v.j[ind.nnull]),
                                  ashparam, jash = jash,
-                                  df = min(50, 2^(j + 1)), SGD = SGD)
+                df = min(50, 2^(j + 1)), SGD = SGD)
             x.pm[ind.nnull] = get_pm(zdat.ash)
             x.pm[!ind.nnull] = 0
             if ((sum(is.na(x.pm)) > 0) & (SGD == TRUE)) {

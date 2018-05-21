@@ -566,5 +566,6 @@ jasha = function (betahat, betahatsd, df, auto = FALSE, precShape = NULL,
                 localfdr = localfdr, qvalue = qvalue,
                 null.postprob = null.postprob, a.vec = pifit$a.vec,
                 lambda.vec = pifit$lambda.vec, c.vec = pifit$c.vec,
-                mu = mu, loglik = loglik))
+                mu = mu, loglik = loglik,
+                result = list(PosteriorMean = PosteriorMean)))
 } 
