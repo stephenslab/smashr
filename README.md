@@ -27,14 +27,14 @@ paper:
 
 > Zhengrong Xing and Matthew Stephens (2016). *Smoothing via Adaptive
 > Shrinkage (smash): denoising Poisson and heteroskedastic Gaussian
-> signals.* [arXiv:1605.07787](https://arxiv.org/abs/1605.07787).
+> signals.* [arXiv:1605.07787][smash-arxiv].
 
 ## Quick Start
 
 Follow these steps to quickly get started using smashr.
 
 1. In R, install the latest version of smashr (with the vignettes
-   enabled) using [devtools](https://github.com/r-lib/devtools):
+   enabled) using [devtools][devtools]:
 
    ```R
    install.packages("devtools")
@@ -62,7 +62,7 @@ Follow these steps to quickly get started using smashr.
    ```
    
 3. To learn more, see the smashr package help and the smashr vignette
-   (which you can also view [here]()):
+   (which you can also view [here][smashr-web]):
 
    ```R
    help(package = "smashr")
@@ -82,3 +82,4 @@ of Chicago, with contributions from
 [gpl]: http://www.gnu.org/licenses/gpl.html
 [fsf]: https://www.fsf.org
 [smashr-web]: https://stephenslab.github.io/smashr
+[devtools]: https://github.com/r-lib/devtools
