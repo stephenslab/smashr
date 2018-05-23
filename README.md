@@ -71,11 +71,9 @@ Follow these steps to quickly get started using smashr.
    
 ## Credits
 
-This R package was developed by
-[Zhengrong Xing](https://github.com/zrxing) and
-[Matthew Stephens](http://stephenslab.uchicago.edu) at the University
-of Chicago, with contributions from
-[Peter Carbonetto](http://pcarbo.github.io).
+This R package was developed by [Zhengrong Xing][zhengrong] and
+[Matthew Stephens][matthew] at the University of Chicago, with
+contributions from [Peter Carbonetto][peter].
 
 [smash-arxiv]: http://arxiv.org/abs/1605.07787
 [issues]: https://github.com/stephenslab/smashr/issues
@@ -83,3 +81,6 @@ of Chicago, with contributions from
 [fsf]: https://www.fsf.org
 [smashr-web]: https://stephenslab.github.io/smashr
 [devtools]: https://github.com/r-lib/devtools
+[zhengrong]: https://github.com/zrxing
+[matthew]: http://stephenslab.uchicago.edu
+[peter]: http://pcarbo.github.io
