@@ -33,8 +33,7 @@ paper:
 
 Follow these steps to quickly get started using smashr.
 
-1. In R, install the latest version of smashr (with the vignettes
-   enabled) using [devtools][devtools]:
+1. In R, install the latest version of smashr using [devtools][devtools]:
 
    ```R
    install.packages("devtools")
