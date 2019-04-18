@@ -73,24 +73,33 @@
 #' # ------------
 #' # Scale the signal to be non-zero and to have a low average intensity.
 #' mu.t = 0.01 + mu.s
-#' 
+#'
 #' # Simulate an example dataset
 #' X.s = rpois(n, mu.t)
-#' 
+#'
 #' # Run smash (Poisson version is run since observations are counts).
 #' mu.est = smash(X.s)
-#' 
+#'
 #' # Plot the true mean function as well as the estimated one.
 #' plot(mu.t, type = "l")
 #' lines(mu.est, col = 2)
 #'
 #' @export
-#' 
+#'
 smash = function (x, model = NULL, ...) {
   if(!is.null(model)){
     if (!(model == "gaus" | model == "poiss")) {
       stop("Error: model must be NULL or one of 'gaus' or 'poiss'")
     }
+  }
+
+  #reflect x if the length of x is not a power of 2
+  n = length(x)
+  if (ceiling(log2(n)) != floor(log2(n))){
+    x = c(x, rev(x))
+    J = floor(log2(2*n))
+    x = x[1:2^J]
+    x = c(x, rev(x))
   }
 
   if (is.null(model)){
@@ -102,11 +111,11 @@ smash = function (x, model = NULL, ...) {
   }
 
   if (model == "gaus") {
-    return(smash.gaus(x, ...))
+    return(smash.gaus(x, ...)[1:n])
   }
 
   if (model == "poiss") {
-    return(smash.poiss(x, ...))
+    return(smash.poiss(x, ...)[1:n])
   }
 }
 
@@ -579,9 +588,9 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
 #'
 #' @details Uses formula (3) from Brown and Levine (2007), Annals of
 #'   Statistics, who attribute it to Gasser et al.
-#' 
+#'
 #' @export
-#' 
+#'
 sd_estimate_gasser_etal = function(x){
   n = length(x)
   sqrt(2/(3 * (n - 2)) * sum((1/2 * x[1:(n - 2)] - x[2:(n - 1)] +
@@ -692,7 +701,7 @@ ti.thresh = function (x, sigma = NULL, method = "smash", filter.number = 1,
         Wl = ndwt.mat(n, filter.number = filter.number, family = family)
 
         # Diagonal of W*V*W'.
-        x.w.v = apply((rep(1, n * J) %o% (sigma^2)) * Wl$W2, 1, sum)  
+        x.w.v = apply((rep(1, n * J) %o% (sigma^2)) * Wl$W2, 1, sum)
         x.w.t = threshold.var(x.w, x.w.v, lambda.thresh,
                               levels = (min.level):(J - 1),
                               type = "hard")
@@ -704,15 +713,15 @@ ti.thresh = function (x, sigma = NULL, method = "smash", filter.number = 1,
 # @description Reflects a vector if it has length a power of 2;
 # otherwise extends the vector to have length a power of 2 and then
 # reflects it.
-# 
+#
 # @param x An n-vector.
-# 
+#
 # @return An n-vector containing the indices of the original signal x.
 reflect <- function (x) {
     n = length(x)
     J = log2(n)
     if ((J%%1) == 0) {
-        
+
         # if J is an integer, i.e. n is a power of 2.
         eval.parent(substitute(x <- c(x, x[n:1])))
         return(1:n)
@@ -771,7 +780,7 @@ compute.res <- function (alpha, log) {
 #' @importFrom ashr ash
 #' @importFrom ashr get_pm
 #' @importFrom ashr get_psd
-#' 
+#'
 getlist.res = function (res, j, n, zdat, log, shrink, ashparam) {
   ind = ((j - 1) * n + 1):(j * n)
   if (shrink == TRUE) {
