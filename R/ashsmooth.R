@@ -15,8 +15,10 @@
 #'   but are similarly "spatially structured" as with the mean
 #'   function. The functions \code{ashsmooth.gaus} and
 #'   \code{ashsmooth.pois} perform smoothing for Gaussian and Poisson
-#'   data respectively. The only required input is a vector of length
-#'   2^J for some integer J. Other options include the possibility of
+#'   data respectively. This method does not require the input to be a
+#'   vector of length 2^J for some integer J since it performs data
+#'   reflection in the beginning and cut back to the same length at the end.
+#'   Other options include the possibility of
 #'   returning the posterior variances, specifying a wavelet basis
 #'   (default is Haar, which performs well in general due to the fact
 #'   that we used the translation-invariant version).
