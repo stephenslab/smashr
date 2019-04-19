@@ -95,15 +95,6 @@ smash = function (x, model = NULL, ...) {
     }
   }
 
-  #reflect x if the length of x is not a power of 2
-  n = length(x)
-  if (ceiling(log2(n)) != floor(log2(n))){
-    x = c(x, rev(x))
-    J = floor(log2(2*n))
-    x = x[1:2^J]
-    x = c(x, rev(x))
-  }
-
   if (is.null(model)){
     if (!isTRUE(all.equal(trunc(x),x))) {
       model = "gaus"
@@ -113,11 +104,11 @@ smash = function (x, model = NULL, ...) {
   }
 
   if (model == "gaus") {
-    return(smash.gaus(x, ...)[1:n])
+    return(smash.gaus(x, ...))
   }
 
   if (model == "poiss") {
-    return(smash.poiss(x, ...)[1:n])
+    return(smash.poiss(x, ...))
   }
 }
 
@@ -389,7 +380,9 @@ setAshParam.gaus = function (ashparam) {
 #'   points sampled from a smooth continous function), and
 #'   \eqn{\epsilon_t \sim N(0, \sigma_t)}, and are independent. Smash
 #'   provides estimates of \eqn{\mu_t} and \eqn{\sigma_t^2} (and their
-#'   posterior variances if desired).
+#'   posterior variances if desired). Note that this method does not
+#'   require the length of x to be a power of 2 by performing
+#'   data reflection.
 #'
 #' @param x A vector of observations. Length of \code{x} must be a
 #'   power of 2.
@@ -488,11 +481,18 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
                        jash = FALSE, SGD = TRUE, weight = 0.5,
                        min.var = 1e-08, ashparam = list(),
                        homoskedastic = FALSE) {
-    n = length(x)
-    J = log2(n)
-    if (!isTRUE(all.equal(J, trunc(J)))) {
-        stop("Error: number of columns of x must be power of 2")
+
+    #reflect x if the length of x is not a power of 2
+    m = length(x)
+    if (ceiling(log2(m)) != floor(log2(m))){
+      x = c(x, rev(x))
+      k = floor(log2(2*m))
+      x = x[1:2^k]
+      x = c(x, rev(x))
     }
+    J = log2(length(x))
+    n = length(x)
+
     if(v.est == FALSE & homoskedastic == TRUE){
         stop("Error: can't set homoskedastic TRUE if not estimating variance")
     }
@@ -505,7 +505,6 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
         sigma = rep(sigma, n)
     }
     ashparam = setAshParam.gaus(ashparam)
-
 
     if (v.est == TRUE) {
         weight = 1
@@ -555,7 +554,11 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
     mu.res = mu.smooth(x.w.d, sigma^2, basis, tsum, Wl, return.loglr,
                        post.var, ashparam.mean, J, n)
 
+
     if (v.est == FALSE) {
+        #truncate the reflected x back to the original length m
+        mu.res$mu.est = mu.res$mu.est[1:m]
+        mu.res$mu.est.var = mu.res$mu.est.var[1:m]
         return(mu.res)
     } else {
         if (return.loglr == FALSE & post.var == FALSE) {
@@ -573,6 +576,13 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
         } else {
             var.res$var.est[var.res$var.est <= 0] = min.var
         }
+
+        #truncate the reflected x back to the original length m
+        mu.res$mu.est = mu.res$mu.est[1:m]
+        mu.res$mu.est.var = mu.res$mu.est.var[1:m]
+        var.res$var.est = var.res$var.est[1:m]
+        var.res$var.est.var = var.res$var.est.var[1:m]
+
         if (joint == FALSE) {
             return(var.res = var.res)
         } else {
