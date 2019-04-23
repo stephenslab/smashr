@@ -86,6 +86,55 @@
 #' plot(mu.t, type = "l")
 #' lines(mu.est, col = 2)
 #'
+#' # smash also works when n is not a power of 2, we use the
+#' similar example as before.
+#' n = 1000
+#' t = 1:n/n
+#' mu.s = spike.f(t)
+#'
+#' #' # Gaussian case
+#' # -------------
+#' # Scale the signal to be between 0.2 and 0.8
+#' mu.t = (1 + mu.s)/5
+#' plot(mu.t, type = "l")
+#'
+#' # Create the baseline variance function. (The function V2 from Cai &
+#' # Wang (2008) is used here.)
+#' var.fn = (1e-04 + 4 * (exp(-550 * (t - 0.2)^2) +
+#'                        exp(-200 * (t - 0.5)^2) +
+#'                        exp(-950 * (t - 0.8)^2)))/1.35
+#' plot(var.fn, type = "l")
+#'
+#' # Set the signal-to-noise ratio.
+#' rsnr = sqrt(5)
+#' sigma.t = sqrt(var.fn)/mean(sqrt(var.fn)) * sd(mu.t)/rsnr^2
+#'
+#' # Simulate an example dataset.
+#' X.s = rnorm(n, mu.t, sigma.t)
+#'
+#' # Run smash (Gaussian version is run since observations are not
+#' # counts).
+#' mu.est<- smash(X.s)
+#'
+#' # Plot the true mean function as well as the estimated one.
+#' plot(mu.t, type = "l")
+#' lines(mu.est, col = 2)
+#'
+#' # Poisson case
+#' # ------------
+#' # Scale the signal to be non-zero and to have a low average intensity.
+#' mu.t = 0.01 + mu.s
+#'
+#' # Simulate an example dataset
+#' X.s = rpois(n, mu.t)
+#'
+#' # Run smash (Poisson version is run since observations are counts).
+#' mu.est = smash(X.s)
+#'
+#' # Plot the true mean function as well as the estimated one.
+#' plot(mu.t, type = "l")
+#' lines(mu.est, col = 2)
+#'
 #' @export
 #'
 smash = function (x, model = NULL, ...) {
@@ -471,6 +520,20 @@ setAshParam.gaus = function (ashparam) {
 #' plot(mu.t,type='l')
 #' lines(mu.est,col=2)
 #'
+#' # When n is not a power of 2, and use the similar example as before
+#' n = 1000
+#' t = 1:n/n
+#' mu.s = spike.f(t)
+#' mu.t = (1+mu.s)/5
+#' var.fn = (0.0001 + 4*(exp(-550*(t-0.2)^2) + exp(-200*(t-0.5)^2) +
+#'   exp(-950*(t-0.8)^2)))/1.35
+#' rsnr=sqrt(5)
+#' sigma.t=sqrt(var.fn)/mean(sqrt(var.fn))*sd(mu.t)/rsnr^2
+#' X.s=rnorm(n,mu.t,sigma.t)
+#' mu.fit = smash.gaus(X.s, post.var=TRUE)
+#' plot(mu.t,type='l')
+#' lines(mu.fit$mu.est,col=2)
+#'
 #' @importFrom wavethresh wd
 #'
 #' @export
@@ -524,7 +587,6 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
     if (joint == TRUE) {
         v.est = TRUE
     }
-
     tsum = sum(x)
     x.w.d = cxxtitable(x)$difftable
     Wl = NULL
@@ -557,9 +619,12 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
 
     if (v.est == FALSE) {
         #truncate the reflected x back to the original length m
+      if (post.var == TRUE) {
         mu.res$mu.est = mu.res$mu.est[1:m]
         mu.res$mu.est.var = mu.res$mu.est.var[1:m]
         return(mu.res)
+      }
+       return(mu.res[1:m])
     } else {
         if (return.loglr == FALSE & post.var == FALSE) {
             mu.est = mu.res
@@ -573,16 +638,17 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
                              jash, 1, J, n, SGD = SGD)
         if (post.var == FALSE) {
             var.res[var.res <= 0] = min.var
+            #truncate the reflected x back to the original length m
+            var.res = var.res[1:m]
+            mu.res = mu.res[1:m]
         } else {
             var.res$var.est[var.res$var.est <= 0] = min.var
+            #truncate the reflected x back to the original length m
+            mu.res$mu.est = mu.res$mu.est[1:m]
+            mu.res$mu.est.var = mu.res$mu.est.var[1:m]
+            var.res$var.est = var.res$var.est[1:m]
+            var.res$var.est.var = var.res$var.est.var[1:m]
         }
-
-        #truncate the reflected x back to the original length m
-        mu.res$mu.est = mu.res$mu.est[1:m]
-        mu.res$mu.est.var = mu.res$mu.est.var[1:m]
-        var.res$var.est = var.res$var.est[1:m]
-        var.res$var.est.var = var.res$var.est.var[1:m]
-
         if (joint == FALSE) {
             return(var.res = var.res)
         } else {
@@ -941,7 +1007,8 @@ setGlmApproxParam = function (glm.approx.param) {
 #'
 #' @examples
 #'
-#' n=2^10
+#' # note that we do not require n to be a power of 2
+#' n=1000
 #' t=1:n/n
 #' spike.f = function(x) (0.75*exp(-500*(x-0.23)^2) +
 #'   1.5*exp(-2000*(x-0.33)^2) + 3*exp(-8000*(x-0.47)^2) +
