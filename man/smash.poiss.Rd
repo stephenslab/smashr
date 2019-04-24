@@ -5,7 +5,8 @@
 \title{Estimate the underlying intensity for Poisson counts.}
 \usage{
 smash.poiss(x, post.var = FALSE, log = FALSE, reflect = FALSE,
-  glm.approx.param = list(), ashparam = list(), cxx = TRUE, lev = 0)
+  glm.approx.param = list(), ashparam = list(), cxx = TRUE,
+  lev = 0)
 }
 \arguments{
 \item{x}{A vector of Poisson counts (reflection is done

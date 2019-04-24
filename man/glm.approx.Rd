@@ -4,9 +4,10 @@
 \alias{glm.approx}
 \title{Model fitting using weighted least squares or a GLM approach.}
 \usage{
-glm.approx(x, g = NULL, minobs = 1, pseudocounts = 0.5, all = FALSE,
-  eps = 1e-08, center = FALSE, repara = FALSE, forcebin = FALSE,
-  lm.approx = FALSE, disp = c("add", "mult"), bound = 0.02)
+glm.approx(x, g = NULL, minobs = 1, pseudocounts = 0.5,
+  all = FALSE, eps = 1e-08, center = FALSE, repara = FALSE,
+  forcebin = FALSE, lm.approx = FALSE, disp = c("add", "mult"),
+  bound = 0.02)
 }
 \arguments{
 \item{x}{A matrix of N (# of samples) by 2*B (B: # of WCs or, more
