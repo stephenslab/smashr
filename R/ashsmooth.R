@@ -477,15 +477,23 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
                        jash = FALSE, SGD = TRUE, weight = 0.5,
                        min.var = 1e-08, ashparam = list(),
                        homoskedastic = FALSE) {
-    n = length(x)
-    J = log2(n)
-    if (!isTRUE(all.equal(J, trunc(J)))) {
-        stop("Error: number of columns of x must be power of 2")
+    
+    # Reflect x if the length of x is not a power of 2.
+    m = length(x)
+    if (ceiling(log2(m)) != floor(log2(m))){
+      x = c(x, rev(x))
+      k = floor(log2(2*m))
+      x = x[1:2^k]
+      x = c(x, rev(x))
     }
-    if(v.est == FALSE & homoskedastic == TRUE){
+    
+    J = log2(length(x))
+    n = length(x)
+
+    if(!v.est & homoskedastic){
         stop("Error: can't set homoskedastic TRUE if not estimating variance")
     }
-    if(v.est == TRUE & homoskedastic== TRUE){
+    if(v.est & homoskedastic){
       sigma = sd_estimate_gasser_etal(x)
       v.est = FALSE;
     }
@@ -496,7 +504,7 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
     ashparam = setAshParam.gaus(ashparam)
 
 
-    if (v.est == TRUE) {
+    if (v.est) {
         weight = 1
     } else {
         weight = 0.5
@@ -544,8 +552,17 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
     mu.res = mu.smooth(x.w.d, sigma^2, basis, tsum, Wl, return.loglr,
                        post.var, ashparam.mean, J, n)
 
-    if (v.est == FALSE) {
+    if (!v.est) {
+        
+      # Truncate the reflected x back to the original length m.
+      if (post.var == TRUE) {
+        mu.res$mu.est = mu.res$mu.est[1:m]
+        mu.res$mu.est.var = mu.res$mu.est.var[1:m]
         return(mu.res)
+      }
+      else
+        return(mu.res[1:m])
+      
     } else {
         if (return.loglr == FALSE & post.var == FALSE) {
             mu.est = mu.res
@@ -559,8 +576,18 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
                              jash, 1, J, n, SGD = SGD)
         if (post.var == FALSE) {
             var.res[var.res <= 0] = min.var
+            
+            # Truncate the reflected x back to the original length m.
+            var.res = var.res[1:m]
+            mu.res = mu.res[1:m]
         } else {
             var.res$var.est[var.res$var.est <= 0] = min.var
+
+            # Truncate the reflected x back to the original length m.
+            mu.res$mu.est       = mu.res$mu.est[1:m]
+            mu.res$mu.est.var   = mu.res$mu.est.var[1:m]
+            var.res$var.est     = var.res$var.est[1:m]
+            var.res$var.est.var = var.res$var.est.var[1:m]
         }
         if (joint == FALSE) {
             return(var.res = var.res)
