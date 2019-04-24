@@ -4,6 +4,7 @@ Type: Package
 Maintainer: Peter Carbonetto <pcarbo@uchicago.edu>
 Authors@R: c(person("Zhengrong","Xing",role="aut"),
 	     person("Matthew","Stephens",role="aut"),
+	     person("Kaiqian","Zhang",role="ctb"),
              person("Peter","Carbonetto",role=c("aut","cre"),
 	            email="pcarbo@uchicago.edu"))
 Title: Smoothing by Adaptive Shrinkage in R
