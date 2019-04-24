@@ -1,6 +1,5 @@
 # Example 1: n is a power of 2
 # ----------------------------
-
 # Create the baseline mean function. (The "spikes" function is used
 # as an example here.)
 n <- 2^9
@@ -30,7 +29,8 @@ X.s <- rnorm(n,mu.t,sigma.t)
 
 # Run smash (Gaussian version is run since observations are not
 # counts).
-print(system.time(mu.est <- smash(X.s)))
+print(system.time(
+  mu.est <- smash(X.s,ashparam = list(control = list(verbose = TRUE)))))
 
 # Plot the true mean function as well as the estimated one.
 plot(mu.t,type = "l")
@@ -55,7 +55,8 @@ sigma.t <- sqrt(var.fn)/mean(sqrt(var.fn)) * sd(mu.t)/rsnr^2
 X.s <- rnorm(n,mu.t,sigma.t)
 
 # Run smash.
-print(system.time(mu.est <- smash(X.s)))
+print(system.time(
+  mu.est <- smash(X.s,ashparam = list(control = list(verbose = TRUE)))))
 
 # Plot the true mean function as well as the estimated one.
 plot(mu.t,type = "l")
