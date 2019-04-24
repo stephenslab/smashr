@@ -38,6 +38,7 @@
 #' #
 #' # Create the baseline mean function. (The "spikes" function is used
 #' # as an example here.)
+#' set.seed(2)
 #' n <- 2^9
 #' t <- 1:n/n
 #' spike.f <- function (x) (0.75 * exp(-500 * (x - 0.23)^2) +
