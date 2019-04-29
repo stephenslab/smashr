@@ -48,6 +48,7 @@ Performs nonparametric regression on univariate Poisson or
 #
 # Create the baseline mean function. (The "spikes" function is used
 # as an example here.)
+set.seed(2)
 n <- 2^9
 t <- 1:n/n
 spike.f <- function (x) (0.75 * exp(-500 * (x - 0.23)^2) +
@@ -127,7 +128,7 @@ lines(mu.est,col = 2)
 # ----------------------
 # The Poisson version of smash also works with signals that are not
 # exactly of length 2^J for some integer J.
-# 
+#
 # Scale the signal to be non-zero and to have a low average intensity.
 mu.t <- 0.01 + mu.s
 
