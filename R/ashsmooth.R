@@ -528,7 +528,7 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
                        jash = FALSE, SGD = TRUE, weight = 0.5,
                        min.var = 1e-08, ashparam = list(),
                        homoskedastic = FALSE, reflect=FALSE) {
-    if (reflect | ispowerof2(length(x))) {
+    if (reflect | !ispowerof2(length(x))) {
       reflect.res = reflect(x)
       idx         = reflect.res$idx
       x           = reflect.res$x
@@ -1045,7 +1045,7 @@ smash.poiss = function (x, post.var = FALSE, log = FALSE, reflect = FALSE,
         }
 
     # Reflect signal.
-    if (reflect | ispowerof2(length(x))) {
+    if (reflect | !ispowerof2(length(x))) {
       reflect.res     = reflect(x)
       reflect.indices = reflect.res$idx
       x               = reflect.res$x
