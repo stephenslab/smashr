@@ -45,48 +45,48 @@
 #'   1.5 * exp(-2000 * (x - 0.33)^2) + 3 * exp(-8000 * (x - 0.47)^2) +
 #'   2.25 * exp(-16000 * (x - 0.69)^2) + 0.5 * exp(-32000 * (x - 0.83)^2))
 #' mu.s <- spike.f(t)
-#' 
+#'
 #' # Scale the signal to be between 0.2 and 0.8
 #' mu.t <- (1 + mu.s)/5
 #' plot(mu.t,type = "l")
-#' 
+#'
 #' # Create the baseline variance function. (The function V2 from Cai &
 #' # Wang (2008) is used here.)
 #' var.fn <- (1e-04 + 4 * (exp(-550 * (t - 0.2)^2) +
 #'                         exp(-200 * (t - 0.5)^2) +
 #'                         exp(-950 * (t - 0.8)^2)))/1.35
 #' plot(var.fn,type = "l")
-#' 
+#'
 #' # Set the signal-to-noise ratio.
 #' rsnr    <- sqrt(5)
 #' sigma.t <- sqrt(var.fn)/mean(sqrt(var.fn)) * sd(mu.t)/rsnr^2
-#' 
+#'
 #' # Simulate an example dataset.
 #' X.s <- rnorm(n,mu.t,sigma.t)
-#' 
+#'
 #' # Run smash (Gaussian version is run since observations are not
 #' # counts).
 #' mu.est <- smash(X.s)
-#' 
+#'
 #' # Plot the true mean function as well as the estimated one.
 #' plot(mu.t,type = "l")
 #' lines(mu.est,col = 2)
-#' 
+#'
 #' # First Poisson example
 #' # ---------------------
 #' # Scale the signal to be non-zero and to have a low average intensity.
 #' mu.t <- 0.01 + mu.s
-#' 
+#'
 #' # Simulate an example dataset.
 #' X.s <- rpois(n,mu.t)
-#' 
+#'
 #' # Run smash (the Poisson version is run since observations are counts).
 #' mu.est <- smash(X.s)
-#' 
+#'
 #' # Plot the true mean function as well as the estimated one.
 #' plot(mu.t,type = "l")
 #' lines(mu.est,col = 2)
-#' 
+#'
 #' # Second Gaussian example
 #' # -----------------------
 #' # In this second example, we demonstrate that smash also works even
@@ -94,46 +94,46 @@
 #' n    <- 1000
 #' t    <- 1:n/n
 #' mu.s <- spike.f(t)
-#' 
+#'
 #' # Scale the signal to be between 0.2 and 0.8.
 #' mu.t <- (1 + mu.s)/5
-#' 
+#'
 #' # Create the baseline variance function.
 #' var.fn  <- (1e-04 + 4 * (exp(-550 * (t - 0.2)^2) +
 #'                          exp(-200 * (t - 0.5)^2) +
 #'                          exp(-950 * (t - 0.8)^2)))/1.35
 #' sigma.t <- sqrt(var.fn)/mean(sqrt(var.fn)) * sd(mu.t)/rsnr^2
-#' 
+#'
 #' # Simulate an example dataset.
 #' X.s <- rnorm(n,mu.t,sigma.t)
-#' 
+#'
 #' # Run smash.
 #' mu.est <- smash(X.s)
-#' 
+#'
 #' # Plot the true mean function as well as the estimated one.
 #' plot(mu.t,type = "l")
 #' lines(mu.est,col = 2)
-#' 
+#'
 #' # Second Poisson example
 #' # ----------------------
 #' # The Poisson version of smash also works with signals that are not
 #' # exactly of length 2^J for some integer J.
-#' # 
+#' #
 #' # Scale the signal to be non-zero and to have a low average intensity.
 #' mu.t <- 0.01 + mu.s
-#' 
+#'
 #' # Simulate an example dataset
 #' X.s <- rpois(n,mu.t)
-#' 
+#'
 #' # Run smash (Poisson version is run since observations are counts).
 #' mu.est <- smash(X.s)
-#' 
+#'
 #' # Plot the true mean function as well as the estimated one.
 #' plot(mu.t,type = "l")
 #' lines(mu.est,col = 2)
 #'
 #' @export
-#' 
+#'
 smash = function (x, model = NULL, ...) {
   if(!is.null(model)){
     if (!(model == "gaus" | model == "poiss")) {
@@ -524,17 +524,14 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
                        family = "DaubExPhase", return.loglr = FALSE,
                        jash = FALSE, SGD = TRUE, weight = 0.5,
                        min.var = 1e-08, ashparam = list(),
-                       homoskedastic = FALSE) {
-    
-    # Reflect x if the length of x is not a power of 2.
-    m = length(x)
-    if (ceiling(log2(m)) != floor(log2(m))){
-      x = c(x, rev(x))
-      k = floor(log2(2*m))
-      x = x[1:2^k]
-      x = c(x, rev(x))
+                       homoskedastic = FALSE, reflect=FALSE) {
+    if (reflect==TRUE | floor(log2(length(x)))!=ceiling(log2(length(x)))){
+      reflect.res = reflect(x)
+      idx = reflect.res$idx
+      x = reflect.res$x
+    } else {
+      idx = 1:length(x)
     }
-    
     J = log2(length(x))
     n = length(x)
 
@@ -601,16 +598,16 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
                        post.var, ashparam.mean, J, n)
 
     if (!v.est) {
-        
+
       # Truncate the reflected x back to the original length m.
       if (post.var == TRUE) {
-        mu.res$mu.est = mu.res$mu.est[1:m]
-        mu.res$mu.est.var = mu.res$mu.est.var[1:m]
+        mu.res$mu.est = mu.res$mu.est[idx]
+        mu.res$mu.est.var = mu.res$mu.est.var[idx]
         return(mu.res)
       }
       else
-        return(mu.res[1:m])
-      
+        return(mu.res[idx])
+
     } else {
         if (return.loglr == FALSE & post.var == FALSE) {
             mu.est = mu.res
@@ -624,18 +621,17 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
                              jash, 1, J, n, SGD = SGD)
         if (post.var == FALSE) {
             var.res[var.res <= 0] = min.var
-            
-            # Truncate the reflected x back to the original length m.
-            var.res = var.res[1:m]
-            mu.res = mu.res[1:m]
-        } else {
-            var.res$var.est[var.res$var.est <= 0] = min.var
 
             # Truncate the reflected x back to the original length m.
-            mu.res$mu.est       = mu.res$mu.est[1:m]
-            mu.res$mu.est.var   = mu.res$mu.est.var[1:m]
-            var.res$var.est     = var.res$var.est[1:m]
-            var.res$var.est.var = var.res$var.est.var[1:m]
+            var.res = var.res[idx]
+            mu.res = mu.res[idx]
+        } else {
+            var.res$var.est[var.res$var.est <= 0] = min.var
+            # Truncate the reflected x back to the original length m.
+            mu.res$mu.est       = mu.res$mu.est[idx]
+            mu.res$mu.est.var   = mu.res$mu.est.var[idx]
+            var.res$var.est     = var.res$var.est[idx]
+            var.res$var.est.var = var.res$var.est.var[idx]
         }
         if (joint == FALSE) {
             return(var.res = var.res)
@@ -654,9 +650,9 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
 #'
 #' @details Uses formula (3) from Brown and Levine (2007), Annals of
 #'   Statistics, who attribute it to Gasser et al.
-#' 
+#'
 #' @export
-#' 
+#'
 sd_estimate_gasser_etal = function(x){
   n = length(x)
   sqrt(2/(3 * (n - 2)) * sum((1/2 * x[1:(n - 2)] - x[2:(n - 1)] +
@@ -767,7 +763,7 @@ ti.thresh = function (x, sigma = NULL, method = "smash", filter.number = 1,
         Wl = ndwt.mat(n, filter.number = filter.number, family = family)
 
         # Diagonal of W*V*W'.
-        x.w.v = apply((rep(1, n * J) %o% (sigma^2)) * Wl$W2, 1, sum)  
+        x.w.v = apply((rep(1, n * J) %o% (sigma^2)) * Wl$W2, 1, sum)
         x.w.t = threshold.var(x.w, x.w.v, lambda.thresh,
                               levels = (min.level):(J - 1),
                               type = "hard")
@@ -779,18 +775,17 @@ ti.thresh = function (x, sigma = NULL, method = "smash", filter.number = 1,
 # @description Reflects a vector if it has length a power of 2;
 # otherwise extends the vector to have length a power of 2 and then
 # reflects it.
-# 
+#
 # @param x An n-vector.
-# 
+#
 # @return An n-vector containing the indices of the original signal x.
 reflect <- function (x) {
     n = length(x)
     J = log2(n)
     if ((J%%1) == 0) {
-        
         # if J is an integer, i.e. n is a power of 2.
-        eval.parent(substitute(x <- c(x, x[n:1])))
-        return(1:n)
+        x = c(x, x[n:1])
+        return(list(x=x, idx = 1:n))
     } else {
         n.ext = 2^ceiling(J)
         lnum = round((n.ext - n)/2)
@@ -807,8 +802,8 @@ reflect <- function (x) {
         }
         x.ini = c(x.lmir, x, x.rmir)
         x.mir = x.ini[n.ext:1]
-        eval.parent(substitute(x <- c(x.ini, x.mir)))
-        return((lnum + 1):(lnum + n))
+        x = c(x.ini, x.mir)
+        return(list(x = x, idx = (lnum + 1):(lnum + n)))
     }
 }
 
@@ -846,7 +841,7 @@ compute.res <- function (alpha, log) {
 #' @importFrom ashr ash
 #' @importFrom ashr get_pm
 #' @importFrom ashr get_psd
-#' 
+#'
 getlist.res = function (res, j, n, zdat, log, shrink, ashparam) {
   ind = ((j - 1) * n + 1):(j * n)
   if (shrink == TRUE) {
@@ -1039,8 +1034,11 @@ smash.poiss = function (x, post.var = FALSE, log = FALSE, reflect = FALSE,
         }
 
     # Reflect signal; this function is pseudo-calling x by reference.
-    if (reflect == TRUE)
-        reflect.indices = reflect(x)
+    if (reflect==TRUE | floor(log2(length(x)))!=ceiling(log2(length(x)))){
+        reflect.res = reflect(x)
+        reflect.indices = reflect.res$idx
+        x = reflect.res$x
+    }
 
     n = length(x)
     J = log2(n)
@@ -1074,7 +1072,7 @@ smash.poiss = function (x, post.var = FALSE, log = FALSE, reflect = FALSE,
         }
     }
     recons = recons.mv(ls, res, log, n, J)
-    if (reflect == TRUE) {
+    if (reflect==TRUE | floor(log2(length(x)))!=ceiling(log2(length(x)))) {
         recons$est.mean = recons$est.mean[reflect.indices]
         recons$est.var = recons$est.var[reflect.indices]
     }
