@@ -8,7 +8,8 @@
 smash(x, model = NULL, ...)
 }
 \arguments{
-\item{x}{A vector of observations.}
+\item{x}{A vector of observations. Reflection is done automatically
+if length of \code{x} is not a power of 2.}
 
 \item{model}{Specifies the model (Gaussian or Poisson). Can be
 NULL, in which case the Poisson model is assumed if x consists of

@@ -21,7 +21,8 @@
 #'   (default is Haar, which performs well in general due to the fact
 #'   that we used the translation-invariant version).
 #'
-#' @param x A vector of observations.
+#' @param x A vector of observations. Reflection is done automatically
+#'   if length of \code{x} is not a power of 2.
 #'
 #' @param model Specifies the model (Gaussian or Poisson). Can be
 #'   NULL, in which case the Poisson model is assumed if x consists of
@@ -414,11 +415,11 @@ setAshParam.gaus = function (ashparam) {
 
 #' @title Estimate underlying mean function from noisy Gaussian data.
 #'
-#' @description This function takes a data vector of length a power of
-#'   2 and performs signal denoising using wavelet decomposition and an
-#'   adaptive shrinkage prior on the wavelet parameters. The data are
-#'   assumed to be (mostly) independent and Gaussian, but not
-#'   necessarily identically distributed.
+#' @description This function takes a data vector as input performs
+#'   signal denoising using wavelet decomposition and an adaptive
+#'   shrinkage prior on the wavelet parameters. The data are assumed to
+#'   be (mostly) independent and Gaussian, but not necessarily
+#'   identically distributed.
 #'
 #' @details We assume that the data come from the model \eqn{Y_t =
 #'   \mu_t + \epsilon_t} for \eqn{t=1,...,T}, where \eqn{\mu_t} is an
@@ -428,9 +429,9 @@ setAshParam.gaus = function (ashparam) {
 #'   provides estimates of \eqn{\mu_t} and \eqn{\sigma_t^2} (and their
 #'   posterior variances if desired).
 #'
-#' @param x A vector of observations. Length of \code{x} must be a
-#'   power of 2.
-#'
+#' @param x A vector of observations. Reflection is done automatically
+#'   if length of \code{x} is not a power of 2.
+#' 
 #' @param sigma A vector of standard deviations. Can be provided if
 #'   known or estimated beforehand.
 #'

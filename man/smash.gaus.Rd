@@ -11,8 +11,8 @@ smash.gaus(x, sigma = NULL, v.est = FALSE, joint = FALSE,
   homoskedastic = FALSE, reflect = FALSE)
 }
 \arguments{
-\item{x}{A vector of observations. Length of \code{x} must be a
-power of 2.}
+\item{x}{A vector of observations. Reflection is done automatically
+if length of \code{x} is not a power of 2.}
 
 \item{sigma}{A vector of standard deviations. Can be provided if
 known or estimated beforehand.}
@@ -81,11 +81,11 @@ reflected.}
   are returned.}
 }
 \description{
-This function takes a data vector of length a power of
-  2 and performs signal denoising using wavelet decomposition and an
-  adaptive shrinkage prior on the wavelet parameters. The data are
-  assumed to be (mostly) independent and Gaussian, but not
-  necessarily identically distributed.
+This function takes a data vector as input performs
+  signal denoising using wavelet decomposition and an adaptive
+  shrinkage prior on the wavelet parameters. The data are assumed to
+  be (mostly) independent and Gaussian, but not necessarily
+  identically distributed.
 }
 \details{
 We assume that the data come from the model \eqn{Y_t =
