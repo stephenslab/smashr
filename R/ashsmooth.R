@@ -477,6 +477,9 @@ setAshParam.gaus = function (ashparam) {
 #' @param homoskedastic indicates whether to assume constant variance
 #'   (if v.est is true)
 #'
+#' @param reflect A logical indicating if the signals should be
+#'   reflected.
+#'
 #' @return \code{smash.gaus} returns the following by default:
 #'
 #'   \item{mu.res}{A list with the mean estimate, its posterior variance
@@ -525,10 +528,10 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
                        jash = FALSE, SGD = TRUE, weight = 0.5,
                        min.var = 1e-08, ashparam = list(),
                        homoskedastic = FALSE, reflect=FALSE) {
-    if (reflect==TRUE | floor(log2(length(x)))!=ceiling(log2(length(x)))){
+    if (reflect | ispowerof2(length(x))) {
       reflect.res = reflect(x)
-      idx = reflect.res$idx
-      x = reflect.res$x
+      idx         = reflect.res$idx
+      x           = reflect.res$x
     } else {
       idx = 1:length(x)
     }
@@ -772,17 +775,25 @@ ti.thresh = function (x, sigma = NULL, method = "smash", filter.number = 1,
     return(mu.est)
 }
 
-# @description Reflects a vector if it has length a power of 2;
-# otherwise extends the vector to have length a power of 2 and then
-# reflects it.
-#
-# @param x An n-vector.
-#
-# @return An n-vector containing the indices of the original signal x.
+#' @title Reflect and extend a vector.
+#'
+#' @description Reflects a vector if it has length a power of 2;
+#'   otherwise extends the vector to have length a power of 2 and then
+#'   reflects it.
+#'
+#' @param x An n-vector.
+#'
+#' @return A list with two list elements: \code{"x"} containing the
+#'   reflected signal; and \code{"idx"} containing the indices of the
+#'   original signal.
+#'
+#' @export
+#'    
 reflect <- function (x) {
     n = length(x)
     J = log2(n)
     if ((J%%1) == 0) {
+        
         # if J is an integer, i.e. n is a power of 2.
         x = c(x, x[n:1])
         return(list(x=x, idx = 1:n))
@@ -967,8 +978,8 @@ setGlmApproxParam = function (glm.approx.param) {
 #' @param log bool, determines if smoothed signal is returned on log
 #'   scale or not
 #'
-#' @param reflect bool, indicates if the signals should be reflected;
-#'   otherwise periodicity is assumed.
+#' @param reflect A logical indicating if the signals should be
+#'   reflected.
 #'
 #' @param glm.approx.param A list of parameters to be passed to
 #'   \code{glm.approx}; default values are set by function
@@ -1033,11 +1044,11 @@ smash.poiss = function (x, post.var = FALSE, log = FALSE, reflect = FALSE,
             reflect = TRUE
         }
 
-    # Reflect signal; this function is pseudo-calling x by reference.
-    if (reflect==TRUE | floor(log2(length(x)))!=ceiling(log2(length(x)))){
-        reflect.res = reflect(x)
-        reflect.indices = reflect.res$idx
-        x = reflect.res$x
+    # Reflect signal.
+    if (reflect | ispowerof2(length(x))) {
+      reflect.res     = reflect(x)
+      reflect.indices = reflect.res$idx
+      x               = reflect.res$x
     }
 
     n = length(x)
@@ -1091,3 +1102,7 @@ fill.nas <- function (x, t = 0) {
   x[is.na(x)] <- t
   return(x)
 }
+
+# Check that x is a (non-negative) power of 2.
+ispowerof2 <- function (x)
+  x >= 1 & 2^ceiling(log2(x)) == x

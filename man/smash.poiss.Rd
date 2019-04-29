@@ -18,8 +18,8 @@ be returned.}
 \item{log}{bool, determines if smoothed signal is returned on log
 scale or not}
 
-\item{reflect}{bool, indicates if the signals should be reflected;
-otherwise periodicity is assumed.}
+\item{reflect}{A logical indicating if the signals should be
+reflected.}
 
 \item{glm.approx.param}{A list of parameters to be passed to
 \code{glm.approx}; default values are set by function

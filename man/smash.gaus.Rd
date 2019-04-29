@@ -59,6 +59,9 @@ default values are set by function \code{setAshParam.gaus}.}
 
 \item{homoskedastic}{indicates whether to assume constant variance
 (if v.est is true)}
+
+\item{reflect}{A logical indicating if the signals should be
+reflected.}
 }
 \value{
 \code{smash.gaus} returns the following by default:
