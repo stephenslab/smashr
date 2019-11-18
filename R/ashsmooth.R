@@ -526,7 +526,7 @@ setAshParam.gaus = function (ashparam) {
 smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
                        v.basis = FALSE, post.var = FALSE, filter.number = 1,
                        family = "DaubExPhase", return.loglr = FALSE,
-                       jash = FALSE, SGD = TRUE, weight = 0.5,
+                       jash = FALSE, SGD = TRUE, weight = 0.5, 
                        min.var = 1e-08, ashparam = list(),
                        homoskedastic = FALSE, reflect=FALSE) {
     if (reflect | !ispowerof2(length(x))) {
