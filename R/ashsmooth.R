@@ -526,18 +526,40 @@ setAshParam.gaus = function (ashparam) {
 smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
                        v.basis = FALSE, post.var = FALSE, filter.number = 1,
                        family = "DaubExPhase", return.loglr = FALSE,
-                       jash = FALSE, SGD = TRUE, weight = 0.5, 
+                       jash = FALSE, SGD = TRUE, weight = 0.5,
                        min.var = 1e-08, ashparam = list(),
                        homoskedastic = FALSE, reflect=FALSE) {
-    if (reflect | !ispowerof2(length(x))) {
-      reflect.res = reflect(x)
-      idx         = reflect.res$idx
-      x           = reflect.res$x
-    } else {
+  
+   # Check inputs x.
+   if (!(is.numeric(x) & length(x) > 1))
+     stop("Argument \"x\" should be a numeric vector with more than one element")
+  
+   # Check input sigma.
+   if (!is.null(sigma) | !(is.numeric(sigma) & (length(sigma) == 1 | length(sigma) == x)))
+     stop("Argument \"sigma\" should be NULL or a scalar or a numeric vector of the same length as \"x\"")
+  
+   if (reflect | !ispowerof2(length(x))) {
+     
+     # Reflect variances.
+     if(!is.null(sigma) & length(sigma) > 1) {
+       reflect.sigma = reflect(sigma)
+       sigma = reflect.sigma$x
+     }
+      
+     # Reflect data.
+     reflect.res = reflect(x)
+     idx         = reflect.res$idx
+     x           = reflect.res$x
+     
+   } else {
       idx = 1:length(x)
     }
     J = log2(length(x))
     n = length(x)
+
+   if (length(sigma) == 1) {
+      sigma = rep(sigma, n)
+   }
 
     if(!v.est & homoskedastic){
         stop("Error: can't set homoskedastic TRUE if not estimating variance")
@@ -547,10 +569,7 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
       v.est = FALSE;
     }
 
-    if (length(sigma) == 1) {
-        sigma = rep(sigma, n)
-    }
-    ashparam = setAshParam.gaus(ashparam)
+     ashparam = setAshParam.gaus(ashparam)
 
 
     if (v.est) {
