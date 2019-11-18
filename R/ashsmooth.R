@@ -535,8 +535,9 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
      stop("Argument \"x\" should be a numeric vector with more than one element")
   
    # Check input sigma.
-   if (!is.null(sigma) | !(is.numeric(sigma) & (length(sigma) == 1 | length(sigma) == x)))
-     stop("Argument \"sigma\" should be NULL or a scalar or a numeric vector of the same length as \"x\"")
+   if (!is.null(sigma))
+     if (!(is.numeric(sigma) & (length(sigma) == 1 | length(sigma) == length(x))))
+       stop("Argument \"sigma\" should be NULL or a scalar or a numeric vector of the same length as \"x\"")
   
    if (reflect | !ispowerof2(length(x))) {
      
