@@ -208,7 +208,7 @@ mu.smooth = function (wc, data.var, basis, tsum, Wl, return.loglr,
     if (basis[[1]] == "haar") {
         y = wc
         vtable = cxxtitable(data.var)$sumtable
-        logLR.scale = 0
+        logLR.scale = c()
         for (j in 0:(J - 1)) {
             ind.nnull = (vtable[j + 2, ] != 0)
             zdat.ash = shrink.wc(y[j + 2, ind.nnull], sqrt(vtable[j + 2,
@@ -431,7 +431,7 @@ setAshParam.gaus = function (ashparam) {
 #'
 #' @param x A vector of observations. Reflection is done automatically
 #'   if length of \code{x} is not a power of 2.
-#' 
+#'
 #' @param sigma A vector of standard deviations. Can be provided if
 #'   known or estimated beforehand.
 #'
@@ -529,29 +529,29 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
                        jash = FALSE, SGD = TRUE, weight = 0.5,
                        min.var = 1e-08, ashparam = list(),
                        homoskedastic = FALSE, reflect=FALSE) {
-  
+
    # Check inputs x.
    if (!(is.numeric(x) & length(x) > 1))
      stop("Argument \"x\" should be a numeric vector with more than one element")
-  
+
    # Check input sigma.
    if (!is.null(sigma))
      if (!(is.numeric(sigma) & (length(sigma) == 1 | length(sigma) == length(x))))
        stop("Argument \"sigma\" should be NULL or a scalar or a numeric vector of the same length as \"x\"")
-  
+
    if (reflect | !ispowerof2(length(x))) {
-     
+
      # Reflect variances.
      if(!is.null(sigma) & length(sigma) > 1) {
        reflect.sigma = reflect(sigma)
        sigma = reflect.sigma$x
      }
-      
+
      # Reflect data.
      reflect.res = reflect(x)
      idx         = reflect.res$idx
      x           = reflect.res$x
-     
+
    } else {
       idx = 1:length(x)
     }
@@ -628,9 +628,13 @@ smash.gaus = function (x, sigma = NULL, v.est = FALSE, joint = FALSE,
         mu.res$mu.est = mu.res$mu.est[idx]
         mu.res$mu.est.var = mu.res$mu.est.var[idx]
         return(mu.res)
-      }
-      else
+      }else if(return.loglr == TRUE){
+        mu.res$mu.est = mu.res$mu.est[idx]
+        return(mu.res)
+      }else{
         return(mu.res[idx])
+      }
+
 
     } else {
         if (return.loglr == FALSE & post.var == FALSE) {
@@ -809,12 +813,12 @@ ti.thresh = function (x, sigma = NULL, method = "smash", filter.number = 1,
 #'   original signal.
 #'
 #' @export
-#'    
+#'
 reflect <- function (x) {
     n = length(x)
     J = log2(n)
     if ((J%%1) == 0) {
-        
+
         # if J is an integer, i.e. n is a power of 2.
         x = c(x, x[n:1])
         return(list(x=x, idx = 1:n))
