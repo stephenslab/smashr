@@ -209,6 +209,7 @@ mu.smooth = function (wc, data.var, basis, tsum, Wl, return.loglr,
         y = wc
         vtable = cxxtitable(data.var)$sumtable
         logLR.scale = c()
+        loglik.scale = c()
         for (j in 0:(J - 1)) {
             ind.nnull = (vtable[j + 2, ] != 0)
             zdat.ash = shrink.wc(y[j + 2, ind.nnull], sqrt(vtable[j + 2,
@@ -218,13 +219,13 @@ mu.smooth = function (wc, data.var, basis, tsum, Wl, return.loglr,
             wmean[j + 1, !ind.nnull] = 0
             if (return.loglr == TRUE) {
                 spins = 2^(j + 1)
-                logLR.temp =
-                  calc_loglik(get_fitted_g(zdat.ash),
-                    set_data(y[j + 2, ind.nnull],
-                      sqrt(vtable[j + 2, ind.nnull]),NULL,0)) -
+                loglik.scale[j + 1] = calc_loglik(get_fitted_g(zdat.ash),
+                                                  set_data(y[j + 2, ind.nnull],
+                                                           sqrt(vtable[j + 2, ind.nnull]),NULL,0))/spins
+                logLR.temp = loglik.scale[j + 1] -
                       sum(dnorm(y[j + 2, ind.nnull], 0,
-                                sqrt(vtable[j + 2, ind.nnull]), log = TRUE))
-                logLR.scale[j + 1] = logLR.temp/spins
+                                sqrt(vtable[j + 2, ind.nnull]), log = TRUE))/spins
+                logLR.scale[j + 1] = logLR.temp
             }
             if (post.var == TRUE) {
                 wvar[j + 1, ind.nnull] = get_psd(zdat.ash)^2/4
@@ -235,6 +236,7 @@ mu.smooth = function (wc, data.var, basis, tsum, Wl, return.loglr,
         mu.est = cxxreverse_gwave(tsum, wmean, wwmean)
         if (return.loglr == TRUE) {
             logLR = sum(logLR.scale)
+            loglik = sum(loglik.scale)
         }
         if (post.var == TRUE) {
             wwvar = wvar
@@ -247,6 +249,7 @@ mu.smooth = function (wc, data.var, basis, tsum, Wl, return.loglr,
         x.pm = rep(0, n)
         x.w.v.s = rep(0, n * J)
         logLR.scale = 0
+        loglik.scale = c()
         for (j in 0:(J - 1)) {
             index = (((J - 1) - j) * n + 1):((J - j) * n)
             x.w.j = wavethresh::accessD(x.w, j)
@@ -260,12 +263,13 @@ mu.smooth = function (wc, data.var, basis, tsum, Wl, return.loglr,
             x.w = wavethresh::putD(x.w, j, x.pm)
             if (return.loglr == TRUE) {
                 spins = 2^(J - j)
-                logLR.temp = calc_loglik(get_fitted_g(zdat.ash),
-                  set_data(x.w.j[ind.nnull],
-                           sqrt(x.w.v.j[ind.nnull]), NULL, 0)) -
+                loglik.scale[j + 1] = calc_loglik(get_fitted_g(zdat.ash),
+                                                  set_data(x.w.j[ind.nnull],
+                                                           sqrt(x.w.v.j[ind.nnull]), NULL, 0))/spins
+                logLR.temp = loglik.scale[j + 1] -
                     sum(dnorm(x.w.j[ind.nnull], 0, sqrt(x.w.v.j[ind.nnull]),
-                              log = TRUE))
-                logLR.scale[j + 1] = logLR.temp/spins
+                              log = TRUE))/spins
+                logLR.scale[j + 1] = logLR.temp
             }
             if (post.var == TRUE) {
               x.w.v.s[index[ind.nnull]] = get_psd(zdat.ash)^2
@@ -275,6 +279,7 @@ mu.smooth = function (wc, data.var, basis, tsum, Wl, return.loglr,
         mu.est = wavethresh::AvBasis(wavethresh::convert(x.w))
         if (return.loglr == TRUE) {
             logLR = sum(logLR.scale)
+            loglik = sum(loglik.scale)
         }
         if (post.var == TRUE) {
             mv.wd = wd.var(rep(0, n), filter.number = basis$filter.number,
@@ -284,9 +289,9 @@ mu.smooth = function (wc, data.var, basis, tsum, Wl, return.loglr,
         }
     }
     if (return.loglr == TRUE & post.var == TRUE) {
-        return(list(mu.est = mu.est, mu.est.var = mu.est.var, logLR = logLR))
+        return(list(mu.est = mu.est, mu.est.var = mu.est.var, logLR = logLR, loglik = loglik))
     } else if(return.loglr == TRUE & post.var == FALSE) {
-        return(list(mu.est = mu.est, logLR = logLR))
+        return(list(mu.est = mu.est, logLR = logLR, loglik = loglik))
     } else if(return.loglr == FALSE & post.var == TRUE) {
         return(list(mu.est = mu.est, mu.est.var = mu.est.var))
     } else {
