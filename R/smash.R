@@ -13,16 +13,11 @@
 #'   data are assumed to be independent with an underlying smooth mean
 #'   function.  In the Gaussian case, the variances are allowed vary,
 #'   but are similarly "spatially structured" as with the mean
-#'   function. The functions \code{ashsmooth.gaus} and
-#'   \code{ashsmooth.pois} perform smoothing for Gaussian and Poisson
-#'   data respectively. The only required input is a vector of length
-#'   2^J for some integer J. Other options include the possibility of
-#'   returning the posterior variances, specifying a wavelet basis
-#'   (default is Haar, which performs well in general due to the fact
-#'   that we used the translation-invariant version).
+#'   function. The functions \code{smash.gaus} and
+#'   \code{smash.pois} perform smoothing for Gaussian and Poisson
+#'   data respectively.
 #'
-#' @param x A vector of observations. Reflection is done automatically
-#'   if length of \code{x} is not a power of 2.
+#' @param x A vector of observations (assumed equally spaced and cyclic).
 #'
 #' @param model Specifies the model (Gaussian or Poisson). Can be
 #'   NULL, in which case the Poisson model is assumed if x consists of
@@ -420,11 +415,9 @@ setAshParam.gaus = function (ashparam) {
 
 #' @title Estimate underlying mean function from noisy Gaussian data.
 #'
-#' @description This function takes a data vector as input performs
-#'   signal denoising using wavelet decomposition and an adaptive
-#'   shrinkage prior on the wavelet parameters. The data are assumed to
-#'   be (mostly) independent and Gaussian, but not necessarily
-#'   identically distributed.
+#' @description This function performs
+#'   non-parametric regression (signal denoising) using
+#'   Empirical Bayes wavelet-based methods.
 #'
 #' @details We assume that the data come from the model \eqn{Y_t =
 #'   \mu_t + \epsilon_t} for \eqn{t=1,...,T}, where \eqn{\mu_t} is an
@@ -486,7 +479,9 @@ setAshParam.gaus = function (ashparam) {
 #' @param reflect A logical indicating if the signals should be
 #'   reflected.
 #'
-#' @return \code{smash.gaus} returns the following by default:
+#' @return By default \code{smash.gaus} simply returns a vector of estimated means.
+#'  However, if more outputs are requested (eg if return.loglr or v.est is TRUE) then
+#'  the output is a list with one or more of the following elements:
 #'
 #'   \item{mu.res}{A list with the mean estimate, its posterior variance
 #'   if \code{post.var} is TRUE, the logLR if \code{return.loglr} is

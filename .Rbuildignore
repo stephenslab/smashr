@@ -1,2 +1,4 @@
 ^LICENSE$
 ^docs$
+^.*\.Rproj$
+^\.Rproj\.user$

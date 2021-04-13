@@ -1,3 +1,4 @@
 src/*.o
 src/*.so
 .Rbuildignore
+.Rproj.user
