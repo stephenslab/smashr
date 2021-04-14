@@ -3,7 +3,6 @@
 \docType{package}
 \name{smashr}
 \alias{smashr}
-\alias{smashr-package}
 \title{smashr: Smoothing using Adaptive SHrinkage in R}
 \description{
 This package performs nonparametric regression on

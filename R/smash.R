@@ -7,7 +7,10 @@
 #'   \code{\link{smash.poiss}}.
 #'
 #' @details Performs nonparametric regression on univariate Poisson or
-#'   Gaussian data using wavelets. For the Poisson case, the data are
+#'   Gaussian data using wavelets. Unlike many wavelet methods
+#'   the data do not need to have length that is
+#'   a power of 2 or be cyclic -- the functions internally deal with these issues.
+#'   For the Poisson case, the data are
 #'   assumed to be i.i.d. from an underlying inhomogeneous mean
 #'   function that is "smooth". Similarly for the Gaussian case, the
 #'   data are assumed to be independent with an underlying smooth mean
@@ -17,7 +20,7 @@
 #'   \code{smash.pois} perform smoothing for Gaussian and Poisson
 #'   data respectively.
 #'
-#' @param x A vector of observations (assumed equally spaced and cyclic).
+#' @param x A vector of observations (assumed equally spaced).
 #'
 #' @param model Specifies the model (Gaussian or Poisson). Can be
 #'   NULL, in which case the Poisson model is assumed if x consists of
@@ -802,14 +805,18 @@ ti.thresh = function (x, sigma = NULL, method = "smash", filter.number = 1,
 
 #' @title Reflect and extend a vector.
 #'
-#' @description Reflects a vector if it has length a power of 2;
-#'   otherwise extends the vector to have length a power of 2 and then
-#'   reflects it.
+#' @description Extends the vector to have length a power of 2 (if not already a power of 2) and then
+#'   reflects it about its right end.
+#'
+#' @details The vector x is first reflected about both its left and right ends, by (roughly) the same
+#' amount each end, to make its length a power of 2 (if the length of x is already a power of 2 this step is skipped).
+#' Then the resulting vector is reflected about its right end to create a vector
+#' that is both circular (left and right ends are the same) and a power of 2.
 #'
 #' @param x An n-vector.
 #'
 #' @return A list with two list elements: \code{"x"} containing the
-#'   reflected signal; and \code{"idx"} containing the indices of the
+#'   extended-and-reflected signal; and \code{"idx"} containing the indices of the
 #'   original signal.
 #'
 #' @export

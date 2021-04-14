@@ -6,8 +6,7 @@
 specified, or a list with elements "muhat", "semuhat", "betahat",
 "sebetahat", "covmubeta", "wrse2" otherwise.}
 \usage{
-wls.mb(z, v, disp, indexnm, ng, df, forcebin, g = NULL, n = NULL,
-  vv = NULL)
+wls.mb(z, v, disp, indexnm, ng, df, forcebin, g = NULL, n = NULL, vv = NULL)
 }
 \description{
 Returns a list with elements "coef", "se", "wrse2" if g is not
