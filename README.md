@@ -41,6 +41,13 @@ Follow these steps to quickly get started using smashr.
    install_github("stephenslab/smashr")
    ```
 
+   If you are interested in replicating results from the paper,
+   we recommendg installing smashr 1.2-7:
+
+   ```R
+   install_github("stephenslab/smashr@v1.2-7")
+   ```
+
    This will build the smashr package *without* the vignettes. To
    build with the vignettes, do this instead:
 
