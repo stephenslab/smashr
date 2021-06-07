@@ -4,13 +4,13 @@ This R package implements fast, wavelet-based Empirical Bayes
 shrinkage methods for signal denoising. This includes smoothing
 Poisson-distributed data and Gaussian-distributed data, with possibly
 heteroskedastic error. The algorithms implement the methods described
-in [Xing & Stephens (2016)][smash-arxiv].
+in [Xing, Carbonetto & Stephens (2021)][smash-jmlr].
 
 If you find a bug, please post an [issue][issues].
 
 ## License
 
-Copyright (c) 2016-2018, Zhengrong Xing, Peter Carbonetto and Matthew
+Copyright (c) 2016-2021, Zhengrong Xing, Peter Carbonetto and Matthew
 Stephens.
 
 All source code and software in this repository is free software; you
@@ -25,9 +25,9 @@ for the full text of the license.
 If you find that this R package useful for your work, please cite our
 paper:
 
-> Zhengrong Xing and Matthew Stephens (2016). *Smoothing via Adaptive
-> Shrinkage (smash): denoising Poisson and heteroskedastic Gaussian
-> signals.* [arXiv:1605.07787][smash-arxiv].
+> Zhengrong Xing, Peter Carbonetto and Matthew Stephens (2021).
+> [Flexible signal denoising via flexible empirical Bayes shrinkage.][smash-jmlr]
+> *Journal of Machine Learning Research* 22(93), 1-28.
 
 ## Quick Start
 
@@ -81,7 +81,7 @@ This R package was developed by [Zhengrong Xing][zhengrong] and
 [Matthew Stephens][matthew] at the University of Chicago, with
 contributions from [Peter Carbonetto][peter].
 
-[smash-arxiv]: http://arxiv.org/abs/1605.07787
+[smash-jmlr]: https://jmlr.org/papers/v22/19-042.html
 [issues]: https://github.com/stephenslab/smashr/issues
 [gpl]: http://www.gnu.org/licenses/gpl.html
 [fsf]: https://www.fsf.org
