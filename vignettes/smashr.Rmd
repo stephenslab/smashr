@@ -737,7 +737,7 @@ plot(x.mod, y.est[1:(length(y.mod))], xlab = "X", ylab = "Y", type = "l",
      ylim = c(-0.3, 0.3))
 plot(x.mod, sqrt(y.est.var[1:(length(y.mod))]), xlab = "X",
      ylab = "volatility", type = "l")
-````
+```
 
 ## Heavisine example from Delouille *et al* (2004)
 
