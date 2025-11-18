@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         environment: ["r43", "r44"]
-    
+
     steps:
       - name: Checkout pull request branch
         uses: actions/checkout@v5
