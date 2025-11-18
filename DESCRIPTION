@@ -9,7 +9,7 @@ Authors@R: c(person("Zhengrong","Xing",role="aut"),
 	            email="pcarbo@uchicago.edu"))
 Title: Smoothing by Adaptive Shrinkage in R
 Version: 1.2-9
-Date: 2021-06-07
+Date: 2025-11-17
 Description: Fast, wavelet-based Empirical Bayes shrinkage methods for
     signal denoising, including smoothing Poisson-distributed data and
     Gaussian-distributed data with possibly heteroskedastic error. The
