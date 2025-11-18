@@ -20,7 +20,6 @@ Depends: R (>= 3.1.1),
 Imports:
     utils,
     stats,
-    Rcpp (>= 0.11.1),
     data.table,
     caTools,
     wavethresh,
@@ -34,7 +33,7 @@ Suggests:
 LinkingTo: Rcpp
 NeedsCompilation: yes
 LazyData: true
-URL: http://github.com/stephenslab/smashr
-BugReports: http://github.com/stephenslab/smashr/issues
+URL: https://github.com/stephenslab/smashr
+BugReports: https://github.com/stephenslab/smashr/issues
 VignetteBuilder: knitr
 RoxygenNote: 7.1.1

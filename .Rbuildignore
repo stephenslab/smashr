@@ -2,3 +2,5 @@
 ^docs$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^pixi.toml
+^.github

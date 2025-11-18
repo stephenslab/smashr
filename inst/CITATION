@@ -1,9 +1,10 @@
 citHeader("To cite the smashr package, please use:")
 
-citEntry(entry = "Article",
+bibentry(bibtype = "Article",
+         key = "xing_etall:2021",
          title = paste("Flexible signal denoising via flexible empirical Bayes",
                        "shrinkage"),
-         author = personList(as.person("Zhengrong Xing"),
+         author = c(as.person("Zhengrong Xing"),
                              as.person("Peter Carbonetto"),
                              as.person("Matthew Stephens")),
          journal = "Journal of Machine Learning Research",
@@ -11,8 +12,4 @@ citEntry(entry = "Article",
          number  = 93,
          pages   = "1--28",
          year = "2021",
-         url = "https://jmlr.org/papers/v22/19-042.html",
-         textVersion =
-           paste("Zhengrong Xing, Peter Carbonetto and Matthew Stephens (2021).",
-                 "Flexible signal denoising via flexible empirical Bayes",
-                 "shrinkage. Journal of Machine Learning Research 22(93), 1-28."))
+         url = "https://jmlr.org/papers/v22/19-042.html")
