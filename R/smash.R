@@ -710,6 +710,9 @@ sd_estimate_gasser_etal = function(x){
 #'
 #' @param min.level The primary resolution level.
 #'
+#' @param ashparam Passed as the \dQuote{ashparam} argument in the
+#'   call to \code(\link{smash.gaus}}.
+#' 
 #' @return returns a vector of mean estimates
 #'
 #' @details The 'rmad' option effectively implements the procedure
