@@ -27,7 +27,11 @@
 #'   integers, and the Gaussian model is assumed otherwise. One of
 #'   'gaus' or 'poiss' can also be specified to fit a specific model.
 #'
-#' @return See \code{smash.gaus} or \code{smash.poiss} for details.
+#' @param \dots Additional arguments passed to
+#'   \code{\link{smash.gaus}} or \code{\link{smash.poiss}}.
+#' 
+#' @return See \code{\link{smash.gaus}} or \code{\link{smash.poiss}}
+#'   for details.
 #'
 #' @examples
 #'

@@ -14,9 +14,13 @@ smash(x, model = NULL, ...)
 NULL, in which case the Poisson model is assumed if x consists of
 integers, and the Gaussian model is assumed otherwise. One of
 'gaus' or 'poiss' can also be specified to fit a specific model.}
+
+\item{\dots}{Additional arguments passed to
+\code{\link{smash.gaus}} or \code{\link{smash.poiss}}.}
 }
 \value{
-See \code{smash.gaus} or \code{smash.poiss} for details.
+See \code{\link{smash.gaus}} or \code{\link{smash.poiss}}
+  for details.
 }
 \description{
 This is a wrapper function for

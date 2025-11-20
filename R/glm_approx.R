@@ -623,6 +623,9 @@ compute.glm = function(x, g, d, n, na.index, repara) {
 #' @param all Bool, if TRUE pseudocounts are added to all entries, if
 #'   FALSE (default) pseudocounts are added only to cases when either
 #'   number of successes or number of failures (but not both) is 0.
+#'
+#' @param eps Small positive number added to counts to improve
+#'   numerical stability of the computations.
 #' 
 #' @param center Bool, indicating whether to center \code{g}. If
 #'   \code{g} is a 2-group categorical variable and centering is

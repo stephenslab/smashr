@@ -2,6 +2,7 @@
 % Please edit documentation in R/documentation.R
 \docType{package}
 \name{smashr}
+\alias{smashr-package}
 \alias{smashr}
 \title{smashr: Smoothing using Adaptive SHrinkage in R}
 \description{
@@ -27,6 +28,14 @@ The function \code{\link{smash}} provides a minimal
   the possibility of returning the posterior variances, specifying a
   wavelet basis (default is Haar, which performs well in general due
   to the fact that smash uses the translation-invariant transform)
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/stephenslab/smashr}
+  \item Report bugs at \url{https://github.com/stephenslab/smashr/issues}
+}
+
 }
 \author{
 Matthew Stephens and Zhengrong Xing

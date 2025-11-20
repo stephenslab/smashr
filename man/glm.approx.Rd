@@ -42,6 +42,9 @@ zero (or possibly extremely small).}
 FALSE (default) pseudocounts are added only to cases when either
 number of successes or number of failures (but not both) is 0.}
 
+\item{eps}{Small positive number added to counts to improve
+numerical stability of the computations.}
+
 \item{center}{Bool, indicating whether to center \code{g}. If
 \code{g} is a 2-group categorical variable and centering is
 desired, use \code{center=TRUE} instead of treating \code{g} as
