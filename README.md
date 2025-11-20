@@ -85,8 +85,8 @@ contributions from [Peter Carbonetto][peter].
 [issues]: https://github.com/stephenslab/smashr/issues
 [gpl]: http://www.gnu.org/licenses/gpl.html
 [fsf]: https://www.fsf.org
-[smashr-web]: https://stephenslab.github.io/smashr
+[smashr-web]: https://stephenslab.github.io/smashr/
 [devtools]: https://github.com/r-lib/devtools
 [zhengrong]: https://github.com/zrxing
 [matthew]: http://stephenslab.uchicago.edu
-[peter]: http://pcarbo.github.io
+[peter]: https://pcarbo.github.io
