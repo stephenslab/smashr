@@ -1,5 +1,7 @@
 # smashr: smoothing using Adaptive Shrinkage in R
 
+[![CI](https://github.com/stephenslab/smashr/actions/workflows/ci.yml/badge.svg)](https://github.com/stephenslab/smashr/actions/workflows/ci.yml)
+
 This R package implements fast, wavelet-based Empirical Bayes
 shrinkage methods for signal denoising. This includes smoothing
 Poisson-distributed data and Gaussian-distributed data, with possibly
