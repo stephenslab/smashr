@@ -28,6 +28,9 @@ known or estimated beforehand.}
 \item{family}{The wavelet basis to be used.}
 
 \item{min.level}{The primary resolution level.}
+
+\item{ashparam}{Passed as the \dQuote{ashparam} argument in the
+call to \code{\link{smash.gaus}}.}
 }
 \value{
 returns a vector of mean estimates

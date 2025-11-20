@@ -1,4 +1,5 @@
 #' @useDynLib smashr
+#' @importFrom Rcpp evalCpp
 #' 
 #' @title smashr: Smoothing using Adaptive SHrinkage in R
 #' 

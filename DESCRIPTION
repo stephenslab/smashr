@@ -24,7 +24,8 @@ Imports:
     data.table,
     caTools,
     wavethresh,
-    ashr
+    ashr,
+    Rcpp (>= 1.1.0)
 Suggests:
     knitr,
     rmarkdown,
