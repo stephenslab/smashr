@@ -19,8 +19,7 @@ All source code and software in this repository is free software; you
 can redistribute it and/or modify it under the terms of the
 [GNU General Public License][gpl] as published by the
 [Free Software Foundation][fsf]; either version 3 of the License, or
-(at your option) any later version. See the [LICENSE](LICENSE) file
-for the full text of the license.
+(at your option) any later version. 
 
 ## Citing this work
 
