@@ -51,6 +51,16 @@
 #define max(a,b)        ((a) > (b) ? (a) : (b))
 #define min(a,b)        ((a) > (b) ? (b) : (a))
 
+#define CEIL(i) ( ((i)>0) ? ( ((i)+1)/2):((i)/2) )
+
+/* Note this is different to what is in wavepackst.c */
+#define AVBPOINTD(w, l,i) (w + (nlevels*(i)) + (l))
+
+struct complex  {
+    double *realval;
+    double *imagval;
+    };
+
 /* FUNCTION DECLARATIONS
  * --------------------- */
 int reflect(int n, int lengthC, int bc);
@@ -72,6 +82,78 @@ void convolveD(double *c_in, int LengthCin, int firstCin,
 
 /* FUNCTION DEFINITIONS
  * -------------------- */
+void destroycomplex(struct complex *a)
+{
+free((void *)a->realval);
+free((void *)a->imagval);
+free((void *)a);
+}
+
+/*
+ * A C version of getpacket
+ *
+ * Warning. The argument list is the same as for the WaveThresh Splus version
+ * except that nlevels here should be one more!
+ */
+
+double *getpacket(double *wst, int nlevels, int level, int index, int *error)
+/* int nlevels::    This looks like it should be nlevels+1 for some reason */
+{
+register int i;
+double *packet;
+int PacketLength;
+
+PacketLength = 1 << level;
+
+if ((packet = (double *)malloc((unsigned)PacketLength*sizeof(double)))==NULL){
+    *error = 3;
+    return(NULL);
+    }
+
+
+for(i=0; i< PacketLength; ++i)
+    *(packet+i) = *AVBPOINTD(wst, level, (index*PacketLength+i));
+
+return(packet);
+}
+/* Rotate a vector */
+
+/* Vector: a_1, a_2, a_3, ..., a_{n-1}, a_n
+
+    becomes
+
+       a_2, a_3, a_4, ..., a_n, a_1
+
+   rotateback() does the opposite
+
+*/
+
+void rotater(double *book, int length)
+{
+register int i;
+double tmp;
+
+tmp = *book;
+
+for(i=0; i<length-1; ++i)
+        *(book+i) = *(book+i+1);
+
+*(book+length-1) = tmp;
+}
+
+void rotateback(double *book, int length)
+{
+register int i;
+double tmp;
+
+tmp = *(book+length-1);
+
+for(i= length-1; i>0; --i)
+    *(book+i) = *(book+i-1);
+
+*book = tmp;
+}
+
 /*
  * CONVOLVE -   Do filter H filter convolution with boundary
  */
@@ -780,4 +862,721 @@ for(next_level = *levels - 1; next_level >= 0; --next_level)    {
 if (verbose)
     Rprintf("\n");
 return;
+}
+
+/*
+ * COMCBR: Does the reconstruction convolution
+ */
+
+void comcbr(double *c_inR, double *c_inI,
+	int LengthCin, int firstCin, int lastCin,
+	double *d_inR, double *d_inI,
+	int LengthDin, int firstDin, int lastDin,
+	double *HR, double *HI, double *GR, double *GI, int LengthH,
+	double *c_outR, double *c_outI, int LengthCout, int firstCout,
+	int lastCout, int type, int bc)
+{
+register int n,k;
+register int cfactor;
+double sumCR, sumCI, sumDR, sumDI;
+double a,b,c,d,e,f;
+
+switch(type)    {
+
+    case WAVELET:   /* Standard wavelets */
+        cfactor = 2;
+        break;
+
+    case STATION:   /* Stationary wavelets */
+        cfactor = 1;
+        break;
+
+    default:    /* This should never happen */
+        cfactor=0;       /* MAN: added for total cover: shouldn't happen */
+        break;
+    }
+
+
+/* Compute each of the output C */
+
+for(n=firstCout; n<=lastCout; ++n)  {
+
+    /* We want  n+1-LengthH <= 2*k to start off */
+
+
+    k = CEIL(n+1-LengthH);
+
+    sumCR = 0.0;
+    sumCI = 0.0;
+    sumDR = 0.0;
+    sumDI = 0.0;
+
+    while( cfactor*k <= n ) {
+
+        a = *(HR + n - cfactor*k);
+        b = *(HI + n - cfactor*k);
+
+        c = ACCESSC(c_inR, firstCin, LengthCin, k, bc);
+        d = ACCESSC(c_inI, firstCin, LengthCin, k, bc);
+
+        commul(a,b,c,d, &e, &f);
+
+        sumCR += e;
+        sumCI += f;
+
+        /* Now D part */
+
+        a = *(GR + n - cfactor*k);
+        b = *(GI + n - cfactor*k);
+
+        c = ACCESSC(d_inR, firstDin, LengthDin, k, bc);
+        d = ACCESSC(d_inI, firstDin, LengthDin, k, bc);
+
+        commul(a,b,c,d, &e, &f);
+
+        sumDR += e;
+        sumDI += f;
+
+        ++k;
+        }
+
+    sumCR += sumDR;
+    sumCI += sumDI;
+
+    ACCESSC(c_outR, firstCout, LengthCout, n, bc) = sumCR;
+    ACCESSC(c_outI, firstCout, LengthCout, n, bc) = sumCI;
+    }
+
+}
+
+/* comAB Do the basis averaging for complex WST*/
+
+/*
+ * Error codes
+ *
+ * 1,2  -   Memory error in creating clR, clI
+ * 3,4  -   Memory error in creating crR, crI
+ * 3    -   Memory error in creating packet (getpacket)
+ */
+
+
+struct complex *comAB(double *wstR, double *wstI, double *wstCR, double *wstCI,
+    int nlevels, int level, int ix1, int ix2,
+    double *HR, double *HI, double *GR, double *GI, int LengthH, int *error)
+/*---------------------
+ * Argument description
+ *---------------------
+double *wstR::    Wavelet coefficients, non-dec, real            
+double *wstI::    Wavelet coefficients, non-dec, imag            
+double *wstCR::   Father wav. coeffs, non-dec, real            
+double *wstCI::   Father wav. coeffs, non-dec, imag            
+int nlevels::     The original length of the data         
+int level::       The level to reconstruct             
+int ix1::         The "left" packet index              
+int ix2::         The "right" packet index             
+double *HR,*HI::  Smoothing filter                 
+double *GR,*GI::  Detail filter                    
+int LengthH::     The length of the filter             
+int *error::      Error code                       
+ *---------------------*/
+{
+register int i;
+double *clR, *clI;
+double *crR, *crI;
+struct complex *genericC;
+struct complex *answer;
+double *genCR, *genCI;  /* Generic Cs for when we need real and imag */
+double *genDR, *genDI;  /* Generic Cs for when we need real and imag */
+int LengthC;
+int LengthCin;
+
+void comcbr(double *c_inR, double *c_inI,
+	int LengthCin, int firstCin, int lastCin,
+	double *d_inR, double *d_inI,
+	int LengthDin, int firstDin, int lastDin,
+	double *HR, double *HI, double *GR, double *GI, int LengthH,
+	double *c_outR, double *c_outI, int LengthCout, int firstCout,
+	int lastCout, int type, int bc);
+double *getpacket(double *wst, int nlevels, int level, int index, int *error);
+struct complex *comAB(double *wstR, double *wstI, double *wstCR, double *wstCI,
+    int nlevels, int level, int ix1, int ix2,
+    double *HR, double *HI, double *GR, double *GI, int LengthH, int *error);
+void rotateback(double *book, int length);
+void destroycomplex(struct complex *a);
+
+*error = 0;
+
+/*
+ * Now we must create cl and cr. These will contain the reconstructions
+ * from the left and right packets respectively. The length of these
+ * vectors depends upon the level we're at.
+ */
+
+LengthC = 1 << (level+1);
+LengthCin = 1 << level;
+
+/*
+ * Create cl and cr: real and imaginary
+ */
+
+if ((clR = (double *)malloc((unsigned)LengthC*sizeof(double)))==NULL) {
+    *error = 1;
+    return(NULL);
+    }
+
+if ((clI = (double *)malloc((unsigned)LengthC*sizeof(double)))==NULL) {
+    *error = 2;
+    return(NULL);
+    }
+
+if ((crR = (double *)malloc((unsigned)LengthC*sizeof(double)))==NULL) {
+    *error = 3;
+    return(NULL);
+    }
+
+if ((crI = (double *)malloc((unsigned)LengthC*sizeof(double)))==NULL) {
+    *error = 4;
+    return(NULL);
+    }
+
+/*
+ * What we do next depends on the level.
+ *
+ * If level is zero then we've recursed all the way down to the bottom of
+ * the tree. And we can reconstruct the 2-vectors one-up-the-tree by using
+ * good old conbar().
+ *
+ * If the level is not zero then we construct at that stage using conbar()
+ * but to obtain the Cs we recurse. 
+ */
+
+if (level != 0) {
+
+    /* Get C's at this level by asking the next level down. */
+
+    genericC = comAB(wstR, wstI, wstCR, wstCI,
+            nlevels, level-1, 2*ix1, 2*ix1+1,
+            HR, HI, GR, GI, LengthH, error);
+
+    if (*error != 0)
+        return(NULL); 
+
+    /* Get D's straight from the wst matrix */
+
+    genDR = getpacket(wstR, nlevels, level, ix1, error);
+    genDI = getpacket(wstI, nlevels, level, ix1, error);
+
+    if (*error != 0)
+        return(NULL);
+
+    /* Do the reconstruction */
+
+    comcbr(genericC->realval, genericC->imagval, LengthCin, 0, LengthCin-1, 
+           genDR, genDI, LengthCin, 0, LengthCin-1,
+           HR, HI, GR, GI, LengthH,
+           clR, clI, LengthC, 0, LengthC-1,
+           WAVELET, PERIODIC);
+
+    destroycomplex(genericC);
+    free((void *)genDR);
+    free((void *)genDI);
+
+    /* Now do the RHS */
+    
+    genericC = comAB(wstR, wstI, wstCR, wstCI, nlevels, level-1,
+        2*ix2, 2*ix2+1,
+        HR, HI, GR, GI, LengthH, error);
+
+    if (*error != 0)
+        return(NULL); 
+
+    /* Get D's straight from the wst matrix */
+
+    genDR = getpacket(wstR, nlevels, level, ix2, error);
+    genDI = getpacket(wstI, nlevels, level, ix2, error);
+
+    if (*error != 0)
+        return(NULL);
+
+    /* Do the reconstruction */
+
+    comcbr(genericC->realval, genericC->imagval, LengthCin, 0, LengthCin-1,
+           genDR, genDI, LengthCin, 0, LengthCin-1,
+           HR, HI, GR, GI, LengthH,
+           crR, crI, LengthC, 0, LengthC-1,
+           WAVELET, PERIODIC);
+
+    /* Rotate the RHS back */
+
+    rotateback(crR, LengthC);
+    rotateback(crI, LengthC);
+
+    /* Can get rid of generics now */
+
+    destroycomplex(genericC);
+    free((void *)genDR);
+    free((void *)genDI);
+    }
+
+else    {
+    /* Have to really do it! */
+
+    genCR = getpacket(wstCR, nlevels, level, ix1, error);
+    genCI = getpacket(wstCI, nlevels, level, ix1, error);
+
+    if (*error != 0)
+        return(NULL);
+
+    genDR = getpacket(wstR, nlevels, level, ix1, error);
+    genDI = getpacket(wstI, nlevels, level, ix1, error);
+
+    if (*error != 0)
+        return(NULL);
+
+    /* Do the reconstruction */
+
+    comcbr(genCR, genCI, LengthCin, 0, LengthCin-1, 
+           genDR, genDI, LengthCin, 0, LengthCin-1,
+           HR, HI, GR, GI, LengthH,
+           clR, clI, LengthC, 0, LengthC-1,
+           WAVELET, PERIODIC);
+
+    free((void *)genCR);
+    free((void *)genCI);
+    free((void *)genDR);
+    free((void *)genDI);
+
+    genCR = getpacket(wstCR, nlevels, level, ix2, error);
+    genCI = getpacket(wstCI, nlevels, level, ix2, error);
+
+    if (*error != 0)
+        return(NULL);
+
+    genDR = getpacket(wstR, nlevels, level, ix2, error);
+    genDI = getpacket(wstI, nlevels, level, ix2, error);
+
+    if (*error != 0)
+        return(NULL);
+
+    /* Do the reconstruction */
+
+    comcbr(genCR, genCI, LengthCin, 0, LengthCin-1,
+           genDR, genDI, LengthCin, 0, LengthCin-1,
+           HR, HI, GR, GI, LengthH,
+           crR, crI, LengthC, 0, LengthC-1,
+           WAVELET, PERIODIC);
+
+    /* Rotate the RHS back */
+
+    rotateback(crR, LengthC);
+    rotateback(crI, LengthC);
+
+    free((void *)genCR);
+    free((void *)genCI);
+    free((void *)genDR);
+    free((void *)genDI);
+    }
+
+for(i=0; i<LengthC; ++i)    {
+    *(clR+i) = ((double)0.5)*( *(clR+i) + *(crR+i) );
+    *(clI+i) = ((double)0.5)*( *(clI+i) + *(crI+i) );
+    }
+
+if ((answer=(struct complex *)malloc((unsigned)sizeof(struct complex)))==NULL) {
+    *error = 5l;
+    return(NULL);
+    }
+
+answer->realval = clR;
+answer->imagval = clI;
+
+return(answer);
+}
+
+void comAB_WRAP(double *wstR, double *wstI, double *wstCR, double *wstCI,
+    int *LengthData, int *level,
+    double *HR, double *HI, double *GR, double *GI, int *LengthH,
+    double *answerR, double *answerI, int *error)
+/*---------------------
+ * Argument description
+ *---------------------
+double *wstR::        Wavelet coefficients - real          
+double *wstI::        Wavelet coefficients - imag          
+double *wstCR::       Father coeffs - real               
+double *wstCI::       Father coeffs - imag             
+int *LengthData::
+int *level::
+double *HR, *HI::     Smoothing filter, real and imag      
+double *GR, *GI::     Detail filter, real and imag         
+int *LengthH::
+double *answerR, *answerI::   Real and imag of answer      
+int *error::
+ *---------------------*/
+{
+register int i;
+int nlevels;
+struct complex *acopy;
+struct complex *comAB(double *wstR, double *wstI, double *wstCR, double *wstCI,
+    int nlevels, int level, int ix1, int ix2,
+    double *HR, double *HI, double *GR, double *GI, int LengthH, int *error);
+void destroycomplex(struct complex *a);
+
+nlevels = 2 + (int)*level;
+
+acopy =  comAB(wstR, wstI, wstCR, wstCI, nlevels, (int)*level, 0, 1,
+        HR, HI, GR, GI, (int)*LengthH, error);
+
+for(i=0; i< (int)*LengthData; ++i)  {
+    *(answerR+i) = *(acopy->realval+i);
+    *(answerI+i) = *(acopy->imagval+i);
+    }
+
+destroycomplex(acopy);
+}
+
+/*
+ * CONBAR: Does the reconstruction convolution
+ */
+
+#define CEIL(i) ( ((i)>0) ? ( ((i)+1)/2):((i)/2) )
+
+void conbar(double *c_in, int LengthCin, int firstCin,
+	double *d_in, int LengthDin, int firstDin,
+	double *H, int LengthH,
+	double *c_out, int LengthCout, int firstCout, int lastCout,
+	int type, int bc)
+{
+register int n,k;
+register int cfactor;
+double sumC, sumD;
+
+int reflect(int n, int lengthC, int bc);
+
+switch(type)    {
+
+    case WAVELET:   /* Standard wavelets */
+        cfactor = 2;
+        break;
+
+    case STATION:   /* Stationary wavelets */
+        cfactor = 1;
+        break;
+
+    default:    /* This should never happen */
+        cfactor=0;       /* MAN: added for total cover: shouldn't happen */
+        break;
+    }
+
+
+/* Compute each of the output C */
+
+for(n=firstCout; n<=lastCout; ++n)  {
+
+    /* We want  n+1-LengthH <= 2*k to start off */
+
+
+    k = CEIL(n+1-LengthH);
+
+    sumC = 0.0;
+
+    while( cfactor*k <= n ) {
+
+        sumC += *(H + n - cfactor*k)*ACCESSC(c_in, firstCin, LengthCin,
+                    k, bc);
+
+        ++k;
+        }
+
+    /* Now do D part */
+
+    k = CEIL(n-1);
+
+    sumD = 0.0;
+
+    while( cfactor*k <= (LengthH +n -2) )   {
+
+        sumD += *(H+1+cfactor*k-n) * ACCESSC(d_in, firstDin, LengthDin,
+                    k, bc);
+
+        ++k;
+
+        }
+
+    if (n & 1)      /* n odd */
+        sumC -= sumD;
+    else
+        sumC += sumD;
+
+    ACCESSC(c_out, firstCout, LengthCout, n, bc) = sumC;
+    }
+
+}
+/*
+ * CONBARL: Wrapper called by SPlus conbar() to call C conbar.
+ */
+
+void conbarL(double *c_in, int *LengthCin, int *firstCin,
+	double *d_in, int *LengthDin, int *firstDin,
+	double *H, int *LengthH,
+	double *c_out, int *LengthCout, int *firstCout, int *lastCout,
+	int *type, int *bc)
+{
+int LLengthCin;
+int LfirstCin;
+int LLengthDin;
+int LfirstDin;
+int LLengthH;
+int LLengthCout;
+int LfirstCout;
+int LlastCout;
+int Ltype;
+int Lbc;
+void conbar(double *c_in, int LengthCin, int firstCin,
+	double *d_in, int LengthDin, int firstDin,
+	double *H, int LengthH,
+	double *c_out, int LengthCout, int firstCout, int lastCout,
+	int type, int bc);
+
+LLengthCin = (int)*LengthCin;
+LfirstCin = (int)*firstCin;
+LLengthDin = (int)*LengthDin;
+LfirstDin = (int)*firstDin;
+LLengthH = (int)*LengthH;
+LLengthCout = (int)*LengthCout;
+LfirstCout = (int)*firstCout;
+LlastCout = (int)*lastCout;
+Ltype = (int)*type;
+Lbc = (int)*bc;
+
+
+conbar(c_in, LLengthCin, LfirstCin,
+       d_in, LLengthDin, LfirstDin,
+       H, LLengthH,
+       c_out, LLengthCout, LfirstCout, LlastCout, Ltype, Lbc);
+}
+
+/* AV_BASIS Do the basis averaging */
+
+/*
+ * Error codes
+ *
+ * 1    -   Memory error in creating cl
+ * 2    -   Memory error in creating cr
+ * 3    -   Memory error in creating packet (getpacket)
+ */
+
+
+double *av_basis(double *wst, double *wstC, int nlevels, int level,
+	int ix1, int ix2, double *H, int LengthH, int *error)
+/*---------------------
+ * Argument description
+ *---------------------
+double *wst::	The stationary wavelet decomposition         
+double *wstC::  The stationary wavelet decomposition         
+int nlevels::  	The original length of the data         
+int level::     The level to reconstruct             
+int ix1::       The "left" packet index              
+int ix2::       The "right" packet index             
+double *H::     The filter                       
+int LengthH::   The length of the filter             
+int *error::    Error code                       
+ *---------------------*/
+{
+register int i;
+double *cl;
+double *cr;
+double *genericC;
+double *genericD;
+void conbar(double *c_in, int LengthCin, int firstCin,
+	double *d_in, int LengthDin, int firstDin,
+	double *H, int LengthH,
+	double *c_out, int LengthCout, int firstCout, int lastCout,
+	int type, int bc);
+double *getpacket(double *wst, int nlevels, int level, int index, int *error);
+double *av_basis(double *wst, double *wstC, int nlevels, int level,
+	int ix1, int ix2, double *H, int LengthH, int *error);
+int LengthC;
+int LengthCin;
+
+void rotateback(double *book, int length);
+
+*error = 0;
+
+/*
+ * Now we must create cl and cr. These will contain the reconstructions
+ * from the left and right packets respectively. The length of these
+ * vectors depends upon the level we're at.
+ */
+
+LengthC = 1 << (level+1);
+LengthCin = 1 << level;
+
+/*
+ * Create cl and cr
+ */
+
+if ((cl = (double *)malloc((unsigned)LengthC*sizeof(double)))==NULL) {
+    *error = 1;
+    return(NULL);
+    }
+
+if ((cr = (double *)malloc((unsigned)LengthC*sizeof(double)))==NULL) {
+    *error = 2;
+    return(NULL);
+    }
+    
+/*
+ * What we do next depends on the level.
+ *
+ * If level is zero then we've recursed all the way down to the bottom of
+ * the tree. And we can reconstruct the 2-vectors one-up-the-tree by using
+ * good old conbar().
+ *
+ * If the level is not zero then we construct at that stage using conbar()
+ * but to obtain the Cs we recurse. 
+ */
+
+if (level != 0) {
+
+    /* Get C's at this level by asking the next level down. */
+
+    genericC = av_basis(wst, wstC, nlevels, level-1, 2*ix1, 2*ix1+1,
+            H, LengthH, error);
+
+    if (*error != 0)
+        return(NULL); 
+
+    /* Get D's straight from the wst matrix */
+
+    genericD = getpacket(wst, nlevels, level, ix1, error);
+
+    if (*error != 0)
+        return(NULL);
+
+    /* Do the reconstruction */
+
+    conbar(genericC, LengthCin, 0, 
+           genericD, LengthCin, 0, 
+           H, LengthH,
+           cl, LengthC, 0, LengthC-1,
+           WAVELET, PERIODIC);
+
+    free((void *)genericC);
+    free((void *)genericD);
+
+    /* Now do the RHS */
+    
+    genericC = av_basis(wst, wstC, nlevels, level-1, 2*ix2, 2*ix2+1,
+        H, LengthH, error);
+
+    if (*error != 0)
+        return(NULL); 
+
+    /* Get D's straight from the wst matrix */
+
+    genericD = getpacket(wst, nlevels, level, ix2, error);
+
+    if (*error != 0)
+        return(NULL);
+
+    /* Do the reconstruction */
+
+    conbar(genericC, LengthCin, 0, 
+           genericD, LengthCin, 0,
+           H, LengthH,
+           cr, LengthC, 0, LengthC-1,
+           WAVELET, PERIODIC);
+
+    /* Rotate the RHS back */
+
+    rotateback(cr, LengthC);
+
+    /* Can get rid of generics now */
+
+    free((void *)genericC);
+    free((void *)genericD);
+    }
+
+else    {
+    /* Have to really do it! */
+
+    genericC = getpacket(wstC, nlevels, level, ix1, error);
+
+    if (*error != 0)
+        return(NULL);
+
+    genericD = getpacket(wst, nlevels, level, ix1, error);
+
+    if (*error != 0)
+        return(NULL);
+
+    /* Do the reconstruction */
+
+    conbar(genericC, LengthCin, 0, 
+           genericD, LengthCin, 0, 
+           H, LengthH,
+           cl, LengthC, 0, LengthC-1,
+           WAVELET, PERIODIC);
+
+    free((void *)genericC);
+    free((void *)genericD);
+
+    genericC = getpacket(wstC, nlevels, level, ix2, error);
+
+    if (*error != 0)
+        return(NULL);
+
+    genericD = getpacket(wst, nlevels, level, ix2, error);
+
+    if (*error != 0)
+        return(NULL);
+
+    /* Do the reconstruction */
+
+    conbar(genericC, LengthCin, 0,
+           genericD, LengthCin, 0,
+           H, LengthH,
+           cr, LengthC, 0, LengthC-1,
+           WAVELET, PERIODIC);
+
+    /* Rotate the RHS back */
+
+    rotateback(cr, LengthC);
+
+    free((void *)genericC);
+    free((void *)genericD);
+    }
+
+for(i=0; i<LengthC; ++i)
+    *(cl+i) = ((double)0.5)*( *(cl+i) + *(cr+i) );
+
+/*
+ *  Return the answer in cl (which has to be freed later)
+ *  Destroy pointer to cr, as it is not needed now
+ *
+ */
+
+free((void *)cr);
+return(cl);
+}
+
+/* Wrapper for av_basis */
+void av_basisWRAP(double *wst, double *wstC, int *LengthData, int *level,
+	double *H, int *LengthH, double *answer, int *error)
+{
+register int i;
+int nlevels;
+double *acopy;
+double *av_basis(double *wst, double *wstC, int nlevels, int level,
+	int ix1, int ix2, double *H, int LengthH, int *error);
+
+nlevels = 2 + (int)*level;
+
+acopy =  av_basis(wst, wstC, nlevels, (int)*level, 0, 1, H,
+        (int)*LengthH, error);
+
+for(i=0; i< (int)*LengthData; ++i)
+    *(answer+i) = *(acopy+i);
+
+free((void *)acopy);
 }

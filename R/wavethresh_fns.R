@@ -283,7 +283,7 @@ AvBasis.var <- function (wst, Ccode = TRUE, ...) {
                  LengthData = as.integer(length(answer)), 
                  level = as.integer(nlevels - 1), H = as.double(H), 
                  LengthH = as.integer(length(H)), answer = as.double(answer), 
-                 error = as.integer(error), PACKAGE = "wavethresh")
+                 error = as.integer(error))
             if (aobj$error != 0) 
                 stop(paste("av_basisWRAP returned error code", 
                   aobj$error))
@@ -304,8 +304,7 @@ AvBasis.var <- function (wst, Ccode = TRUE, ...) {
                    HI = as.double(Im(H)), GR = as.double(Re(G)),
                    GI = as.double(Im(G)), LengthH = as.integer(length(H)),
                    answerR = as.double(answerR), answerI = as.double(answerI),
-                   error = as.integer(error), 
-                   PACKAGE = "wavethresh")
+                   error = as.integer(error))
         if (aobj$error != 0) 
             stop(paste("av_basisWRAP returned error code", aobj$error))
         answer <- aobj$answerR

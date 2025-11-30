@@ -83,6 +83,9 @@ BEGIN_RCPP
 END_RCPP
 }
 
+RcppExport void av_basisWRAP(void *, void *, void *, void *, void *, void *, void *, void *);
+RcppExport void comAB_WRAP(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+RcppExport void comwd(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 RcppExport void wavedecomp(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 
 static const R_CallMethodDef CallEntries[] = {
@@ -92,7 +95,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_smashr_cxxreverse_gvwave", (DL_FUNC) &_smashr_cxxreverse_gvwave, 3},
     {"_smashr_cxxSParentTItable", (DL_FUNC) &_smashr_cxxSParentTItable, 1},
     {"_smashr_cxxreverse_pwave", (DL_FUNC) &_smashr_cxxreverse_pwave, 3},
-    {"wavedecomp", (DL_FUNC) &wavedecomp, 14},
+    {"av_basisWRAP", (DL_FUNC) &av_basisWRAP,  8},
+    {"comAB_WRAP",   (DL_FUNC) &comAB_WRAP,   14},
+    {"comwd",        (DL_FUNC) &comwd,        21},
+    {"wavedecomp",   (DL_FUNC) &wavedecomp,   14},
     {NULL, NULL, 0}
 };
 
