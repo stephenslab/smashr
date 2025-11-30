@@ -83,6 +83,8 @@ BEGIN_RCPP
 END_RCPP
 }
 
+RcppExport void wavedecomp(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+
 static const R_CallMethodDef CallEntries[] = {
     {"_smashr_cxxtitable", (DL_FUNC) &_smashr_cxxtitable, 1},
     {"_smashr_cxxtirtable", (DL_FUNC) &_smashr_cxxtirtable, 1},
@@ -90,6 +92,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_smashr_cxxreverse_gvwave", (DL_FUNC) &_smashr_cxxreverse_gvwave, 3},
     {"_smashr_cxxSParentTItable", (DL_FUNC) &_smashr_cxxSParentTItable, 1},
     {"_smashr_cxxreverse_pwave", (DL_FUNC) &_smashr_cxxreverse_pwave, 3},
+    {"wavedecomp", (DL_FUNC) &wavedecomp, 14},
     {NULL, NULL, 0}
 };
 
