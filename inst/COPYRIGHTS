@@ -1,0 +1,9 @@
+The smashr R package is distributed under the terms of the GNU General
+Public License version 3, with the following exceptions noted here.
+
+Files:
+  src/functions.c
+Copyright:
+  Copyright (c) 1999-2025, Guy Nason and others
+  All rights reserved.
+License: GNU General Public License version 2

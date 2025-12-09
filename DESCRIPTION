@@ -6,6 +6,13 @@ Authors@R: c(person("Zhengrong","Xing",role="aut"),
 	     person("Matthew","Stephens",role="aut"),
 	     person("Kaiqian","Zhang",role="ctb"),
              person("Daniel","Nachun",role="ctb"),
+             person("Guy","Nason", role="cph"),
+             person("Stuart","Barber",role="cph"), 
+             person("Tim","Downie",role="cph"),
+             person("Piotr","Frylewicz",role="cph"),
+             person("Arne","Kovac",role="cph"),
+             person("Todd","Ogden",role="cph"),
+             person("Bernard","Silverman",role="cph"),
              person("Peter","Carbonetto",role=c("aut","cre"),
 	            email="pcarbo@uchicago.edu"))
 Title: Smoothing by Adaptive Shrinkage
@@ -17,6 +24,7 @@ Description: Fast, wavelet-based Empirical Bayes shrinkage methods for
     algorithms implement the methods described Z. Xing, P. Carbonetto & 
     M. Stephens (2021) <https://jmlr.org/papers/v22/19-042.html>.
 License: GPL (>= 3)
+Copyright: file COPYRIGHTS
 Depends: R (>= 3.1.1),
 Imports:
     utils,
